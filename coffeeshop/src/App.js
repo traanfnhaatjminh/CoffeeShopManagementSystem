@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import UserList from './page/shopowner/userlist'
+import React from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import WarehouseProduct from './page/warehouse/warehouseProduct';
+import WarehouseCategory from './page/warehouse/warehouseCategory';
 
 function App() {
-
   return (
     <div className="App">
       <h1>Login</h1>
