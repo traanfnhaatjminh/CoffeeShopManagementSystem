@@ -1,13 +1,16 @@
-const { Category } = require("../../model");
 const Product = require("../../model/Product");
 const mongoose = require("mongoose");
 
 const createNewProduct = async (req, res, next) => {
     try {
-        const { pname, quantity, price, category_id, discount, status } = req.body;
-        const image = req.file ? `/uploads/${req.file.filename}` : ''; //lấy ảnh từ req.file chứ ko phải req.body
 
-        const newProduct = new Product({ pname, quantity, price, image, category_id, discount, status });
+        const { pname, quantity, price, category_id } = req.body;
+        const pId = new mongoose.Types.ObjectId();
+        const discount = 0;
+        const status = 1;
+        const image = req.file ? `/uploads/${req.file.filename}` : ''; 
+
+        const newProduct = new Product({ _id: pId, pname, quantity, price, image, category_id, discount, status });
 
         const savedProduct = await newProduct.save();
         res.status(201).json({
@@ -21,9 +24,7 @@ const createNewProduct = async (req, res, next) => {
 
 const getAllProduct = async (req, res, next) => {
     try {
-        const products = await Product.find()
-            .populate('category_id')
-            .exec();
+        const products = await Product.find();
         res.status(200).json(products);
     } catch (error) {
         next(error);

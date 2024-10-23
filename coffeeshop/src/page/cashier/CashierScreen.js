@@ -42,17 +42,9 @@ export default function CashierScreen() {
   }, []);
 
   useEffect(() => {
-    // Filter products based on the search term
     const results = products.filter((product) => {
-      // Check if category filter is applied
-      const categoryMatch = selectedCategory
-        ? product.category_id === selectedCategory
-        : true;
-
-      // Check if product name matches the search term
+      const categoryMatch = selectedCategory === 'all' || product.category_id === selectedCategory;
       const nameMatch = product.pname.toLowerCase().includes(searchTerm.toLowerCase());
-
-      // Return true if both conditions are met
       return categoryMatch && nameMatch;
     });
 

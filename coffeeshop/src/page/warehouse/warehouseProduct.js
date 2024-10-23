@@ -16,22 +16,21 @@ function WarehouseProduct() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const removeDiacritics = (str) => {
-    return str
-      .normalize('NFD') // Chuyển sang dạng chuẩn phân tách
-      .replace(/[\u0300-\u036f]/g, ''); // Xóa dấu
-  };
   const fetchProducts = async (search = '') => {
+    setLoading(true);
     try {
       const response = await axios.get('/products/list');
       //filer
       const filteredProducts = response.data.filter(product =>
-        removeDiacritics(product.pname.toLowerCase()).includes(removeDiacritics(search.toLowerCase()))
+        product.pname.toLowerCase().includes(search.toLowerCase())
       );
       setProducts(filteredProducts);
     } catch (error) {
       console.error('Error fetching products:', error);
+    } finally {
+      setLoading(false);
     }
   };
   useEffect(() => {
@@ -155,13 +154,17 @@ function WarehouseProduct() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {products.length === 0 ? (
+                {loading ? (
+                  <tr>
+                    <td colSpan="6" className="text-center py-4 font-bold text-lg font-lauren italic text-gray-400">Đang tải dữ liệu...</td>
+                  </tr>
+                ) : products.length === 0 ? (
                   <tr>
                     <td colSpan="6" className="text-center py-4 font-bold text-lg font-lauren italic text-gray-400">Không tìm thấy sản phẩm nào, hãy nhập chính xác và thử lại...</td>
                   </tr>
                 ) : (
                   products.map((product, index) => (
-                    <tr key={product._id} className="border-b">
+                    <tr key={product._id} className="border-b hover:bg-gray-100 transition-colors duration-300">
                       <td className="px-6 py-4 text-lg font-medium text-gray-900">{index + 1}</td>
                       <td className="px-6 py-4 text-md text-gray-500">{product.pname}</td>
                       <td className="px-6 py-4 text-md text-gray-500">{product.quantity}</td>
