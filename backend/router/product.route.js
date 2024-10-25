@@ -2,7 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const multer = require("multer"); // Import Multer để upload file
 const Product = require("../model/Product");
-const { createNewProduct, getAllProduct, getProductsByCategory, updateProduct, deleteProduct} = require("../controllers/models/product-controller");
+const { createNewProduct,getProductAndCategory, getAllProduct,getProductsByCategory, updateProduct, deleteProduct, importProduct} = require("../controllers/models/product-controller");
 
 const productRouter = express.Router();
 productRouter.use(bodyParser.json());
@@ -22,9 +22,14 @@ productRouter.post("/createProduct", upload.single("image"), createNewProduct);
 
 productRouter.get("/list", getAllProduct);
 
+productRouter.get("/listall", getProductAndCategory);
+
 productRouter.get("/getByCategory/:categoryId", getProductsByCategory);
 
 productRouter.put("/updateProduct/:productId", upload.single("image"), updateProduct);
 
-productRouter.delete("/deleteProduct/:productId", deleteProduct);
+productRouter.put("/deleteProduct/:productId", deleteProduct);
+
+productRouter.post("/importProduct", upload.single('file'), importProduct);
+
 module.exports = productRouter;

@@ -1,6 +1,6 @@
 const Product = require("../../model/Product");
 const mongoose = require("mongoose");
-
+const csv = require("csvtojson");
 const createNewProduct = async (req, res, next) => {
     try {
 
@@ -8,7 +8,7 @@ const createNewProduct = async (req, res, next) => {
         const pId = new mongoose.Types.ObjectId();
         const discount = 0;
         const status = 1;
-        const image = req.file ? `/uploads/${req.file.filename}` : ''; 
+        const image = req.file ? `/uploads/${req.file.filename}` : '';
 
         const newProduct = new Product({ _id: pId, pname, quantity, price, image, category_id, discount, status });
 
@@ -24,7 +24,19 @@ const createNewProduct = async (req, res, next) => {
 
 const getAllProduct = async (req, res, next) => {
     try {
-        const products = await Product.find();
+        const products = await Product.find()
+        res.status(200).json(products);
+    } catch (error) {
+        next(error);
+    }
+};
+
+//cua edit khong xoa 
+const getProductAndCategory = async (req, res, next) => {
+    try {
+        const products = await Product.find()
+            .populate('category_id')
+            .exec();
         res.status(200).json(products);
     } catch (error) {
         next(error);
@@ -96,6 +108,7 @@ const updateProduct = async (req, res, next) => {
         if (image) {
             updatedProduct.image = `/uploads/${image}`;
         }
+
         const product = await Product.findByIdAndUpdate(productId, updatedProduct, { new: true });
         if (!product) {
             return res.status(404).json({ message: "Product not found" });
@@ -106,19 +119,64 @@ const updateProduct = async (req, res, next) => {
     }
 };
 //Delete product
+// const deleteProduct = async (req, res, next) => {
+//     try {
+//         const { productId } = req.params;
+//         const deletedProduct = await Product.findByIdAndDelete(productId);
+//         if (!deletedProduct) {
+//             return res.status(404).json({ message: " Product not found" });
+//         }
+//         res.status(200).json({
+//             message: "Product deleted successfully",
+//             result: deletedProduct
+//         });
+//     } catch (error) {
+//         next(error);
+//     }
+// };
 const deleteProduct = async (req, res, next) => {
     try {
         const { productId } = req.params;
-        const deletedProduct = await Product.findByIdAndDelete(productId);
-        if (!deletedProduct) {
+        const updatedProduct = await Product.findByIdAndUpdate(productId, { status: 0 }, { new: true });
+        if (!updatedProduct) {
             return res.status(404).json({ message: " Product not found" });
         }
         res.status(200).json({
-            message: "Product deleted successfully",
-            result: deletedProduct
+            message: "Product status updated successfully",
+            result: updatedProduct
         });
     } catch (error) {
         next(error);
     }
+}
+// import product
+const importProduct = async (req, res, next) => {
+    try {
+        const products = await csv().fromFile(req.file.path);
+        const productData = [];
+        const duplicateProducts = [];
+
+        for (const item of products) {
+            const pname = item.ten_san_pham;
+            const quantity = Number(item.so_luong);
+            const price = Number(item.gia);
+            const existingProduct = await Product.findOne({ pname });
+
+            if (existingProduct) {
+                duplicateProducts.push(pname);
+            } else {
+                productData.push({ pname, quantity, price, image: null, category_id: null, discount: 0, status: 1 });
+            }
+        }
+
+        if (productData.length > 0) {
+            await Product.insertMany(productData);
+            return res.status(200).json({ success: true, count: productData.length });
+        }
+        return res.status(200).json({ success: false });
+
+    } catch (error) {
+        next(error);
+    }
 };
-module.exports = { createNewProduct, getAllProduct, getProductsByCategory, updateProduct, deleteProduct };
+module.exports = { createNewProduct, getAllProduct, getProductAndCategory, getProductsByCategory, updateProduct, deleteProduct, importProduct };

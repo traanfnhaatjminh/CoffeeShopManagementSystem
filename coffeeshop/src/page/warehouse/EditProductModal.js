@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import {toast} from 'react-toastify';
+import { toast } from 'react-toastify';
+
 export default function EditProductModal({ product, closeModal, refreshProducts }) {
     const [productName, setProductName] = useState('');
     const [quantity, setQuantity] = useState(0);
@@ -11,6 +12,7 @@ export default function EditProductModal({ product, closeModal, refreshProducts 
     const [categories, setCategories] = useState([]);
     const [quantityError, setQuantityError] = useState('');
     const [priceError, setPriceError] = useState('');
+
     useEffect(() => {
         const fetchCategories = async () => {
             try {
@@ -27,7 +29,7 @@ export default function EditProductModal({ product, closeModal, refreshProducts 
             setQuantity(product.quantity);
             setPrice(product.price);
             setImage(product.image);
-            setCategory(product.category_id ? product.category_id._id : ''); 
+            setCategory(product.category_id ? product.category_id._id : '');
             setImagePreview(product.image); // Đặt đường dẫn hình ảnh cho preview
         }
     }, [product]);
@@ -38,7 +40,7 @@ export default function EditProductModal({ product, closeModal, refreshProducts 
             setImage(file);
             setImagePreview(URL.createObjectURL(file)); // Tạo URL cho hình ảnh đã chọn
         } else {
-            setImage(''); 
+            setImage('');
             setImagePreview('');
         }
     };
@@ -47,11 +49,11 @@ export default function EditProductModal({ product, closeModal, refreshProducts 
         e.preventDefault();
         setQuantityError('');
         setPriceError('');
-        if(quantity <= 0){
+        if (quantity <= 0) {
             setQuantityError('*Số lượng phải lớn hơn 0');
             return;
         }
-        if(price <= 0){
+        if (price <= 0) {
             setPriceError('*Giá phải lớn hơn 0');
             return;
         }
@@ -141,7 +143,7 @@ export default function EditProductModal({ product, closeModal, refreshProducts 
                             >
                                 {categories.map((cat) => (
                                     <option key={cat._id} value={cat._id}>
-                                        {cat.category_name} 
+                                        {cat.category_name}
                                     </option>
                                 ))}
                             </select>
