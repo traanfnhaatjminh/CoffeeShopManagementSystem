@@ -4,29 +4,33 @@ import { GrFormPrevious, GrFormNext } from 'react-icons/gr';
 import axios from 'axios';
 import BillDetailModal from './BillDetailModal';
 import { CSVLink } from 'react-csv';
-import { IoEyeSharp } from "react-icons/io5";
-import ExportBillModal from "./ExportBillModal"
+import { IoEyeSharp } from 'react-icons/io5';
+import ExportBillModal from './ExportBillModal';
 
 export default function BillList() {
   const [billList, setBillList] = useState([]);
   const [tableList, setTableList] = useState([]);
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [billPerPage] = useState(3);
   const [modalShow, setModalShow] = useState(false);
   const [selectedBill, setSelectedBill] = useState(null);
   const [exportModalShow, setExportModalShow] = useState(false);
 
   const loadData = async () => {
-    const response = await axios.get('/bills');
-    setBillList(response.data);
+    const response = await axios.get('/bills', {
+      params: { search, page: currentPage, limit: billPerPage },
+    });
+    setBillList(response.data.bills);
+    setTotalPages(response.data.totalPages);
     const responseTable = await axios.get('/tables/list');
     setTableList(responseTable.data);
   };
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [search, currentPage]);
 
   const getTableNumber = (tableId) => {
     const tableIndex = tableList.findIndex((table) => table._id.toString() === tableId.toString());
@@ -37,31 +41,18 @@ export default function BillList() {
     setSelectedBill(bill);
     setModalShow(true);
   };
-const handleExport=()=>{
-  setExportModalShow(true)
-}
-const indexOfLastBill = currentPage * billPerPage;
-const indexOfFirstBill = indexOfLastBill - billPerPage;
+  const handleExport = () => {
+    setExportModalShow(true);
+  };
+  console.log();
+  
 
-// Lọc hóa đơn dựa trên giá trị tìm kiếm
-const filteredBills = billList.filter((bill) => {
-  const searchLower = search.toLowerCase();
-  return (
-    bill.product_list.some((product) => product.nameP.toLowerCase().includes(searchLower)) ||
-    new Date(bill.created_time).toLocaleDateString().includes(searchLower) ||
-    new Date(bill.updated_time).toLocaleDateString().includes(searchLower)
-  );
-});
-
-const currentBills = filteredBills.slice(indexOfFirstBill, indexOfLastBill);
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
       <div className="flex-1 flex flex-col bg-white rounded-lg shadow-lg m-6">
         <div className="flex justify-between items-center p-6 border-b border-gray-200">
           <div className="flex items-center space-x-4">
-            <h1 className="text-xl font-bold px-4 py-2 bg-brown-900 text-white rounded-lg">
-              Danh sách hóa đơn
-            </h1>
+            <h1 className="text-xl font-bold px-4 py-2 bg-brown-900 text-white rounded-lg">Danh sách hóa đơn</h1>
           </div>
           <div className="flex items-center space-x-4">
             <div className="relative">
@@ -77,38 +68,54 @@ const currentBills = filteredBills.slice(indexOfFirstBill, indexOfLastBill);
               </span>
             </div>
 
-          <button onClick={handleExport} className="bg-brown-500 hover:bg-brown-600 text-white px-6 py-2 rounded-lg transition duration-150 ease-in-out">
-            Export
-          </button>
+            <button
+              onClick={handleExport}
+              className="bg-brown-500 hover:bg-brown-600 text-white px-6 py-2 rounded-lg transition duration-150 ease-in-out"
+            >
+              Export
+            </button>
 
-           <ExportBillModal />
+            <ExportBillModal />
           </div>
         </div>
-        
+
         <div className="flex-1 overflow-auto">
           <table className="w-full">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200">
-                {['STT', 'TG tạo hóa đơn', 'TG thanh toán', 'Bàn', 'Sản phẩm', 'Giảm giá', 'PT Thanh Toán', 'Tổng tiền', 'Action'].map((header) => (
-                  <th key={header} className="sticky top-0 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">
+                {[
+                  'STT',
+                  'TG tạo hóa đơn',
+                  'TG thanh toán',
+                  'Bàn',
+                  'Sản phẩm',
+                  'Giảm giá',
+                  'PT Thanh Toán',
+                  'Tổng tiền',
+                  'Action',
+                ].map((header) => (
+                  <th
+                    key={header}
+                    className="sticky top-0 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
+                  >
                     {header}
                   </th>
                 ))}
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {currentBills.map((bill, index) => (
+              {billList.map((bill, index) => (
                 <tr key={bill._id} className="hover:bg-gray-50 transition duration-150 ease-in-out">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{billList.findIndex(b => b._id === bill._id) + 1}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    {(currentPage - 1) * billPerPage + index + 1}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {new Date(bill.created_time).toLocaleTimeString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {new Date(bill.updated_time).toLocaleTimeString()}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {getTableNumber(bill.table_id)}
-                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{getTableNumber(bill.table_id)}</td>
                   <td className="px-6 py-4 text-sm text-gray-500 max-w-md truncate">
                     {bill.product_list.map((product) => product.nameP).join(', ')}
                   </td>
@@ -120,8 +127,10 @@ const currentBills = filteredBills.slice(indexOfFirstBill, indexOfLastBill);
                     {bill.total_cost.toLocaleString('vi-VN')}VND
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium justify-center">
-                  <IoEyeSharp className='"text-brown-600 hover:text-brown-900 hover:underline '   onClick={() => handleClickDetail(bill)}/>
-                    
+                    <IoEyeSharp
+                      className='"text-brown-600 hover:text-brown-900 hover:underline '
+                      onClick={() => handleClickDetail(bill)}
+                    />
                   </td>
                 </tr>
               ))}
@@ -138,8 +147,8 @@ const currentBills = filteredBills.slice(indexOfFirstBill, indexOfLastBill);
             >
               <GrFormPrevious className="h-5 w-5" />
             </button>
-            
-            {[...Array(Math.ceil(billList.length / billPerPage))].map((_, index) => (
+
+            {[...Array(totalPages)].map((_, index) => (
               <button
                 key={index}
                 onClick={() => setCurrentPage(index + 1)}
@@ -152,7 +161,7 @@ const currentBills = filteredBills.slice(indexOfFirstBill, indexOfLastBill);
                 {index + 1}
               </button>
             ))}
-            
+
             <button
               onClick={() => setCurrentPage(currentPage + 1)}
               disabled={currentPage === Math.ceil(billList.length / billPerPage)}
@@ -163,9 +172,14 @@ const currentBills = filteredBills.slice(indexOfFirstBill, indexOfLastBill);
           </nav>
         </div>
       </div>
-      
       <BillDetailModal show={modalShow} onClose={() => setModalShow(false)} bill={selectedBill} tableInfo={tableList} />
-      <ExportBillModal show={exportModalShow} onClose={() => setExportModalShow(false)} data={billList} tableInfo={tableList} /> {/* Pass the billList to ExportBillModal */}
+      <ExportBillModal
+        show={exportModalShow}
+        onClose={() => setExportModalShow(false)}
+        data={billList}
+        tableInfo={tableList}
+      />{' '}
+      {/* Pass the billList to ExportBillModal */}
     </div>
   );
 }

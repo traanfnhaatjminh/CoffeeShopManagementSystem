@@ -56,6 +56,8 @@ export default function AddProductModal({ closeModal, refreshProducts }) {
       toast.error('Thêm sản phẩm thất bại!');
     }
 };
+console.log(image,"bẹc");
+
 
   // const handleSubmit = async (e) => {
   //   e.preventDefault();

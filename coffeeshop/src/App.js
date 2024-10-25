@@ -13,6 +13,10 @@ import AllBillScreen from './page/cashier/AllBillScreen';
 import TableList from './page/cashier/TableList';
 import LayoutStatistic from './page/shopowner/layout_statistic';
 import LandingPage from './components/common/landing';
+import UserRolesSettings from './page/shopowner/setting/UserRolesSettings';
+import StoreInfoSettings from './page/shopowner/setting/StoreInfoSettings';
+import MenuPricingSettings from './page/shopowner/setting/MenuPricingSettings';
+import ManagerTable from './page/shopowner/setting/ManagerTable';
 
 function App() {
   return (
@@ -29,7 +33,7 @@ function App() {
         <Route path="/warehouse/categories" element={<LayoutCategory />} />
         <Route path="/warehouse/products" element={<LayoutProduct />} />
         <Route path="/waiter" element={<Waiter />} />
-        <Route path="/admin/userlist" element={<LayoutSetting />} />
+        <Route path="/admin/setting" element={<LayoutSetting />} />
         <Route path="/admin/statistic" element={<LayoutStatistic />} />
       </Routes>
     </BrowserRouter>
