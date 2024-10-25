@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Category = require("../model/Category");
-const { User } = require("./user");
+const User = require("./user");
+const Role = require("../model/Role");
 
 //Khởi tạo đối tượng CSDL
 const db = {};
@@ -8,6 +9,7 @@ const db = {};
 //Bổ sung Entity object vào DB
 db.Category = Category;
 db.User = User;
+db.Role = Role;
 
 //Kết nối CSDL
 db.connectDB = async () => {

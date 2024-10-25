@@ -4,6 +4,7 @@ const protectRouter = require("../../middlewares/protect-router");
 
 const router = express.Router();
 router.post("/login", authController.loginUser);
+router.post("/logout", authController.logoutUser);
 router.post("/changePassword", protectRouter, authController.updatePassword);
 
 module.exports = router;

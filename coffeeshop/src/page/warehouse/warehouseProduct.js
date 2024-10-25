@@ -75,6 +75,7 @@ function WarehouseProduct() {
       ],
     });
   };
+  
   const handleSearchChange = (e) => {
     const value = e.target.value;
     setSearchTerm(value);

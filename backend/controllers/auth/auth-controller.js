@@ -10,7 +10,7 @@ const loginUser = async (req, res) => {
         if (!checkUser)
             return res.json({
                 success: false,
-                message: "User doesn't exits! Please register  first",
+                message: "Email doesn't exist! Please register first",
             });
         const checkPasswordMatches = await bcrypt.compare(
             password,
@@ -80,8 +80,30 @@ const updatePassword = async (req, res) => {
         });
     }
 };
+
+const logoutUser = async (req, res) => {
+    try {
+        // Clear the token cookie by setting it with an expired date
+        res.cookie("token", "", { expires: new Date(0), httpOnly: true, secure: false })
+            .status(StatusCodes.OK)
+            .json({
+                success: true,
+                message: "Logged out successfully",
+            });
+    } catch (err) {
+        console.log(err);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+            success: false,
+            message: "Some error occurred during logout",
+        });
+    }
+};
+
+
 const authController = {
     loginUser,
     updatePassword,
+    logoutUser
 };
+
 module.exports = authController;

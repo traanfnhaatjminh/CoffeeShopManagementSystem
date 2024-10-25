@@ -9,6 +9,7 @@ categoryRouter.use(bodyParser.json());
 //Create a new category
 categoryRouter.post("/createCategory", createNewCategory);
 
+
 // Get all categories
 categoryRouter.get("/list", getAllCategory);
 

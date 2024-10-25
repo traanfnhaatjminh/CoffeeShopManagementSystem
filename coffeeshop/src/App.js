@@ -8,7 +8,6 @@ import ResetPassword from '@/page/auth/ResetPassword';
 import React from 'react';
 import LayoutSetting from './page/shopowner/layout_setting';
 import CashierScreen from './page/cashier/CashierScreen';
-import Waiter from './page/cashier/layout';
 import AllBillScreen from './page/cashier/AllBillScreen';
 import TableList from './page/cashier/TableList';
 import LayoutStatistic from './page/shopowner/layout_statistic';
@@ -28,7 +27,6 @@ function App() {
         <Route path="/tablelist" element={<TableList />} />
         <Route path="/warehouse/categories" element={<LayoutCategory />} />
         <Route path="/warehouse/products" element={<LayoutProduct />} />
-        <Route path="/waiter" element={<Waiter />} />
         <Route path="/admin/userlist" element={<LayoutSetting />} />
         <Route path="/admin/statistic" element={<LayoutStatistic />} />
       </Routes>

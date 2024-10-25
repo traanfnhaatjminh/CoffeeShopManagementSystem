@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import HeaderAuthentication from '@/components/authentication/HeaderAuthentication';
 import logoLoginMain from '@/assets/images/imgLogin.png';
 import { useDispatch } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { MdOutlineMail } from 'react-icons/md';
 import * as yup from 'yup';
 import { FaGoogle, FaUserLock, FaFacebook } from 'react-icons/fa';
-import { login } from '@/store/auth-slice/authSlice';
+import { login } from '../auth/authSlice';
+import { toast, ToastContainer } from 'react-toastify';
 
 const dataFormLogin = {
   email: '',
@@ -16,6 +17,7 @@ const dataFormLogin = {
 const AuthLogin = () => {
   const [formData, setFormData] = useState(dataFormLogin);
   const [errors, setErrors] = useState({});
+  const navigate = useNavigate();
 
   const dispatch = useDispatch();
   const validationSchema = yup.object({
@@ -23,27 +25,32 @@ const AuthLogin = () => {
     password: yup
       .string()
       .required('Password is required.')
-      .min(8, 'Password must be at lest 8 character!')
-      .matches(/[0-9]/, 'Password must container at lest one number.')
-      .matches(/[A-Z]/, 'Password must const at lest on uppercase letter.')
-      .matches(/[a-z]/, 'Password must const at lest lowercase letter.')
-      .matches(/[~!@#$%^&*()_+|}{><}]/, 'Password must const at lest one symbol.'),
+      .min(8, 'Password must be at least 8 character!')
+      .matches(/[0-9]/, 'Password must contain at least one number.')
+      .matches(/[A-Z]/, 'Password must const at least on uppercase letter.')
+      .matches(/[a-z]/, 'Password must const at least lowercase letter.')
+      .matches(/[~!@#$%^&*()_+|}{><}]/, 'Password must contain at least one symbol.'),
   });
 
   const handleLogin = async (event) => {
     event.preventDefault();
     try {
-      await validationSchema.validate(formData, { abortEarly: false });
       setErrors({});
-      dispatch(login(formData));
+      const result = await dispatch(login(formData));
+      if (result.payload.success) {
+        toast.success('Sign in successfully');
+        setTimeout(() => {
+          navigate('/createbill');
+        }, 2000); 
+      }
+      else {
+        setErrors({ general: result.payload.message });
+      }
     } catch (err) {
-      const newErrors = {};
-      err.inner.forEach((error) => {
-        newErrors[error.path] = error.message;
-      });
-      setErrors(newErrors);
+      setErrors({ general: 'An unexpected error occurred.' });
     }
   };
+
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFormData({
@@ -51,9 +58,19 @@ const AuthLogin = () => {
       [name]: value,
     });
   };
+
   return (
     <>
       <HeaderAuthentication position="justify-start container mx-auto " />
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        closeOnClick
+        pauseOnHover
+        draggable
+        pauseOnFocusLoss
+      />
       <div className="container px-20 flex font-mono">
         <div className="w-5/12">
           <img src={logoLoginMain} alt="Img login" className="w-11/12 mt-7 ml-16" />
@@ -88,7 +105,6 @@ const AuthLogin = () => {
                       onChange={handleChange}
                     ></input>
                   </div>
-                  {errors.email && <div className="text-red-500 mt-1">{errors.email}</div>}
                 </div>
                 <div className="password-login mt-4">
                   <label htmlFor="password">Password</label>
@@ -109,7 +125,7 @@ const AuthLogin = () => {
                       onChange={handleChange}
                     ></input>
                   </div>
-                  {errors.password && <div className="text-red-500">{errors.password}</div>}
+                  {errors.general && <div className="text-red-500 mt-1">{errors.general}</div>}
                 </div>
                 <div className="feature-login flex justify-between mt-2">
                   <div className="remember-account flex items-center">

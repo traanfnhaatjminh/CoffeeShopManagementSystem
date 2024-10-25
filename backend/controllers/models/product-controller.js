@@ -22,21 +22,20 @@ const createNewProduct = async (req, res, next) => {
     }
 };
 
-const getAllProduct = async (req, res, next) => {
+const getAllProductInWarehouse = async (req, res, next) => {
     try {
         const products = await Product.find()
+            .populate('category_id')
+            .exec();
         res.status(200).json(products);
     } catch (error) {
         next(error);
     }
 };
 
-//cua edit khong xoa 
-const getProductAndCategory = async (req, res, next) => {
+const getAllProductInHome = async (req, res, next) => {
     try {
         const products = await Product.find()
-            .populate('category_id')
-            .exec();
         res.status(200).json(products);
     } catch (error) {
         next(error);
@@ -94,6 +93,8 @@ const getProductsByCategory = async (req, res, next) => {
 // };
 const updateProduct = async (req, res, next) => {
     const { productId } = req.params;
+    console.log(productId);
+
     const { pname, quantity, price, category_id } = req.body;
     const image = req.file ? req.file.filename : undefined;  // không có ảnh mới thì để undefined hihi
 
@@ -179,4 +180,6 @@ const importProduct = async (req, res, next) => {
         next(error);
     }
 };
-module.exports = { createNewProduct, getAllProduct, getProductAndCategory, getProductsByCategory, updateProduct, deleteProduct, importProduct };
+
+module.exports = { createNewProduct, getAllProductInHome, getAllProductInWarehouse, getProductsByCategory, updateProduct, deleteProduct, importProduct };
+

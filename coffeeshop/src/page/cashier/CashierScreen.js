@@ -27,7 +27,7 @@ export default function CashierScreen() {
         const categoriesResponse = await axios.get('/categories/list');
         setCategories(categoriesResponse.data);
 
-        const productsResponse = await axios.get('/products/list');
+        const productsResponse = await axios.get('/products/listInHome');
         setProducts(productsResponse.data);
 
         const tablesResponse = await axios.get('/tables/list');
@@ -123,13 +123,23 @@ export default function CashierScreen() {
         total_cost: calculateTotalPrice(),
         table_id: tables[selectedTable]._id,
         product_list: cart.map((item) => ({
-          product: item._id,
-          quantity: item.quantity,
+          productId: item._id,
+          nameP: item.pname,
+          imageP: item.image,
+          priceP: item.price,
+          quantityP: item.quantity,
           total: item.total
+
         })),
         payment: null,
-        status: 0
-      };
+        status: 0,
+        discount: 0
+      };// phan nay sua lai 1 chut them cac truong nhu productId: item._id,
+      // nameP: item.pname,
+      // imageP: item.image,
+      // priceP: item.price,
+      // quantityP: item.quantity,
+      console.log(billData, "billData");
 
       const response = await axios.post('/bills/createBill', billData);
       console.log('Bill created successfully:', response.data);

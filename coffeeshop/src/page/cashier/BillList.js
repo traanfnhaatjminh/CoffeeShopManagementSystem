@@ -1,158 +1,171 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { IoSearch } from 'react-icons/io5';
 import { GrFormPrevious, GrFormNext } from 'react-icons/gr';
+import axios from 'axios';
+import BillDetailModal from './BillDetailModal';
+import { CSVLink } from 'react-csv';
+import { IoEyeSharp } from "react-icons/io5";
+import ExportBillModal from "./ExportBillModal"
 
 export default function BillList() {
-  const transactionsData = [
-    {
-      id: 1,
-      company: '11:58 10/10/2024',
-      share: '14:31 10/10/2024',
-      commision: '3',
-      price: '0%',
-      quantity: 'Chuyển khoản',
-      netAmount: '70.000 VND',
-    },
-  ];
+  const [billList, setBillList] = useState([]);
+  const [tableList, setTableList] = useState([]);
+  const [search, setSearch] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [billPerPage] = useState(3);
+  const [modalShow, setModalShow] = useState(false);
+  const [selectedBill, setSelectedBill] = useState(null);
+  const [exportModalShow, setExportModalShow] = useState(false);
+
+  const loadData = async () => {
+    const response = await axios.get('/bills');
+    setBillList(response.data);
+    const responseTable = await axios.get('/tables/list');
+    setTableList(responseTable.data);
+  };
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const getTableNumber = (tableId) => {
+    const tableIndex = tableList.findIndex((table) => table._id.toString() === tableId.toString());
+    return tableIndex !== -1 ? tableIndex + 1 : 'Not found';
+  };
+
+  const handleClickDetail = (bill) => {
+    setSelectedBill(bill);
+    setModalShow(true);
+  };
+const handleExport=()=>{
+  setExportModalShow(true)
+}
+const indexOfLastBill = currentPage * billPerPage;
+const indexOfFirstBill = indexOfLastBill - billPerPage;
+
+// Lọc hóa đơn dựa trên giá trị tìm kiếm
+const filteredBills = billList.filter((bill) => {
+  const searchLower = search.toLowerCase();
   return (
-    <div className="flex flex-col h-screen w-screen bg-gray-100">
-      <div className="flex-grow flex flex-col bg-white shadow-sm overflow-hidden">
-        <div className="flex justify-between items-center p-6">
-          <div>
-            <h1 className="text-lg font-bold px-2 font-lauren border bg-brown-900 text-white border-brown-400 rounded-lg">
+    bill.product_list.some((product) => product.nameP.toLowerCase().includes(searchLower)) ||
+    new Date(bill.created_time).toLocaleDateString().includes(searchLower) ||
+    new Date(bill.updated_time).toLocaleDateString().includes(searchLower)
+  );
+});
+
+const currentBills = filteredBills.slice(indexOfFirstBill, indexOfLastBill);
+  return (
+    <div className="flex flex-col min-h-screen bg-gray-100">
+      <div className="flex-1 flex flex-col bg-white rounded-lg shadow-lg m-6">
+        <div className="flex justify-between items-center p-6 border-b border-gray-200">
+          <div className="flex items-center space-x-4">
+            <h1 className="text-xl font-bold px-4 py-2 bg-brown-900 text-white rounded-lg">
               Danh sách hóa đơn
             </h1>
-            <p className="text-sm text-gray-500"></p>
           </div>
-          <div className="relative flex flex-1 justify-end w-1/4 mr-6">
-            <input
-              type="text"
-              className="relative w-2/3
-                   bg-white border border-gray-300 rounded-md pl-3 pr-10 py-2 text-left cursor-default focus-within:outline-none focus-within:ring-1 focus-within:ring-indigo-500 focus-within:border-indigo-500 sm:text-sm"
-            />
-            <span className="absolute inset-y-0 right-0 flex items-center pr-2 ">
-              <IoSearch />
-            </span>
-          </div>
+          <div className="flex items-center space-x-4">
+            <div className="relative">
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Tìm kiếm..."
+                className="w-64 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brown-500 focus:border-transparent"
+              />
+              <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                <IoSearch size={20} />
+              </span>
+            </div>
 
-          <button className="bg-brown-500 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700">
+          <button onClick={handleExport} className="bg-brown-500 hover:bg-brown-600 text-white px-6 py-2 rounded-lg transition duration-150 ease-in-out">
             Export
           </button>
-        </div>
-        <div className="flex-grow overflow-hidden">
-          <div className="h-screen overflow-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th
-                    scope="col"
-                    className="sticky top-0 z-10 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
-                  >
-                    STT
-                  </th>
-                  <th
-                    scope="col"
-                    className="sticky top-0 z-10 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
-                  >
-                    TG tạo hóa đơn
-                  </th>
-                  <th
-                    scope="col"
-                    className="sticky top-0 z-10 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
-                  >
-                    TG thanh toán
-                  </th>
-                  <th
-                    scope="col"
-                    className="sticky top-0 z-10 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
-                  >
-                    Bàn
-                  </th>
-                  <th
-                    scope="col"
-                    className="sticky top-0 z-10 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
-                  >
-                    Giảm giá
-                  </th>
-                  <th
-                    scope="col"
-                    className="sticky top-0 z-10 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
-                  >
-                    PT Thanh Toán
-                  </th>
-                  <th
-                    scope="col"
-                    className="sticky top-0 z-10 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
-                  >
-                    Tổng tiền
-                  </th>
-                  <th
-                    scope="col"
-                    className="sticky top-0 z-10 px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50"
-                  >
-                    Action
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {transactionsData.map((transaction) => (
-                  <tr key={transaction.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{transaction.id}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{transaction.company}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{transaction.share}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{transaction.commision}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{transaction.price}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{transaction.quantity}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{transaction.netAmount}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <a href="#" className="text-indigo-600 hover:text-indigo-900">
-                        Edit
-                      </a>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+
+           <ExportBillModal />
           </div>
         </div>
-        <div className=" flex justify-center py-4 bg-white border-t border-gray-200">
-          <nav aria-label="Pagination" className="isolate inline-flex -space-x-px rounded-md shadow-sm">
-            <a
-              href="#"
-              className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-            >
-              <span className="sr-only">Previous</span>
-              <GrFormPrevious aria-hidden="true" className="h-5 w-5" />
-            </a>
-            <a
-              href="#"
-              aria-current="page"
-              className="relative z-10 inline-flex items-center bg-indigo-600 px-4 py-2 text-sm font-semibold text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-            >
-              1
-            </a>
-            <a
-              href="#"
-              className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
-            >
-              2
-            </a>
-            <a
-              href="#"
-              className="relative hidden items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 md:inline-flex"
-            >
-              3
-            </a>
+        
+        <div className="flex-1 overflow-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="bg-gray-50 border-b border-gray-200">
+                {['STT', 'TG tạo hóa đơn', 'TG thanh toán', 'Bàn', 'Sản phẩm', 'Giảm giá', 'PT Thanh Toán', 'Tổng tiền', 'Action'].map((header) => (
+                  <th key={header} className="sticky top-0 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">
+                    {header}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {currentBills.map((bill, index) => (
+                <tr key={bill._id} className="hover:bg-gray-50 transition duration-150 ease-in-out">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{billList.findIndex(b => b._id === bill._id) + 1}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {new Date(bill.created_time).toLocaleTimeString()}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {new Date(bill.updated_time).toLocaleTimeString()}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {getTableNumber(bill.table_id)}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-500 max-w-md truncate">
+                    {bill.product_list.map((product) => product.nameP).join(', ')}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{bill.discount}%</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {bill.payment === 'cash' ? 'Tiền mặt' : 'Chuyển khoản'}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    {bill.total_cost.toLocaleString('vi-VN')}VND
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium justify-center">
+                  <IoEyeSharp className='"text-brown-600 hover:text-brown-900 hover:underline '   onClick={() => handleClickDetail(bill)}/>
+                    
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
-            <a
-              href="#"
-              className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
+        <div className="flex justify-center py-4 border-t border-gray-200">
+          <nav className="flex items-center space-x-2">
+            <button
+              onClick={() => setCurrentPage(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="relative inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <GrFormNext aria-hidden="true" className="h-5 w-5" />
-            </a>
+              <GrFormPrevious className="h-5 w-5" />
+            </button>
+            
+            {[...Array(Math.ceil(billList.length / billPerPage))].map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentPage(index + 1)}
+                className={`relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg ${
+                  currentPage === index + 1
+                    ? 'bg-brown-500 text-white'
+                    : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
+                }`}
+              >
+                {index + 1}
+              </button>
+            ))}
+            
+            <button
+              onClick={() => setCurrentPage(currentPage + 1)}
+              disabled={currentPage === Math.ceil(billList.length / billPerPage)}
+              className="relative inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <GrFormNext className="h-5 w-5" />
+            </button>
           </nav>
         </div>
       </div>
+      
+      <BillDetailModal show={modalShow} onClose={() => setModalShow(false)} bill={selectedBill} tableInfo={tableList} />
+      <ExportBillModal show={exportModalShow} onClose={() => setExportModalShow(false)} data={billList} tableInfo={tableList} /> {/* Pass the billList to ExportBillModal */}
     </div>
   );
 }
