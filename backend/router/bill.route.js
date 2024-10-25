@@ -5,16 +5,17 @@ const billRouter = express.Router();
 billRouter.use(bodyParser.json());
 const {
 
-  getBill,
+  getBillFromTable,
   postBillUpdate,
   getAllBill,
+  getBill,
   createNewBill,
 } = require("../controllers/models/bill-controller");
 
-billRouter.get("", getAllBill);
+billRouter.get("", getBill);
 billRouter.post("/createBill", createNewBill);
 
-billRouter.get("/table/:id", getBill);
+billRouter.get("/table/:id", getBillFromTable);
 billRouter.put("/update/:id",postBillUpdate)
 
 module.exports = billRouter;

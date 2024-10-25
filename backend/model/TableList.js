@@ -15,7 +15,9 @@ const tableList = new Schema({
     status: {
         type: Boolean,
         required: true
-    }
+    },
+    location_table: Number,
+    
     //false: hết bàn 
     //true: còn bàn
 });

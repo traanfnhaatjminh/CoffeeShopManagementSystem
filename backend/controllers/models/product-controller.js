@@ -2,8 +2,7 @@ const Product = require("../../model/Product");
 const mongoose = require("mongoose");
 
 const createNewProduct = async (req, res, next) => {
-    try {
-
+    try { 
         const { pname, quantity, price, category_id } = req.body;
         const pId = new mongoose.Types.ObjectId();
         const discount = 0;
