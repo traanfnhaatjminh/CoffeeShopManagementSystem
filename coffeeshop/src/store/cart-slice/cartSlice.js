@@ -5,7 +5,7 @@ const initialState = {
   cart: [],
   bills: [],
   selectedTable: null,
-  error: null
+  error: null,
 };
 
 const cartSlice = createSlice({
@@ -49,19 +49,12 @@ const cartSlice = createSlice({
     },
     setError(state, action) {
       state.error = action.payload;
-    }
-  }
+    },
+  },
 });
 
-export const {
-  addToCart,
-  removeFromCart,
-  updateQuantity,
-  setSelectedTable,
-  clearCart,
-  setBills,
-  setError
-} = cartSlice.actions;
+export const { addToCart, removeFromCart, updateQuantity, setSelectedTable, clearCart, setBills, setError } =
+  cartSlice.actions;
 
 // Async action to create bill
 export const createBill = (billData) => async (dispatch) => {
