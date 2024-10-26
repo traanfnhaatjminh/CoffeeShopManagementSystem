@@ -10,7 +10,7 @@ function Sidebar() {
       <aside className="w-28 bg-brown-800 p-4 flex flex-col items-center space-y-4 justify-self-center">
         <div className="abc">
           <FaHome className="w-6 h-6 mb-1 text-gray-700" />
-          <Link to="/createbill">
+          <Link to="/admin/createbill">
             <span className="text-sm text-gray-700 font-lauren font-semibold">Home</span>
           </Link>
         </div>
@@ -29,14 +29,14 @@ function Sidebar() {
         </div>
         <div className="abc">
           <FaThList className="w-6 h-6 mb-1 text-gray-700" />
-          <Link to="/tablelist">
+          <Link to="/admin/tablelist">
             <span className="text-sm text-gray-700 font-lauren font-semibold">Table List</span>
           </Link>
         </div>
         <div className="abc">
           <MdListAlt className="w-6 h-6 mb-1 text-gray-700" />
 
-          <Link to="/allbill">
+          <Link to="/admin/allbill">
             <span className="text-sm text-gray-700 font-lauren font-semibold">AllBill</span>
           </Link>
         </div>

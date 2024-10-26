@@ -13,7 +13,7 @@ const ForgotPassword = () => {
       <HeaderAuthentication></HeaderAuthentication>
       <div className="container font-mono flex">
         <div className="content-left w-5/12 pl-36 mt-10">
-          <Link className="btn-back flex items-center w-4/12" to="../../login">
+          <Link className="btn-back flex items-center w-4/12" to="/auth/login">
             <IoIosArrowBack />
             <p className="ml-2 font-bold">Back to login</p>
           </Link>
