@@ -23,13 +23,12 @@ function WarehouseProduct() {
   const productPerPage = 6;
 
   const fetchProducts = async (search = '') => {
-
     try {
       const response = await axios.get('/products/listall');
       //status 1 -> 0
-      const activeProducts = response.data.filter(product => product.status !== 0);
+      const activeProducts = response.data.filter((product) => product.status !== 0);
       //filer
-      const filteredProducts = activeProducts.filter(product =>
+      const filteredProducts = activeProducts.filter((product) =>
         product.pname.toLowerCase().includes(search.toLowerCase())
       );
       setProducts(filteredProducts);
@@ -58,7 +57,7 @@ function WarehouseProduct() {
     } catch (error) {
       console.error('Có lỗi xảy ra khi xóa sản phẩm:', error);
     }
-  }
+  };
   const confirmDeleteProduct = (productId) => {
     confirmAlert({
       title: 'Xác nhận xóa',
@@ -75,7 +74,7 @@ function WarehouseProduct() {
       ],
     });
   };
-  
+
   const handleSearchChange = (e) => {
     const value = e.target.value;
     setSearchTerm(value);
@@ -163,22 +162,19 @@ function WarehouseProduct() {
                 onChange={handleSearchChange}
               />
               <span className="absolute inset-y-0 right-0 flex items-center pr-3">
-                <button
-                  type="button"
-                  className="bg-transparent border-none cursor-pointer"
-                  aria-label="Tìm kiếm"
-                >
+                <button type="button" className="bg-transparent border-none cursor-pointer" aria-label="Tìm kiếm">
                   <IoSearch />
                 </button>
               </span>
             </div>
-            <button className="bg-green-300 text-white p-2 rounded-lg flex items-center"
-              onClick={handleAddProduct}
-            >
+            <button className="bg-green-300 text-white p-2 rounded-lg flex items-center" onClick={handleAddProduct}>
               <FaPlus className="mr-1" />
               Thêm
             </button>
-            <label htmlFor='fileUpload' className='bg-teal-400 text-white p-2 rounded-lg flex items-center cursor-pointer'>
+            <label
+              htmlFor="fileUpload"
+              className="bg-teal-400 text-white p-2 rounded-lg flex items-center cursor-pointer"
+            >
               <FaFileImport className="mr-1" />
               Import
             </label>
@@ -210,7 +206,9 @@ function WarehouseProduct() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {currentProducts.length === 0 ? (
                   <tr>
-                    <td colSpan="6" className="text-center py-4 font-bold text-lg font-lauren italic text-gray-400">Không tìm thấy sản phẩm nào, hãy nhập chính xác và thử lại...</td>
+                    <td colSpan="6" className="text-center py-4 font-bold text-lg font-lauren italic text-gray-400">
+                      Không tìm thấy sản phẩm nào, hãy nhập chính xác và thử lại...
+                    </td>
                   </tr>
                 ) : (
                   currentProducts.map((product, index) => (
@@ -229,7 +227,8 @@ function WarehouseProduct() {
                         >
                           <FaPen className="inline-block" />
                         </button>
-                        <button className="bg-brown-900 text-white py-1 px-3 rounded-lg"
+                        <button
+                          className="bg-brown-900 text-white py-1 px-3 rounded-lg"
                           onClick={() => confirmDeleteProduct(product._id)}
                         >
                           <FaTrash className="inline-block" />
@@ -255,10 +254,7 @@ function WarehouseProduct() {
               />
             )}
             {showAddModal && (
-              <AddProductModal
-                closeModal={() => setShowAddModal(false)}
-                refreshProducts={fetchProducts}
-              />
+              <AddProductModal closeModal={() => setShowAddModal(false)} refreshProducts={fetchProducts} />
             )}
           </div>
         </div>
