@@ -7,7 +7,7 @@ export default function AddProductModal({ closeModal, refreshProducts }) {
   const [quantity, setQuantity] = useState(0);
   const [price, setPrice] = useState(0);
   const [image, setImage] = useState('');
-  const [selectedFile, setSelectedFile] = useState(null); 
+  const [selectedFile, setSelectedFile] = useState(null);
   const [category, setCategory] = useState('');
   const [categories, setCategories] = useState([]);
   const [quantityError, setQuantityError] = useState('');
@@ -31,16 +31,16 @@ export default function AddProductModal({ closeModal, refreshProducts }) {
     if (file) {
       if (file.type.startsWith('image/')) {
         setImage(URL.createObjectURL(file));
-        setSelectedFile(file); 
-        setImageError(''); 
+        setSelectedFile(file);
+        setImageError('');
       } else {
         setImage('');
-        setSelectedFile(null); 
+        setSelectedFile(null);
         setImageError('*Tệp không hợp lệ. Vui lòng chọn tệp hình ảnh.');
       }
     } else {
       setImage('');
-      setSelectedFile(null); 
+      setSelectedFile(null);
       setImageError('');
     }
   };
@@ -70,7 +70,7 @@ export default function AddProductModal({ closeModal, refreshProducts }) {
     formData.append('pname', productName);
     formData.append('quantity', quantity);
     formData.append('price', price);
-    formData.append('image', selectedFile); 
+    formData.append('image', selectedFile);
     formData.append('category_id', category);
 
     try {
@@ -125,12 +125,7 @@ export default function AddProductModal({ closeModal, refreshProducts }) {
             </div>
             <div>
               <label>Hình ảnh</label>
-              <input
-                type="file"
-                name="image"
-                className="border rounded-md p-2 w-full"
-                onChange={handleImageChange}
-              />
+              <input type="file" name="image" className="border rounded-md p-2 w-full" onChange={handleImageChange} />
               {imageError && <p className="text-red-500">{imageError}</p>}
               {image && <img src={image} alt="Product" className="mt-2 w-16 h-16 object-cover rounded-lg" />}
             </div>
@@ -141,9 +136,13 @@ export default function AddProductModal({ closeModal, refreshProducts }) {
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
               >
-                <option value="" hidden disabled>Chọn danh mục</option>
+                <option value="" hidden disabled>
+                  Chọn danh mục
+                </option>
                 {categories.map((cat) => (
-                  <option key={cat._id} value={cat._id}>{cat.category_name}</option>
+                  <option key={cat._id} value={cat._id}>
+                    {cat.category_name}
+                  </option>
                 ))}
               </select>
             </div>

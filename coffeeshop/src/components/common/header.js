@@ -34,8 +34,7 @@ export default function Header() {
           <button className="bg-brown-700 text-white p-2 rounded-lg hover:bg-blue-400">
             <CgProfile className="w-5 h-5" />
           </button>
-          <button className="bg-brown-800 text-white p-2 rounded-lg hover:bg-red-500 w-full "
-            onClick={handleLogout}>
+          <button className="bg-brown-800 text-white p-2 rounded-lg hover:bg-red-500 w-full " onClick={handleLogout}>
             <MdLogout className="w-5 h-5" />
           </button>
         </div>

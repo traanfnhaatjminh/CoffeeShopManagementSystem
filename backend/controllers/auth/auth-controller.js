@@ -6,7 +6,9 @@ const db = require("../../model/index");
 const loginUser = async (req, res) => {
     const { email, password } = req.body;
     try {
-        const checkUser = await db.User.findOne({ email });
+        const checkUser = await db.User.findOne({ email }).populate("role");
+        console.log("checkUser:", checkUser);
+
         if (!checkUser)
             return res.json({
                 success: false,
@@ -84,7 +86,11 @@ const updatePassword = async (req, res) => {
 const logoutUser = async (req, res) => {
     try {
         // Clear the token cookie by setting it with an expired date
-        res.cookie("token", "", { expires: new Date(0), httpOnly: true, secure: false })
+        res.cookie("token", "", {
+            expires: new Date(0),
+            httpOnly: true,
+            secure: false,
+        })
             .status(StatusCodes.OK)
             .json({
                 success: true,
@@ -99,11 +105,20 @@ const logoutUser = async (req, res) => {
     }
 };
 
+const checkAuthor = (req, res, next) => {
+    const user = req.user;
+    res.status(StatusCodes.OK).json({
+        success: true,
+        message: "Authenticated user!",
+        user,
+    });
+};
 
 const authController = {
     loginUser,
     updatePassword,
-    logoutUser
+    checkAuthor,
+    logoutUser,
 };
 
 module.exports = authController;
