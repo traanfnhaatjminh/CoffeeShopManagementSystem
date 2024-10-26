@@ -34,16 +34,16 @@ export default function EditProductModal({ product, closeModal, refreshProducts 
     }
   }, [product]);
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setImage(file);
-      setImagePreview(URL.createObjectURL(file)); // Tạo URL cho hình ảnh đã chọn
-    } else {
-      setImage('');
-      setImagePreview('');
-    }
-  };
+  //   const handleImageChange = (e) => {
+  //     const file = e.target.files[0];
+  //     if (file) {
+  //       setImage(file);
+  //       setImagePreview(URL.createObjectURL(file)); // Tạo URL cho hình ảnh đã chọn
+  //     } else {
+  //       setImage('');
+  //       setImagePreview('');
+  //     }
+  //   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -81,10 +81,10 @@ export default function EditProductModal({ product, closeModal, refreshProducts 
     }
   };
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-      <div className="bg-white p-4 rounded-lg w-1/3 h-auto" style={{ maxHeight: '90vh', overflowY: 'auto' }}>
-        <h2 className="text-xl font-bold mb-2">Chỉnh sửa sản phẩm</h2>
+  //   return (
+  //     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+  //       <div className="bg-white p-4 rounded-lg w-1/3 h-auto" style={{ maxHeight: '90vh', overflowY: 'auto' }}>
+  //         <h2 className="text-xl font-bold mb-2">Chỉnh sửa sản phẩm</h2>
 
         <form onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 gap-2">

@@ -31,9 +31,9 @@ const createNewUser = async (req, res, next) => {
             dob,
             phone,
             address,
-            avatar,
+            avatar: avatar || "",
             role: role_id._id,
-            status,
+            status: status === "1" ? true : false,
         });
 
         await newUser.save().then((newDoc) => {
