@@ -10,6 +10,9 @@ import 'react-toastify/dist/ReactToastify.css';
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 import { IoSearch } from 'react-icons/io5';
+import Paging from '../../components/common/paging'
+
+
 function WarehouseProduct() {
   const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -17,6 +20,8 @@ function WarehouseProduct() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const productPerPage = 5;
 
   const fetchProducts = async (search = '') => {
     setLoading(true);
@@ -71,12 +76,15 @@ function WarehouseProduct() {
       ],
     });
   };
-  
+
   const handleSearchChange = (e) => {
     const value = e.target.value;
     setSearchTerm(value);
     fetchProducts(value);
   };
+
+  const currentProducts = products.slice((currentPage - 1) * productPerPage, currentPage * productPerPage);
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
       <Header />
@@ -130,8 +138,6 @@ function WarehouseProduct() {
             </button>
           </div>
 
-
-
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200 bg-white shadow-lg rounded-lg overflow-hidden">
               <thead className="bg-gray-50">
@@ -159,12 +165,12 @@ function WarehouseProduct() {
                   <tr>
                     <td colSpan="6" className="text-center py-4 font-bold text-lg font-lauren italic text-gray-400">Đang tải dữ liệu...</td>
                   </tr>
-                ) : products.length === 0 ? (
+                ) : currentProducts.length === 0 ? (
                   <tr>
                     <td colSpan="6" className="text-center py-4 font-bold text-lg font-lauren italic text-gray-400">Không tìm thấy sản phẩm nào, hãy nhập chính xác và thử lại...</td>
                   </tr>
                 ) : (
-                  products.map((product, index) => (
+                  currentProducts.map((product, index) => (
                     <tr key={product._id} className="border-b hover:bg-gray-100 transition-colors duration-300">
                       <td className="px-6 py-4 text-lg font-medium text-gray-900">{index + 1}</td>
                       <td className="px-6 py-4 text-md text-gray-500">{product.pname}</td>
@@ -191,6 +197,12 @@ function WarehouseProduct() {
                 )}
               </tbody>
             </table>
+            <Paging
+              currentPage={currentPage}
+              totalItems={products.length}
+              itemsPerPage={productPerPage}
+              onPageChange={setCurrentPage}
+            />
             {showEditModal && (
               <EditProductModal
                 product={selectedProduct}

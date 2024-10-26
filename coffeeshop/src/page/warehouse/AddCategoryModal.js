@@ -1,49 +1,35 @@
+import React, { useState } from 'react';
 import axios from 'axios';
-import React, { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 
-export default function AddProductModal({ closeModal }) {
-  const [categories,setCategories]=useState("");
-  const [formData, setFormData] = useState({
- 
-    group_name: "",
-    category_name: "",
-  });
-  useEffect=(()=>{
+export default function AddCategoryModal({ closeModal, refreshCategories }) {
+  const [formData, setFormData] = useState({ group_name: '', category_name: '' });
 
-  },[])
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prevData => ({
-      ...prevData,
-      [name]: value
-    }));
-  };
+  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+
   const handleSubmit = async (e) => {
-   
+    e.preventDefault();
     try {
-      const response = await axios.post('/createbill/createCategory', formData);
-      console.log('Category created:', response.data);
-      setFormData({
-        
-        group_name: "",
-        category_name: "",
-      });
+      await axios.post('/categories/createCategory', formData);
+      toast.success("Thêm danh mục thành công");
+      refreshCategories();
       closeModal();
     } catch (error) {
-      console.error('Error creating category:', error);
+      console.error('Error adding category:', error);
+      toast.success("Đã xảy ra lỗi thêm danh mục!");
     }
-  }; 
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-      <div className="bg-white p-4 rounded-lg w-1/3 h-auto">
+      <div className="bg-white p-4 rounded-lg w-1/3">
         <h2 className="text-xl font-bold mb-2">Thêm danh mục mới</h2>
         <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 gap-2">
+          <div className="grid gap-2">
             <div>
-              <label htmlFor="group_name">Tên nhóm</label>
+              <label>Tên nhóm</label>
               <input
                 type="text"
-                id="group_name"
                 name="group_name"
                 value={formData.group_name}
                 onChange={handleChange}
@@ -52,10 +38,9 @@ export default function AddProductModal({ closeModal }) {
               />
             </div>
             <div>
-              <label htmlFor="category_name">Tên danh mục</label>
+              <label>Tên danh mục</label>
               <input
                 type="text"
-                id="category_name"
                 name="category_name"
                 value={formData.category_name}
                 onChange={handleChange}
@@ -64,21 +49,9 @@ export default function AddProductModal({ closeModal }) {
               />
             </div>
           </div>
-
           <div className="flex justify-end mt-3">
-            <button
-              type="button"
-              onClick={closeModal}
-              className="bg-gray-400 text-white px-3 py-1 rounded-lg mr-2"
-            >
-              Hủy
-            </button>
-            <button
-              type="submit"
-              className="bg-green-400 text-white px-3 py-1 rounded-lg"
-            >
-              Thêm
-            </button>
+            <button onClick={closeModal} className="bg-gray-400 text-white px-3 py-1 rounded-lg mr-2">Hủy</button>
+            <button type="submit" className="bg-green-400 text-white px-3 py-1 rounded-lg">Thêm</button>
           </div>
         </form>
       </div>
