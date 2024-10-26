@@ -6,8 +6,7 @@ function LandingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-r from-yellow-100 to-orange-200">
       <header className="flex justify-between items-center p-6">
-        <div className="text-xl font-bold text-gray-700 flex items-center space-x-2">
-        </div>
+        <div className="text-xl font-bold text-gray-700 flex items-center space-x-2"></div>
       </header>
 
       <main className="flex flex-col md:flex-row justify-between items-center px-32 ">
@@ -21,10 +20,10 @@ function LandingPage() {
           <p className="text-gray-500 mb-8">Ngày hôm nay cũng làm việc thật chăm chỉ nhé ‧𓍢ִ໋☕ ׂ 𓈒 ⋆ ۪ </p>
           <div className="flex space-x-4">
             <button className="px-6 py-3 bg-white text-gray-800 border border-gray-500 hover:bg-gray-200 rounded-full font-lauren">
-              <Link to={'/register'}>Sign Up For A Trial</Link>
+              <Link to={'auth/register'}>Sign Up For A Trial</Link>
             </button>
             <button className="px-6 py-3 bg-gray-800 text-white hover:bg-gray-700 rounded-full font-lauren">
-              <Link to={'/login'}>Sign In</Link>
+              <Link to={'auth/login'}>Sign In</Link>
             </button>
           </div>
         </div>

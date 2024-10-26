@@ -2,22 +2,31 @@ import React, { useState } from 'react';
 import HeaderAuthentication from '@/components/authentication/HeaderAuthentication';
 import logoLoginMain from '@/assets/images/imgLogin.png';
 import { useDispatch } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { MdOutlineMail } from 'react-icons/md';
 import * as yup from 'yup';
 import { FaGoogle, FaUserLock, FaFacebook } from 'react-icons/fa';
-import { login } from '../auth/authSlice';
+import { login } from '@/store/auth-slice/authSlice';
 import { toast, ToastContainer } from 'react-toastify';
+import MoonLoader from 'react-spinners/MoonLoader';
 
 const dataFormLogin = {
   email: '',
   password: '',
 };
-
+const cssOverride = {
+  position: 'fixed',
+  top: '0',
+  left: '0',
+  right: '0',
+  bottom: '0',
+  margin: 'auto',
+  zIndex: 9999,
+};
 const AuthLogin = () => {
   const [formData, setFormData] = useState(dataFormLogin);
   const [errors, setErrors] = useState({});
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const dispatch = useDispatch();
   const validationSchema = yup.object({
@@ -35,19 +44,24 @@ const AuthLogin = () => {
   const handleLogin = async (event) => {
     event.preventDefault();
     try {
+      setLoading(true);
+      await validationSchema.validate(formData, { abortEarly: false });
       setErrors({});
-      const result = await dispatch(login(formData));
-      if (result.payload.success) {
-        toast.success('Sign in successfully');
-        setTimeout(() => {
-          navigate('/createbill');
-        }, 2000); 
-      }
-      else {
-        setErrors({ general: result.payload.message });
-      }
+      dispatch(login(formData)).then((data) => {
+        if (data.payload.success) {
+          toast.success(data.payload.message);
+        } else if (!data.payload.success || !data) {
+          toast.error(data.payload.message);
+        }
+      });
     } catch (err) {
-      setErrors({ general: 'An unexpected error occurred.' });
+      const newErrors = {};
+      err.inner.forEach((error) => {
+        newErrors[error.path] = error.message;
+      });
+      setErrors(newErrors);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -71,7 +85,12 @@ const AuthLogin = () => {
         draggable
         pauseOnFocusLoss
       />
-      <div className="container px-20 flex font-mono">
+      <div className="container px-20 flex font-mono relative">
+        {loading && (
+          <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
+            <MoonLoader loading={loading} size={50} cssOverride={cssOverride} color="#ffffff" />
+          </div>
+        )}
         <div className="w-5/12">
           <img src={logoLoginMain} alt="Img login" className="w-11/12 mt-7 ml-16" />
         </div>

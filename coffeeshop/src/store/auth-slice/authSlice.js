@@ -13,6 +13,20 @@ export const login = createAsyncThunk('auth/login', async (formData) => {
   return response.data;
 });
 
+export const register = createAsyncThunk('auth/register', async (formData) => {
+  const response = await axios.post(`${environment.apiUrl}/auth/register`, formData, { withCredentials: true });
+  return response.data;
+});
+export const checkAuth = createAsyncThunk('auth/checkAuth', async () => {
+  const response = await axios.get(`${environment.apiUrl}/auth/checkAuth`, {
+    withCredentials: true,
+    headers: {
+      'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+    },
+  });
+  return response.data;
+});
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,

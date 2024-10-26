@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
 import EditProductModal from './EditProductModal';
 import AddProductModal from './AddProductModal';
-import ImportProductModal from './ImportProductModal';
 import WarehouseProduct from './warehouseProduct';
 
 function LayoutProduct() {
   const [showProductModal, setShowProductModal] = useState(false);
-  const [showImportProductModal, setShowImportProductModal] = useState(false);
   const [showEditProductModal, setShowEditProductModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
@@ -18,15 +16,11 @@ function LayoutProduct() {
           setShowModal={setShowProductModal}
           setShowEditModal={setShowEditProductModal}
           setProduct={setSelectedProduct}
-          setShowImportModal={setShowImportProductModal}
         />
       </div>
 
       {/* Add Product Modal */}
       {showProductModal && <AddProductModal closeModal={() => setShowProductModal(false)} />}
-
-      {/* Import Product Modal */}
-      {showImportProductModal && <ImportProductModal closeModal={() => setShowImportProductModal(false)} />}
 
       {/* Edit Product Modal */}
       {showEditProductModal && (

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import {toast} from 'react-toastify';
+import { toast } from 'react-toastify';
+
 export default function EditProductModal({ product, closeModal, refreshProducts }) {
     const [productName, setProductName] = useState('');
     const [quantity, setQuantity] = useState(0);
@@ -11,6 +12,9 @@ export default function EditProductModal({ product, closeModal, refreshProducts 
     const [categories, setCategories] = useState([]);
     const [quantityError, setQuantityError] = useState('');
     const [priceError, setPriceError] = useState('');
+    const [imageError, setImageError] = useState('');
+
+    //list categories
     useEffect(() => {
         const fetchCategories = async () => {
             try {
@@ -27,19 +31,23 @@ export default function EditProductModal({ product, closeModal, refreshProducts 
             setQuantity(product.quantity);
             setPrice(product.price);
             setImage(product.image);
-            setCategory(product.category_id ? product.category_id._id : ''); 
-            setImagePreview(product.image); // Đặt đường dẫn hình ảnh cho preview
+            setCategory(product.category_id ? product.category_id._id : '');
+            setImagePreview(product.image); //xem trc ảnh
         }
     }, [product]);
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            setImage(file);
-            setImagePreview(URL.createObjectURL(file)); // Tạo URL cho hình ảnh đã chọn
-        } else {
-            setImage(''); 
-            setImagePreview('');
+            if (file.type.startsWith('image/')) {
+                setImage(file);
+                setImagePreview(URL.createObjectURL(file));
+                setImageError('');
+            } else {
+                setImage('');
+                setImagePreview('');
+                setImageError('*Tệp không hợp lệ. Vui lòng chọn tệp hình ảnh.')
+            }
         }
     };
 
@@ -47,12 +55,17 @@ export default function EditProductModal({ product, closeModal, refreshProducts 
         e.preventDefault();
         setQuantityError('');
         setPriceError('');
-        if(quantity <= 0){
+        setImageError('');
+        if (quantity <= 0) {
             setQuantityError('*Số lượng phải lớn hơn 0');
             return;
         }
-        if(price <= 0){
+        if (price <= 0) {
             setPriceError('*Giá phải lớn hơn 0');
+            return;
+        }
+        if (imageError) {
+            setImageError('*Vui lòng chọn tệp hình ảnh');
             return;
         }
         const formData = new FormData();
@@ -61,7 +74,7 @@ export default function EditProductModal({ product, closeModal, refreshProducts 
         formData.append('price', price);
         formData.append('category_id', category);
         if (image) {
-            formData.append('image', image);  // Thêm file ảnh vào FormData
+            formData.append('image', image);  // thêm file ảnh vào FormData
         }
         // const updatedProduct = { pname: productName, quantity, price, image, category_id: category };
 
@@ -107,7 +120,7 @@ export default function EditProductModal({ product, closeModal, refreshProducts 
                                 className="border rounded-md p-2 w-full"
                                 min="0"
                             />
-                            {quantityError && <p className="text-red-500">{quantityError}</p>} {/* Error Message */}
+                            {quantityError && <p className="text-red-500">{quantityError}</p>} 
                         </div>
                         <div>
                             <label>Giá</label>
@@ -119,7 +132,7 @@ export default function EditProductModal({ product, closeModal, refreshProducts 
                                 className="border rounded-md p-2 w-full"
                                 min="0"
                             />
-                            {priceError && <p className="text-red-500">{priceError}</p>} {/* Error Message */}
+                            {priceError && <p className="text-red-500">{priceError}</p>}
                         </div>
                         <div>
                             <label>Hình ảnh</label>
@@ -129,6 +142,7 @@ export default function EditProductModal({ product, closeModal, refreshProducts 
                                 onChange={handleImageChange}
                                 className="border rounded-md p-2 w-full"
                             />
+                            {imageError && <p className="text-red-500">{imageError}</p>} 
                             {imagePreview && <img src={imagePreview} alt="Product" className="mt-2 w-16 h-16 object-cover rounded-lg" />}
                         </div>
                         <div>
@@ -141,7 +155,7 @@ export default function EditProductModal({ product, closeModal, refreshProducts 
                             >
                                 {categories.map((cat) => (
                                     <option key={cat._id} value={cat._id}>
-                                        {cat.category_name} 
+                                        {cat.category_name}
                                     </option>
                                 ))}
                             </select>
