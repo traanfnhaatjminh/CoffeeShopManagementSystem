@@ -26,7 +26,14 @@ export const checkAuth = createAsyncThunk('auth/checkAuth', async () => {
   });
   return response.data;
 });
-
+export const forgotPassword = createAsyncThunk('auth/forgotPassword', async ({ email }) => {
+  const response = await axios.post(`${environment.apiUrl}/auth/forgotPassword`, { email }, { withCredentials: true });
+  return response.data;
+});
+export const logout = createAsyncThunk('auth/logout', async () => {
+  const response = await axios.post(`${environment.apiUrl}/auth/logout`, {}, { withCredentials: true });
+  return response.data;
+});
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -47,6 +54,19 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.user = action.payload.success ? action.payload.user : null;
         state.isAuthenticated = action.payload.success;
+      })
+      .addCase(logout.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(logout.rejected, (state) => {
+        state.isLoading = false;
+        state.user = null;
+        state.isAuthenticated = false;
+      })
+      .addCase(logout.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.user = null;
+        state.isAuthenticated = false;
       });
   },
 });
