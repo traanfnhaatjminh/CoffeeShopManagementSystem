@@ -14,7 +14,7 @@ export default function Header() {
     try {
       await axios.post('/api/auth/logout');
 
-      navigate('/login');
+      navigate('/auth/login');
     } catch (error) {
       console.error('Error logging out:', error);
     }

@@ -59,12 +59,13 @@ function App() {
             </CheckAuth>
           }
         >
-          <Route path="allbill" element={<AllBillScreen />}></Route>
-          <Route path="createBill" element={<CashierScreen />}></Route>
-          <Route path="tablelist" element={<TableList />}></Route>
           <Route path="statistic" element={<LayoutStatistic />}></Route>
           <Route path="userlist" element={<LayoutSetting />}></Route>
         </Route>
+
+        <Route path="allbill" element={<AllBillScreen />}></Route>
+        <Route path="createBill" element={<CashierScreen />}></Route>
+        <Route path="tablelist" element={<TableList />}></Route>
 
         <Route
           path="/warehouse"

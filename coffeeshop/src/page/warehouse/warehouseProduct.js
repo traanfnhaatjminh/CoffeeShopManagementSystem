@@ -11,9 +11,6 @@ import { toast, ToastContainer } from 'react-toastify';
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-toastify/dist/ReactToastify.css';
 import 'react-confirm-alert/src/react-confirm-alert.css';
-import { IoSearch } from 'react-icons/io5';
-import Paging from '../../components/common/paging'
-
 
 function WarehouseProduct() {
   const [products, setProducts] = useState([]);
@@ -21,9 +18,9 @@ function WarehouseProduct() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [importFile, setImportFile] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const productPerPage = 5;
+  const productPerPage = 6;
 
   const fetchProducts = async (search = '') => {
     try {
@@ -83,6 +80,54 @@ function WarehouseProduct() {
     setSearchTerm(value);
     fetchProducts(value);
   };
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    const allowedExtensions = ['.csv'];
+    const fileExtension = file?.name.slice(file.name.lastIndexOf('.'));
+
+    if (file && !allowedExtensions.includes(fileExtension)) {
+      toast.error('Vui lòng chọn tệp CSV.');
+      return;
+    }
+    setImportFile(file);
+  };
+
+  const handleFileUpload = async (file) => {
+    if (!file) {
+      toast.error('Vui lòng chọn một tệp để nhập.');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await axios.post('/products/importProduct', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      if (response.data.success) {
+        toast.success(`${response.data.count} sản phẩm đã được nhập thành công!`);
+        fetchProducts();
+      } else {
+        toast.info('Không có sản phẩm mới để nhập.');
+      }
+    } catch (error) {
+      console.error('Error importing products:', error);
+      toast.error('Đã xảy ra lỗi trong quá trình nhập sản phẩm.');
+    } finally {
+      setImportFile(null);
+    }
+  };
+
+  useEffect(() => {
+    if (importFile) {
+      handleFileUpload(importFile);
+    }
+  }, [importFile]);
+
+  //paging
   const currentProducts = products.slice((currentPage - 1) * productPerPage, currentPage * productPerPage);
 
   return (
@@ -161,11 +206,9 @@ function WarehouseProduct() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {currentProducts.length === 0 ? (
                   <tr>
-                    <td colSpan="6" className="text-center py-4 font-bold text-lg font-lauren italic text-gray-400">Đang tải dữ liệu...</td>
-                  </tr>
-                ) : currentProducts.length === 0 ? (
-                  <tr>
-                    <td colSpan="6" className="text-center py-4 font-bold text-lg font-lauren italic text-gray-400">Không tìm thấy sản phẩm nào, hãy nhập chính xác và thử lại...</td>
+                    <td colSpan="6" className="text-center py-4 font-bold text-lg font-lauren italic text-gray-400">
+                      Không tìm thấy sản phẩm nào, hãy nhập chính xác và thử lại...
+                    </td>
                   </tr>
                 ) : (
                   currentProducts.map((product, index) => (
@@ -220,4 +263,3 @@ function WarehouseProduct() {
 }
 
 export default WarehouseProduct;
-
