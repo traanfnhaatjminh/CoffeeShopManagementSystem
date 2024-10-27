@@ -1,18 +1,66 @@
-import React from 'react';
+import React, { useState } from 'react';
 import HeaderAuthentication from '@/components/authentication/HeaderAuthentication';
 import { Link, useNavigate } from 'react-router-dom';
 import { IoIosArrowBack } from 'react-icons/io';
 import imageForgotPassword from '@/assets/images/forgotPassword.webp';
+import { useDispatch } from 'react-redux';
+import * as yup from 'yup';
+import { forgotPassword } from '@/store/auth-slice/authSlice';
+import { ToastContainer, toast } from 'react-toastify';
+
 const ForgotPassword = () => {
+  const [email, setEmail] = useState('');
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+
+  const dispatch = useDispatch();
+  const validationSchema = yup.object({
+    email: yup.string().required('Email is required.').email('Invalid email format.'),
+  });
   const navigate = useNavigate();
-  const handleSubmit = () => {
-    navigate('/login/verify-password');
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    try {
+      setLoading(true);
+      await validationSchema.validate({ email }, { abortEarly: false });
+      setErrors({});
+      dispatch(forgotPassword({ email })).then((data) => {
+        console.log('data:', data);
+        if (data.payload.success) {
+          navigate('/auth/login/verify-password');
+        } else if (!data.payload.success || !data) {
+          toast.error(data.payload.message);
+        }
+      });
+    } catch (err) {
+      console.log(err);
+      const newErrors = {};
+      err.inner.forEach((error) => {
+        newErrors[error.path] = error.message;
+      });
+      setErrors(newErrors);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handleChange = (event) => {
+    setEmail(event.target.value);
+    console.log('email:', email);
   };
   return (
     <>
       <HeaderAuthentication></HeaderAuthentication>
       <div className="container font-mono flex">
         <div className="content-left w-5/12 pl-36 mt-10">
+          <ToastContainer
+            position="top-right"
+            autoClose={5000}
+            hideProgressBar={false}
+            closeOnClick
+            pauseOnHover
+            draggable
+            pauseOnFocusLoss
+          />
           <Link className="btn-back flex items-center w-4/12" to="/auth/login">
             <IoIosArrowBack />
             <p className="ml-2 font-bold">Back to login</p>
@@ -22,7 +70,7 @@ const ForgotPassword = () => {
             Don't worry , happens to all of us . Enter your email below to recover your password
           </p>
           <div className="email mt-5 w-11/12">
-            <div className="relative mb-6">
+            <div className="relative mb-2">
               <div className="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
                 <svg
                   className="w-4 h-4 text-gray-500 dark:text-orange-300"
@@ -36,16 +84,19 @@ const ForgotPassword = () => {
                 </svg>
               </div>
               <input
-                type="email"
+                type="text"
                 id="email"
+                name="email"
                 className="text-white bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600"
                 placeholder=""
+                onChange={handleChange}
               ></input>
             </div>
+            {errors.email && <div className="text-red-500 mb-3">{errors.email}</div>}
           </div>
           <button
             type="button"
-            className="w-11/12 focus:outline-none text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900"
+            className="w-11/12 mt-2 focus:outline-none text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900"
             onClick={handleSubmit}
           >
             Submit
