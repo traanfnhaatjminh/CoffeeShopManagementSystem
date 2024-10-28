@@ -34,7 +34,7 @@ export default function TableList() {
         setSelectBill(response.data);
         setSelectedTable({
           ...table,
-          bill: responseT.data ? responseT.data.product_list : [],
+          bill: response.data ? response.data.product_list : [],
         });
 
         setPaymentMethod('');

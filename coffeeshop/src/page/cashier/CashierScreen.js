@@ -215,11 +215,7 @@ export default function CashierScreen() {
             <div className="grid grid-cols-5 gap-4">
               {filteredProducts.length > 0 ? (
                 filteredProducts
-<<<<<<< HEAD
-                  .filter((product) => product.status !== 0) 
-=======
                   .filter((product) => product.status !== 0)
->>>>>>> 60a4564cbeedecb3efb57986789672c79815b27b
                   .map((product) => (
                     <div
                       key={product._id}
