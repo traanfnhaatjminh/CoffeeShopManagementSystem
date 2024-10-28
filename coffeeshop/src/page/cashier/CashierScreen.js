@@ -91,10 +91,10 @@ export default function CashierScreen() {
         .map((item) =>
           item._id === _id
             ? {
-                ...item,
-                quantity: item.quantity + change,
-                total: (item.quantity + change) * item.price,
-              }
+              ...item,
+              quantity: item.quantity + change,
+              total: (item.quantity + change) * item.price,
+            }
             : item
         )
         .filter((item) => item.quantity > 0)
@@ -215,7 +215,11 @@ export default function CashierScreen() {
             <div className="grid grid-cols-5 gap-4">
               {filteredProducts.length > 0 ? (
                 filteredProducts
+<<<<<<< HEAD
                   .filter((product) => product.status !== 0) 
+=======
+                  .filter((product) => product.status !== 0)
+>>>>>>> 60a4564cbeedecb3efb57986789672c79815b27b
                   .map((product) => (
                     <div
                       key={product._id}
