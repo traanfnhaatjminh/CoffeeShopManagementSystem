@@ -4,7 +4,7 @@ import Header from '../../components/common/header';
 import { IoSearch } from 'react-icons/io5';
 import data from '../../data/database.json';
 import axios from 'axios';
-import {toast} from "react-toastify"
+import { toast } from 'react-toastify';
 export default function TableList() {
   const [selectedTable, setSelectedTable] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState('');
@@ -32,11 +32,11 @@ export default function TableList() {
       if (!table.status) {
         const response = await axios.get(`bills/table/${table._id}`);
         setSelectBill(response.data);
-        setSelectedTable({ 
-          ...table, 
-          bill: response.data ? response.data.product_list : [] 
+        setSelectedTable({
+          ...table,
+          bill: response.data ? response.data.product_list : [],
         });
-      
+
         setPaymentMethod('');
       } else {
         setSelectedTable(null);
@@ -58,9 +58,9 @@ export default function TableList() {
           status: 1,
           table_id: selectedTable._id,
         };
-        await axios.put(`/bills/update/${selectBill._id}`, billUpdateData);
+        await axios.put(`admin/bills/update/${selectBill._id}`, billUpdateData);
         await loadData();
-        
+
         toast.success('Thanh toán thành công!');
         setSelectedTable(null);
         setPaymentMethod('');

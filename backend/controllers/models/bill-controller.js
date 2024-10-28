@@ -141,7 +141,7 @@ const getBill = async (req, res, next) => {
 ////
 const createNewBill = async (req, res, next) => {
   try {
-    const { total_cost, table_id, product_list, payment, status } = req.body;
+    const { total_cost, table_id, product_list, payment, status, discount } = req.body;
 
     // Create a new bill document
     const newBill = new Bill({

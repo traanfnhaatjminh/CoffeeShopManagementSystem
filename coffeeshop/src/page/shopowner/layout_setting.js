@@ -5,6 +5,7 @@ import Sidebar from '../../components/common/sidebar';
 import Header from '../../components/common/header';
 import UserManagement from './UserManagement';
 import Settings from './Settings';
+import { ToastContainer } from 'react-toastify';
 
 function LayoutSetting() {
   // State để quản lý hiển thị modaljkashjkadh

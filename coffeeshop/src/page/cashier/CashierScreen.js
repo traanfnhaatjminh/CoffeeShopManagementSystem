@@ -27,7 +27,7 @@ export default function CashierScreen() {
         const categoriesResponse = await axios.get('/categories/list');
         setCategories(categoriesResponse.data);
 
-        const productsResponse = await axios.get('/products/list');
+        const productsResponse = await axios.get('/products/listInHome');
         setProducts(productsResponse.data);
 
         const tablesResponse = await axios.get('/tables/list');
@@ -54,8 +54,7 @@ export default function CashierScreen() {
     }
     if (results.length === 0 && searchTerm !== '') {
       setNoResultsMessage('Đồ uống không có trong menu hoặc trong phân loại đồ uống!'); // Message when no drinks are found
-    }
-    else {
+    } else {
       setNoResultsMessage('');
     }
 
@@ -74,7 +73,13 @@ export default function CashierScreen() {
   const handleAddToCart = (product) => {
     const existingProduct = cart.find((item) => item._id === product._id);
     if (existingProduct) {
-      setCart(cart.map((item) => (item._id === product._id ? { ...item, quantity: item.quantity + 1, total: (item.quantity + 1) * item.price } : item)));
+      setCart(
+        cart.map((item) =>
+          item._id === product._id
+            ? { ...item, quantity: item.quantity + 1, total: (item.quantity + 1) * item.price }
+            : item
+        )
+      );
     } else {
       setCart([...cart, { ...product, quantity: 1, total: product.price }]);
     }
@@ -86,10 +91,10 @@ export default function CashierScreen() {
         .map((item) =>
           item._id === _id
             ? {
-              ...item,
-              quantity: item.quantity + change,
-              total: (item.quantity + change) * item.price,
-            }
+                ...item,
+                quantity: item.quantity + change,
+                total: (item.quantity + change) * item.price,
+              }
             : item
         )
         .filter((item) => item.quantity > 0)
@@ -101,14 +106,15 @@ export default function CashierScreen() {
   };
 
   const handleCategorySelect = (categoryId) => {
-    if (categoryId === "all") {
+    if (categoryId === 'all') {
       setFilteredProducts(products);
       setSelectedCategory(categoryId); // Clear selected category
     } else {
       setSelectedCategory(categoryId); // Set the selected category
-      axios.get(`/products/getByCategory/${categoryId}`)
+      axios
+        .get(`/products/getByCategory/${categoryId}`)
         .then((response) => {
-          console.log("Products by category:", response.data); // Log fetched products
+          console.log('Products by category:', response.data); // Log fetched products
           setFilteredProducts(response.data); // Reset filtered products
         })
         .catch((error) => {
@@ -128,18 +134,18 @@ export default function CashierScreen() {
           imageP: item.image,
           priceP: item.price,
           quantityP: item.quantity,
-          total: item.total
-          
+          total: item.total,
         })),
         payment: null,
-        status: 0
-      };// phan nay sua lai 1 chut them cac truong nhu productId: item._id,
+        status: 0,
+        discount: 0,
+      }; // phan nay sua lai 1 chut them cac truong nhu productId: item._id,
       // nameP: item.pname,
       // imageP: item.image,
       // priceP: item.price,
       // quantityP: item.quantity,
- console.log(billData,"billData");
- 
+      console.log(billData, 'billData');
+
       const response = await axios.post('/bills/createBill', billData);
       console.log('Bill created successfully:', response.data);
 
@@ -189,7 +195,7 @@ export default function CashierScreen() {
               <button
                 key={'all'}
                 className={`btn-categories ${selectedCategory === 'all' ? 'bg-dark font-bold' : ''}`}
-                onClick={() => handleCategorySelect("all")}
+                onClick={() => handleCategorySelect('all')}
               >
                 Tất cả
               </button>
@@ -202,7 +208,6 @@ export default function CashierScreen() {
                 >
                   {category.category_name}
                 </button>
-
               ))}
             </div>
 
@@ -221,9 +226,7 @@ export default function CashierScreen() {
                   </div>
                 ))
               ) : (
-                <div className="col-span-5 text-center text-red-600">
-                  {noResultsMessage}
-                </div>
+                <div className="col-span-5 text-center text-red-600">{noResultsMessage}</div>
               )}
             </div>
           </section>
@@ -237,7 +240,7 @@ export default function CashierScreen() {
               {tables.map((table, index) => (
                 <div
                   key={table._id}
-                  className={`table ${selectedTable === index ? 'bg-selected' : (table.status === true ? 'available' : 'occupied')}`}
+                  className={`table ${selectedTable === index ? 'bg-selected' : table.status === true ? 'available' : 'occupied'}`}
                   onClick={() => handleTableSelect(table, index)}
                   style={{
                     cursor: table.status === true ? 'pointer' : 'not-allowed',
@@ -245,7 +248,6 @@ export default function CashierScreen() {
                 >
                   <span>{index + 1}</span>
                 </div>
-
               ))}
             </div>
 
@@ -286,7 +288,9 @@ export default function CashierScreen() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="4" className="py-2 text-center">No items in cart</td>
+                    <td colSpan="4" className="py-2 text-center">
+                      No items in cart
+                    </td>
                   </tr>
                 )}
               </tbody>
@@ -296,18 +300,15 @@ export default function CashierScreen() {
               <span>Total:</span>
               <span>{calculateTotalPrice()} VND</span>
             </div>
-            <button style={{ marginTop: "5%" }}
+            <button
+              style={{ marginTop: '5%' }}
               className="w-full bg-blue-500 text-white py-2 rounded disabled:bg-gray-300"
               disabled={cart.length === 0 || selectedTable === null}
               onClick={handleCreateBill}
             >
               Create Bill
             </button>
-            {successMessage && (
-              <div className="text-green-600 font-bold mt-4">
-                {successMessage}
-              </div>
-            )}
+            {successMessage && <div className="text-green-600 font-bold mt-4">{successMessage}</div>}
           </section>
         </div>
       </main>

@@ -2,37 +2,32 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 
 export default function AddProductModal({ closeModal }) {
-  const [categories,setCategories]=useState("");
+  const [categories, setCategories] = useState('');
   const [formData, setFormData] = useState({
- 
-    group_name: "",
-    category_name: "",
+    group_name: '',
+    category_name: '',
   });
-  useEffect=(()=>{
-
-  },[])
+  useEffect = (() => {}, []);
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prevData => ({
+    setFormData((prevData) => ({
       ...prevData,
-      [name]: value
+      [name]: value,
     }));
   };
   const handleSubmit = async (e) => {
-   
     try {
       const response = await axios.post('/createbill/createCategory', formData);
       console.log('Category created:', response.data);
       setFormData({
-        
-        group_name: "",
-        category_name: "",
+        group_name: '',
+        category_name: '',
       });
       closeModal();
     } catch (error) {
       console.error('Error creating category:', error);
     }
-  }; 
+  };
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
       <div className="bg-white p-4 rounded-lg w-1/3 h-auto">
@@ -66,17 +61,10 @@ export default function AddProductModal({ closeModal }) {
           </div>
 
           <div className="flex justify-end mt-3">
-            <button
-              type="button"
-              onClick={closeModal}
-              className="bg-gray-400 text-white px-3 py-1 rounded-lg mr-2"
-            >
+            <button type="button" onClick={closeModal} className="bg-gray-400 text-white px-3 py-1 rounded-lg mr-2">
               Hủy
             </button>
-            <button
-              type="submit"
-              className="bg-green-400 text-white px-3 py-1 rounded-lg"
-            >
+            <button type="submit" className="bg-green-400 text-white px-3 py-1 rounded-lg">
               Thêm
             </button>
           </div>

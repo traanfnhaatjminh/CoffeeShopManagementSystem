@@ -1,36 +1,39 @@
 import React, { useState, useEffect } from 'react';
 import { FaPen, FaTrash, FaPlus, FaFileImport } from 'react-icons/fa';
+import { IoSearch } from 'react-icons/io5';
 import Sidebar from '../../components/common/sidebar';
 import Header from '../../components/common/header';
-import axios from 'axios'; // Import axios
 import EditProductModal from './EditProductModal';
 import AddProductModal from './AddProductModal';
+import Paging from '../../components/common/paging';
+import axios from 'axios'; // Import axios
 import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import { confirmAlert } from 'react-confirm-alert';
+import 'react-toastify/dist/ReactToastify.css';
 import 'react-confirm-alert/src/react-confirm-alert.css';
-import { IoSearch } from 'react-icons/io5';
+
 function WarehouseProduct() {
   const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [importFile, setImportFile] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const productPerPage = 6;
 
   const fetchProducts = async (search = '') => {
-    setLoading(true);
     try {
-      const response = await axios.get('/products/list');
+      const response = await axios.get('/products/listall');
+      //status 1 -> 0
+      const activeProducts = response.data.filter((product) => product.status !== 0);
       //filer
-      const filteredProducts = response.data.filter(product =>
+      const filteredProducts = activeProducts.filter((product) =>
         product.pname.toLowerCase().includes(search.toLowerCase())
       );
       setProducts(filteredProducts);
     } catch (error) {
       console.error('Error fetching products:', error);
-    } finally {
-      setLoading(false);
     }
   };
   useEffect(() => {
@@ -46,15 +49,15 @@ function WarehouseProduct() {
   };
   const deleteProduct = async (productId) => {
     try {
-      const response = await axios.delete(`/products/deleteProduct/${productId}`);
+      const response = await axios.put(`/products/deleteProduct/${productId}`);
       if (response.status === 200) {
         toast.success('Xóa sản phẩm thành công!');
         fetchProducts(searchTerm);
       }
     } catch (error) {
-      console.error('Error deleting products:', error);
+      console.error('Có lỗi xảy ra khi xóa sản phẩm:', error);
     }
-  }
+  };
   const confirmDeleteProduct = (productId) => {
     confirmAlert({
       title: 'Xác nhận xóa',
@@ -71,17 +74,68 @@ function WarehouseProduct() {
       ],
     });
   };
+
   const handleSearchChange = (e) => {
     const value = e.target.value;
     setSearchTerm(value);
     fetchProducts(value);
   };
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    const allowedExtensions = ['.csv'];
+    const fileExtension = file?.name.slice(file.name.lastIndexOf('.'));
+
+    if (file && !allowedExtensions.includes(fileExtension)) {
+      toast.error('Vui lòng chọn tệp CSV.');
+      return;
+    }
+    setImportFile(file);
+  };
+
+  const handleFileUpload = async (file) => {
+    if (!file) {
+      toast.error('Vui lòng chọn một tệp để nhập.');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await axios.post('/products/importProduct', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      if (response.data.success) {
+        toast.success(`${response.data.count} sản phẩm đã được nhập thành công!`);
+        fetchProducts();
+      } else {
+        toast.info('Không có sản phẩm mới để nhập.');
+      }
+    } catch (error) {
+      console.error('Error importing products:', error);
+      toast.error('Đã xảy ra lỗi trong quá trình nhập sản phẩm.');
+    } finally {
+      setImportFile(null);
+    }
+  };
+
+  useEffect(() => {
+    if (importFile) {
+      handleFileUpload(importFile);
+    }
+  }, [importFile]);
+
+  //paging
+  const currentProducts = products.slice((currentPage - 1) * productPerPage, currentPage * productPerPage);
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
       <Header />
       <ToastContainer
         position="top-right"
-        autoClose={5000}
+        autoClose={2000}
         hideProgressBar={false}
         closeOnClick
         pauseOnHover
@@ -108,28 +162,24 @@ function WarehouseProduct() {
                 onChange={handleSearchChange}
               />
               <span className="absolute inset-y-0 right-0 flex items-center pr-3">
-                <button
-                  type="button"
-                  className="bg-transparent border-none cursor-pointer"
-                  aria-label="Tìm kiếm"
-                >
+                <button type="button" className="bg-transparent border-none cursor-pointer" aria-label="Tìm kiếm">
                   <IoSearch />
                 </button>
               </span>
             </div>
-            <button className="bg-green-300 text-white p-2 rounded-lg flex items-center"
-              onClick={handleAddProduct}
-            >
+            <button className="bg-green-300 text-white p-2 rounded-lg flex items-center" onClick={handleAddProduct}>
               <FaPlus className="mr-1" />
               Thêm
             </button>
-            <button className="bg-teal-400 text-white p-2 rounded-lg flex items-center">
+            <label
+              htmlFor="fileUpload"
+              className="bg-teal-400 text-white p-2 rounded-lg flex items-center cursor-pointer"
+            >
               <FaFileImport className="mr-1" />
               Import
-            </button>
+            </label>
+            <input id="fileUpload" type="file" hidden onChange={handleFileChange} />
           </div>
-
-
 
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200 bg-white shadow-lg rounded-lg overflow-hidden">
@@ -154,16 +204,14 @@ function WarehouseProduct() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {loading ? (
+                {currentProducts.length === 0 ? (
                   <tr>
-                    <td colSpan="6" className="text-center py-4 font-bold text-lg font-lauren italic text-gray-400">Đang tải dữ liệu...</td>
-                  </tr>
-                ) : products.length === 0 ? (
-                  <tr>
-                    <td colSpan="6" className="text-center py-4 font-bold text-lg font-lauren italic text-gray-400">Không tìm thấy sản phẩm nào, hãy nhập chính xác và thử lại...</td>
+                    <td colSpan="6" className="text-center py-4 font-bold text-lg font-lauren italic text-gray-400">
+                      Không tìm thấy sản phẩm nào, hãy nhập chính xác và thử lại...
+                    </td>
                   </tr>
                 ) : (
-                  products.map((product, index) => (
+                  currentProducts.map((product, index) => (
                     <tr key={product._id} className="border-b hover:bg-gray-100 transition-colors duration-300">
                       <td className="px-6 py-4 text-lg font-medium text-gray-900">{index + 1}</td>
                       <td className="px-6 py-4 text-md text-gray-500">{product.pname}</td>
@@ -179,7 +227,8 @@ function WarehouseProduct() {
                         >
                           <FaPen className="inline-block" />
                         </button>
-                        <button className="bg-brown-900 text-white py-1 px-3 rounded-lg"
+                        <button
+                          className="bg-brown-900 text-white py-1 px-3 rounded-lg"
                           onClick={() => confirmDeleteProduct(product._id)}
                         >
                           <FaTrash className="inline-block" />
@@ -190,6 +239,13 @@ function WarehouseProduct() {
                 )}
               </tbody>
             </table>
+            <Paging
+              currentPage={currentPage}
+              totalItems={products.length}
+              itemsPerPage={productPerPage}
+              onPageChange={setCurrentPage}
+            />
+
             {showEditModal && (
               <EditProductModal
                 product={selectedProduct}
@@ -198,10 +254,7 @@ function WarehouseProduct() {
               />
             )}
             {showAddModal && (
-              <AddProductModal
-                closeModal={() => setShowAddModal(false)}
-                refreshProducts={fetchProducts}
-              />
+              <AddProductModal closeModal={() => setShowAddModal(false)} refreshProducts={fetchProducts} />
             )}
           </div>
         </div>
@@ -211,3 +264,4 @@ function WarehouseProduct() {
 }
 
 export default WarehouseProduct;
+//hehe

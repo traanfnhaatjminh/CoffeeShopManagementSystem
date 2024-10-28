@@ -9,7 +9,9 @@ export default function AllBillScreen() {
       <Header />
       <div className="flex flex-grow">
         <Sidebar />
-        <div className="flex-grow overflow-hidden"> {/* Thêm overflow-hidden cho phần BillList */}
+        <div className="flex-grow overflow-hidden">
+          {' '}
+          {/* Thêm overflow-hidden cho phần BillList */}
           <BillList />
         </div>
       </div>
