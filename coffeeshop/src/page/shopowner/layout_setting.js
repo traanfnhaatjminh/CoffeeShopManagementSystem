@@ -4,6 +4,7 @@ import AddUserModal from './AddUserModal';
 import Sidebar from '../../components/common/sidebar';
 import Header from '../../components/common/header';
 import UserManagement from './UserManagement';
+import Settings from './Settings';
 import { ToastContainer } from 'react-toastify';
 
 function LayoutSetting() {
@@ -17,12 +18,13 @@ function LayoutSetting() {
       <Header />
       <div className="flex flex-1">
         <Sidebar />
-        <UserManagement
+        {/* <UserManagement
           showModal={showModal}
           setShowModal={setShowModal}
           setShowEditModal={setShowEditModal}
           setCurrentUser={setCurrentUser}
-        />
+        /> */}
+        <Settings/>
       </div>
 
       {/* Modal để thêm người dùng */}

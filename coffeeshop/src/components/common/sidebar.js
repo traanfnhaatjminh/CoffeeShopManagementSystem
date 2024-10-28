@@ -48,7 +48,7 @@ function Sidebar() {
         </div>
         <div className="abc">
           <IoIosSettings className="w-6 h-6 mb-1 text-gray-700" />
-          <Link to="/admin/userlist">
+          <Link to="/admin/setting">
             <span className="text-sm text-gray-700 font-lauren font-semibold">Setting</span>
           </Link>
         </div>

@@ -3,8 +3,7 @@ const Category = require('../../model/Category'); // Đường dẫn tới model
 const mongoose = require("mongoose");
 const csv = require("csvtojson");
 const createNewProduct = async (req, res, next) => {
-    try {
-
+    try { 
         const { pname, quantity, price, category_id } = req.body;
         const pId = new mongoose.Types.ObjectId();
         const discount = 0;

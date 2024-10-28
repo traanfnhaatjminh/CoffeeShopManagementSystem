@@ -63,7 +63,7 @@ function App() {
           <Route path="createBill" element={<CashierScreen />}></Route>
           <Route path="tablelist" element={<TableList />}></Route>
           <Route path="statistic" element={<LayoutStatistic />}></Route>
-          <Route path="userlist" element={<LayoutSetting />}></Route>
+          <Route path="setting" element={<LayoutSetting />}></Route>
         </Route>
 
         <Route

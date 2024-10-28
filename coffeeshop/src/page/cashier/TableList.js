@@ -58,7 +58,7 @@ export default function TableList() {
           status: 1,
           table_id: selectedTable._id,
         };
-        await axios.put(`/bills/update/${selectBill._id}`, billUpdateData);
+        await axios.put(`bills/update/${selectBill._id}`, billUpdateData);
         await loadData();
 
         toast.success('Thanh toán thành công!');
@@ -89,16 +89,7 @@ export default function TableList() {
               <h1 className="text-lg font-bold px-2 font-lauren border bg-brown-900 text-white border-brown-400 rounded-lg">
                 Danh sách bàn
               </h1>
-              <div className="relative flex flex-1 justify-end">
-                <input
-                  type="text"
-                  placeholder="Tìm bàn..."
-                  className="relative w-2/3 bg-white border border-gray-300 rounded-md pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                />
-                <span className="absolute inset-y-0 right-0 flex items-center pr-2">
-                  <IoSearch />
-                </span>
-              </div>
+           
             </div>
 
             {/* Table List */}

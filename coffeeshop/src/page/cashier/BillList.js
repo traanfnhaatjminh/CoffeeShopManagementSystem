@@ -12,21 +12,25 @@ export default function BillList() {
   const [tableList, setTableList] = useState([]);
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [billPerPage] = useState(3);
+  const [totalPages, setTotalPages] = useState(1);
+  const [billPerPage] = useState(10);
   const [modalShow, setModalShow] = useState(false);
   const [selectedBill, setSelectedBill] = useState(null);
   const [exportModalShow, setExportModalShow] = useState(false);
 
   const loadData = async () => {
-    const response = await axios.get('/bills');
-    setBillList(response.data);
+    const response = await axios.get('/bills', {
+      params: { search, page: currentPage, limit: billPerPage },
+    });
+    setBillList(response.data.bills);
+    setTotalPages(response.data.totalPages);
     const responseTable = await axios.get('/tables/list');
     setTableList(responseTable.data);
   };
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [search, currentPage]);
 
   const getTableNumber = (tableId) => {
     const tableIndex = tableList.findIndex((table) => table._id.toString() === tableId.toString());
@@ -40,20 +44,9 @@ export default function BillList() {
   const handleExport = () => {
     setExportModalShow(true);
   };
-  const indexOfLastBill = currentPage * billPerPage;
-  const indexOfFirstBill = indexOfLastBill - billPerPage;
+  console.log();
+  
 
-  // Lọc hóa đơn dựa trên giá trị tìm kiếm
-  const filteredBills = billList.filter((bill) => {
-    const searchLower = search.toLowerCase();
-    return (
-      bill.product_list.some((product) => product.nameP.toLowerCase().includes(searchLower)) ||
-      new Date(bill.created_time).toLocaleDateString().includes(searchLower) ||
-      new Date(bill.updated_time).toLocaleDateString().includes(searchLower)
-    );
-  });
-
-  const currentBills = filteredBills.slice(indexOfFirstBill, indexOfLastBill);
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
       <div className="flex-1 flex flex-col bg-white rounded-lg shadow-lg m-6">
@@ -111,10 +104,10 @@ export default function BillList() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {currentBills.map((bill, index) => (
+              {billList.map((bill, index) => (
                 <tr key={bill._id} className="hover:bg-gray-50 transition duration-150 ease-in-out">
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {billList.findIndex((b) => b._id === bill._id) + 1}
+                    {(currentPage - 1) * billPerPage + index + 1}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {new Date(bill.created_time).toLocaleTimeString()}
@@ -155,7 +148,7 @@ export default function BillList() {
               <GrFormPrevious className="h-5 w-5" />
             </button>
 
-            {[...Array(Math.ceil(billList.length / billPerPage))].map((_, index) => (
+            {[...Array(totalPages)].map((_, index) => (
               <button
                 key={index}
                 onClick={() => setCurrentPage(index + 1)}
