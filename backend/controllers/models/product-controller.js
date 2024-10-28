@@ -1,4 +1,5 @@
 const Product = require("../../model/Product");
+const Category = require('../../model/Category'); // Đường dẫn tới model danh mục
 const mongoose = require("mongoose");
 const csv = require("csvtojson");
 const createNewProduct = async (req, res, next) => {
@@ -155,27 +156,43 @@ const importProduct = async (req, res, next) => {
         const products = await csv().fromFile(req.file.path);
         const productData = [];
         const duplicateProducts = [];
-
+        const defaultImage = '../../uploads/default.jpg';
+        // map để lưu danh sách danh mục với tên và ID
+        const categories = await Category.find(); // list all categories
+        const categoryMap = new Map();
+        categories.forEach(category => {
+            categoryMap.set(category.category_name.trim(), category._id);
+        });
         for (const item of products) {
-            const pname = item.ten_san_pham;
+            const pname = item.ten_san_pham.trim();
             const quantity = Number(item.so_luong);
             const price = Number(item.gia);
-            const existingProduct = await Product.findOne({ pname });
+            const categoryName = item.category_name.trim();
+            // Tìm ID của danh mục từ map
+            const categoryId = categoryMap.get(categoryName);
 
+            const existingProduct = await Product.findOne({ pname });
             if (existingProduct) {
                 duplicateProducts.push(pname);
             } else {
-                productData.push({ pname, quantity, price, image: null, category_id: null, discount: 0, status: 1 });
+                productData.push({
+                    pname,
+                    quantity,
+                    price,
+                    image: defaultImage,
+                    category_id: categoryId,
+                    discount: 0,
+                    status: 1
+                });
             }
         }
-
         if (productData.length > 0) {
             await Product.insertMany(productData);
-            return res.status(200).json({ success: true, count: productData.length });
+            return res.status(200).json({ success: true, count: productData.length, duplicates: duplicateProducts });
         }
         return res.status(200).json({ success: false });
-
     } catch (error) {
+        console.error('Error importing products:', error);
         next(error);
     }
 };

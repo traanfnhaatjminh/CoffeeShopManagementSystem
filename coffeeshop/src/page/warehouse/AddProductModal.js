@@ -14,6 +14,7 @@ export default function AddProductModal({ closeModal, refreshProducts }) {
   const [priceError, setPriceError] = useState('');
   const [imageError, setImageError] = useState('');
 
+  //list categories
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -38,11 +39,7 @@ export default function AddProductModal({ closeModal, refreshProducts }) {
         setSelectedFile(null);
         setImageError('*Tệp không hợp lệ. Vui lòng chọn tệp hình ảnh.');
       }
-    } else {
-      setImage('');
-      setSelectedFile(null);
-      setImageError('');
-    }
+    } 
   };
 
   const handleSubmit = async (e) => {

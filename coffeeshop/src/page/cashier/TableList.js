@@ -58,7 +58,7 @@ export default function TableList() {
           status: 1,
           table_id: selectedTable._id,
         };
-        await axios.put(`admin/bills/update/${selectBill._id}`, billUpdateData);
+        await axios.put(`bills/update/${selectBill._id}`, billUpdateData);
         await loadData();
 
         toast.success('Thanh toán thành công!');

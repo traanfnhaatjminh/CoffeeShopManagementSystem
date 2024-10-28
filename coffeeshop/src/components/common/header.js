@@ -2,19 +2,21 @@ import React from 'react';
 import { MdLogout } from 'react-icons/md';
 import { CgProfile } from 'react-icons/cg';
 import logo from '../../assets/img/z5872646337869_8529aff6a7d5eb21b.png';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate to redirect
 import axios from 'axios';
+import { logout } from '@/store/auth-slice/authSlice';
 
 export default function Header() {
   const user = useSelector((state) => state.auth.user); // Get the user from Redux
   const navigate = useNavigate();
-
+  const dispatch = useDispatch();
   const handleLogout = async () => {
     try {
-      await axios.post('/api/auth/logout');
-
-      navigate('/login');
+      dispatch(logout()).then((data) => {
+        console.log(data);
+        navigate('/auth/login');
+      });
     } catch (error) {
       console.error('Error logging out:', error);
     }
