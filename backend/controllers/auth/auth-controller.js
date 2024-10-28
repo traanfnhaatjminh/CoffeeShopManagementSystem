@@ -251,6 +251,42 @@ const resetPassword = (req, res, next) => {
         });
     }
 };
+
+const verifyOTP = async (req, res, next) => {
+    const { code } = req.body;
+    console.log("req.cookie:", req.cookies);
+    const token = req.cookies.resetpassword;
+    if (!token) {
+        return res.status(StatusCodes.UNAUTHORIZED).json({
+            message:
+                "OTP does not exist or has expired. Please request OTP again.",
+            success: false,
+        });
+    }
+    jwt.verify(token, process.env.JWT_ACCESS_TOKEN_SECRET, (err, decode) => {
+        if (err) {
+            return res.status(StatusCodes.UNAUTHORIZED).json({
+                message: "OTP does not exist or has expired",
+                success: false,
+            });
+        }
+        const { otp, email } = decode;
+        if (code === otp) {
+            return res.status(StatusCodes.OK).json({
+                success: true,
+                message:
+                    "OTP is valid. You can proceed to change your password.",
+                email,
+            });
+        } else {
+            console.log("demo");
+            return res.json({
+                success: false,
+                message: "OTP is incorrect. Please try again.",
+            });
+        }
+    });
+};
 const authController = {
     loginUser,
     updatePassword,
@@ -259,6 +295,7 @@ const authController = {
     register,
     forgotPassword,
     resetPassword,
+    verifyOTP,
 };
 
 module.exports = authController;

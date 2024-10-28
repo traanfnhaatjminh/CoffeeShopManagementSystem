@@ -7,6 +7,17 @@ import { useDispatch } from 'react-redux';
 import * as yup from 'yup';
 import { forgotPassword } from '@/store/auth-slice/authSlice';
 import { ToastContainer, toast } from 'react-toastify';
+import MoonLoader from 'react-spinners/MoonLoader';
+
+const cssOverride = {
+  position: 'fixed',
+  top: '0',
+  left: '0',
+  right: '0',
+  bottom: '0',
+  margin: 'auto',
+  zIndex: 9999,
+};
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
@@ -20,37 +31,43 @@ const ForgotPassword = () => {
   const navigate = useNavigate();
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setLoading(true);
     try {
-      setLoading(true);
       await validationSchema.validate({ email }, { abortEarly: false });
       setErrors({});
       dispatch(forgotPassword({ email })).then((data) => {
-        console.log('data:', data);
         if (data.payload.success) {
-          navigate('/auth/login/verify-password');
+          setLoading(false);
+          toast.success(data.payload.message);
+          setTimeout(() => {
+            navigate('/auth/login/verify-password');
+          }, 1500);
         } else if (!data.payload.success || !data) {
+          setLoading(false);
           toast.error(data.payload.message);
         }
       });
     } catch (err) {
-      console.log(err);
       const newErrors = {};
       err.inner.forEach((error) => {
         newErrors[error.path] = error.message;
       });
       setErrors(newErrors);
-    } finally {
       setLoading(false);
     }
   };
   const handleChange = (event) => {
     setEmail(event.target.value);
-    console.log('email:', email);
   };
   return (
     <>
       <HeaderAuthentication></HeaderAuthentication>
       <div className="container font-mono flex">
+        {loading && (
+          <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
+            <MoonLoader loading={loading} size={50} cssOverride={cssOverride} color="#ffffff" />
+          </div>
+        )}
         <div className="content-left w-5/12 pl-36 mt-10">
           <ToastContainer
             position="top-right"

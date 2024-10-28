@@ -9,6 +9,7 @@ import { FaGoogle, FaUserLock, FaFacebook } from 'react-icons/fa';
 import { login } from '@/store/auth-slice/authSlice';
 import { toast, ToastContainer } from 'react-toastify';
 import MoonLoader from 'react-spinners/MoonLoader';
+import RegisterModal from './RegisterModal';
 
 const dataFormLogin = {
   email: '',
@@ -27,6 +28,9 @@ const AuthLogin = () => {
   const [formData, setFormData] = useState(dataFormLogin);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [isRegisterModalOpen, setRegisterModalOpen] = useState(false);
+  const openRegisterModal = () => setRegisterModalOpen(true);
+  const closeRegisterModal = () => setRegisterModalOpen(false);
 
   const dispatch = useDispatch();
   const validationSchema = yup.object({
@@ -163,11 +167,12 @@ const AuthLogin = () => {
                 >
                   Sign in to your account
                 </button>
+                <RegisterModal isOpen={isRegisterModalOpen} onClose={closeRegisterModal} />
                 <p className="register-account text-center font-mono">
                   Don’t have an account?{' '}
-                  <a href="https://flowbite.com/docs/components/buttons/" className="text-[#3B82F6]">
+                  <span onClick={openRegisterModal} className="text-[#3B82F6] cursor-pointer">
                     Sign up
-                  </a>
+                  </span>
                 </p>
                 <div className="line-other flex mt-5 items-center ">
                   <div className="flex-grow h-px bg-gray-300"></div>

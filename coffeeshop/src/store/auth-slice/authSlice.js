@@ -6,6 +6,7 @@ const initialState = {
   isAuthenticated: false,
   isLoading: false,
   user: null,
+  email: '',
 };
 
 export const login = createAsyncThunk('auth/login', async (formData) => {
@@ -32,6 +33,18 @@ export const forgotPassword = createAsyncThunk('auth/forgotPassword', async ({ e
 });
 export const logout = createAsyncThunk('auth/logout', async () => {
   const response = await axios.post(`${environment.apiUrl}/auth/logout`, {}, { withCredentials: true });
+  return response.data;
+});
+export const verifyOTP = createAsyncThunk('auth/verifyOTP', async ({ code }) => {
+  const response = await axios.post(`${environment.apiUrl}/auth/verifyOTP`, { code }, { withCredentials: true });
+  return response.data;
+});
+export const resetPassword = createAsyncThunk('auth/changePassword', async ({ email, newPassword }) => {
+  const response = await axios.post(
+    `${environment.apiUrl}/auth/changePassword`,
+    { email, newPassword },
+    { withCredentials: true }
+  );
   return response.data;
 });
 const authSlice = createSlice({
@@ -66,6 +79,20 @@ const authSlice = createSlice({
       .addCase(logout.fulfilled, (state, action) => {
         state.isLoading = false;
         state.user = null;
+        state.isAuthenticated = false;
+      })
+      .addCase(verifyOTP.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(verifyOTP.rejected, (state) => {
+        state.isLoading = false;
+        state.user = null;
+        state.isAuthenticated = false;
+      })
+      .addCase(verifyOTP.fulfilled, (state, action) => {
+        console.log('action:', action);
+        state.isLoading = false;
+        state.email = action.payload.success ? action.payload.email : null;
         state.isAuthenticated = false;
       });
   },
