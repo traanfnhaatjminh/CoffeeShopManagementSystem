@@ -1,18 +1,40 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Chart from 'chart.js/auto';
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import axios from 'axios';
 
 export default function Statistic() {
   const areaChartRef = useRef(null);
   const pieChartRef = useRef(null);
-  const areaChartInstanceRef = useRef(null); // Reference to area chart instance
-  const pieChartInstanceRef = useRef(null); // Reference to pie chart instance
+  const areaChartInstanceRef = useRef(null);
+  const pieChartInstanceRef = useRef(null);
+  // State to hold statistics data
+  const [statistics, setStatistics] = useState({
+    totalRevenue: 0,
+    totalOrders: 0,
+    bestSellingDrink: '',
+    totalDrinksSold: 0,
+  });
+
+  const fetchStatistics = async () => {
+    try {
+      const response = await axios.get('/bills/statistics');
+      const data = response.data;
+      setStatistics({
+        totalRevenue: data.totalRevenue,
+        totalOrders: data.totalOrders,
+        bestSellingDrink: data.bestSellingDrink,
+        totalDrinksSold: data.totalDrinksSold,
+      });
+    } catch (error) {
+      console.error('Failed to fetch statistics:', error);
+    }
+  };
 
   useEffect(() => {
-    // Initialize Area Chart
+    fetchStatistics();
     const ctx = areaChartRef.current.getContext('2d');
 
-    // Destroy previous chart if it exists to avoid canvas reuse error
     if (areaChartInstanceRef.current) {
       areaChartInstanceRef.current.destroy();
     }
@@ -112,7 +134,7 @@ export default function Statistic() {
                 >
                   Doanh thu
                 </div>
-                <div className="h5 mb-0 font-weight-bold text-gray-800">1.000.000 vnd</div>
+                <div className="h5 mb-0 font-weight-bold text-gray-800">{statistics.totalRevenue.toLocaleString()} VND</div>
               </div>
             </div>
           </div>
@@ -128,7 +150,7 @@ export default function Statistic() {
                 >
                   Số đơn hàng
                 </div>
-                <div className="h5 mb-0 font-weight-bold text-gray-800">1000</div>
+                <div className="h5 mb-0 font-weight-bold text-gray-800">{statistics.totalOrders}</div>
               </div>
             </div>
           </div>
@@ -144,7 +166,7 @@ export default function Statistic() {
                 >
                   Đồ uống bán chạy
                 </div>
-                <div className="h5 mb-0 font-weight-bold text-gray-800">Bạc sỉu</div>
+                <div className="h5 mb-0 font-weight-bold text-gray-800">{statistics.bestSellingDrink}</div>
               </div>
             </div>
           </div>
@@ -160,7 +182,7 @@ export default function Statistic() {
                 >
                   Số đồ uống bán được
                 </div>
-                <div className="h5 mb-0 font-weight-bold text-gray-800">1221</div>
+                <div className="h5 mb-0 font-weight-bold text-gray-800">{statistics.totalDrinksSold}</div>
               </div>
             </div>
           </div>

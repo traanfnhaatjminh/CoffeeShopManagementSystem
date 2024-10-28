@@ -1,8 +1,50 @@
-
 const express = require("express");
 const mongoose = require("mongoose")
 const Bill = require("../../model/Bill");
 const Table = require("../../model/TableList");
+
+const getStatistics = async (req, res) => {
+  try {
+    // Get total revenue and order count
+    const [revenueData] = await Bill.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalRevenue: { $sum: "$total_cost" },
+          totalOrders: { $sum: 1 },
+        },
+      },
+    ]);
+
+    // Get best-selling drink and total drinks sold
+    const [drinkData] = await Bill.aggregate([
+      { $unwind: "$product_list" }, // Flatten product_list arrays
+      {
+        $group: {
+          _id: "$product_list.nameP",
+          totalQuantity: { $sum: "$product_list.quantityP" },
+        },
+      },
+      { $sort: { totalQuantity: -1 } }, // Sort by highest quantity
+      {
+        $group: {
+          _id: null,
+          bestSellingDrink: { $first: "$_id" },
+          totalDrinksSold: { $sum: "$totalQuantity" },
+        }
+      },
+    ]);
+
+    res.json({
+      totalRevenue: revenueData?.totalRevenue || 0,
+      totalOrders: revenueData?.totalOrders || 0,
+      bestSellingDrink: drinkData?.bestSellingDrink || "No Data",
+      totalDrinksSold: drinkData?.totalDrinksSold || 0,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error calculating statistics", error });
+  }
+};
 
 const postBill = async (req, res) => {
   try {
@@ -37,10 +79,13 @@ const postBill = async (req, res) => {
       error: error.message,
     });
   }
-}
+};
+
 const getBill = async (req, res, next) => {
   try {
     const { id } = req.params;  // Lấy `id` từ URL
+    console.log(id);
+
 
     // Tìm hóa đơn theo table_id
     const bill = await Bill.findOne({ table_id: id, status: 0 }).populate('product_list.productId');
@@ -75,7 +120,6 @@ const postBillUpdate = async (req, res, next) => {
   }
 }
 
-
 const getAllBill = async (req, res) => {
   try {
     const billlist = await Bill.find();
@@ -83,8 +127,8 @@ const getAllBill = async (req, res) => {
   } catch (error) {
     next(error);
   }
-
 }
+
 const createNewBill = async (req, res, next) => {
   try {
     const { total_cost, table_id, product_list, payment, status, discount } = req.body;
@@ -111,6 +155,5 @@ const createNewBill = async (req, res, next) => {
   }
 };
 
-
-module.exports = { postBill, getBill, postBillUpdate, getAllBill, createNewBill };
+module.exports = { postBill, getBill, postBillUpdate, getAllBill, createNewBill, getStatistics};
 

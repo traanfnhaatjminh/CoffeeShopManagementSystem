@@ -30,7 +30,9 @@ export default function TableList() {
   const handleTableClick = async (table) => {
     try {
       if (!table.status) {
-        const response = await axios.get(`bills/table/${table._id}`);
+        const response = await axios.get(`/bills/table/${table._id}`);
+        console.log(`${table._id}`);
+
         setSelectBill(response.data);
         setSelectedTable({
           ...table,
@@ -108,9 +110,8 @@ export default function TableList() {
                 <div
                   key={table._id}
                   onClick={() => handleTableClick(table)} // Add click event for table selection
-                  className={`bg-white rounded-lg shadow p-4 h-40 w-32 flex flex-col items-center justify-center cursor-pointer ${
-                    table.status === true ? 'bg-green-200' : 'bg-red-200'
-                  }`}
+                  className={`bg-white rounded-lg shadow p-4 h-40 w-32 flex flex-col items-center justify-center cursor-pointer ${table.status === true ? 'bg-green-200' : 'bg-red-200'
+                    }`}
                 >
                   <h3 className="text-center font-bold text-xl"> Bàn {index + 1} </h3>
                   <p className="text-sm">Số ghế: {table.number_of_chair}</p>

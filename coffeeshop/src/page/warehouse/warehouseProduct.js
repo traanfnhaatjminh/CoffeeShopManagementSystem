@@ -47,6 +47,7 @@ function WarehouseProduct() {
   const handleAddProduct = () => {
     setShowAddModal(true);
   };
+  
   const deleteProduct = async (productId) => {
     try {
       const response = await axios.put(`/products/deleteProduct/${productId}`);
