@@ -30,11 +30,11 @@ export default function TableList() {
   const handleTableClick = async (table) => {
     try {
       if (!table.status) {
-        const response = await axios.get(`bills/table/${table._id}`);
-        setSelectBill(response.data);
+        const responseT = await axios.get(`/bills/table/${table._id}`);
+        setSelectBill(responseT.data);
         setSelectedTable({
           ...table,
-          bill: response.data ? response.data.product_list : [],
+          bill: responseT.data ? responseT.data.product_list : [],
         });
 
         setPaymentMethod('');

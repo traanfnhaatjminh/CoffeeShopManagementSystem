@@ -214,17 +214,19 @@ export default function CashierScreen() {
             {/* Drinks List */}
             <div className="grid grid-cols-5 gap-4">
               {filteredProducts.length > 0 ? (
-                filteredProducts.map((product) => (
-                  <div
-                    key={product._id}
-                    className="bg-white rounded-lg shadow p-4 cursor-pointer"
-                    onClick={() => handleAddToCart(product)}
-                  >
-                    <img src={product.image} alt={product.pname} className="mb-4 rounded" />
-                    <h3 className="text-items">{product.pname}</h3>
-                    <p className="text-price">{product.price} VND</p>
-                  </div>
-                ))
+                filteredProducts
+                  .filter((product) => product.status !== 0) 
+                  .map((product) => (
+                    <div
+                      key={product._id}
+                      className="bg-white rounded-lg shadow p-4 cursor-pointer"
+                      onClick={() => handleAddToCart(product)}
+                    >
+                      <img src={product.image} alt={product.pname} className="mb-4 rounded" />
+                      <h3 className="text-items">{product.pname}</h3>
+                      <p className="text-price">{product.price} VND</p>
+                    </div>
+                  ))
               ) : (
                 <div className="col-span-5 text-center text-red-600">{noResultsMessage}</div>
               )}

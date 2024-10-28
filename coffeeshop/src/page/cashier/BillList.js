@@ -13,7 +13,7 @@ export default function BillList() {
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [billPerPage] = useState(3);
+  const [billPerPage] = useState(10);
   const [modalShow, setModalShow] = useState(false);
   const [selectedBill, setSelectedBill] = useState(null);
   const [exportModalShow, setExportModalShow] = useState(false);

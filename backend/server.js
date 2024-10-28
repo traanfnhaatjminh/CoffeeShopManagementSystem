@@ -48,7 +48,7 @@ app.get("/api", async (req, res, next) => {
 
 app.use("/categories", CategoryRouter);
 app.use("/products", ProductRouter);
-app.use("/admin/bills", BillRouter);
+app.use("/bills", BillRouter);
 app.use("/api/auth", authRouter);
 app.use("/tables", TableRouter);
 app.use("/users", UserRouter);
