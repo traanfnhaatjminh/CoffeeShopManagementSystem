@@ -20,7 +20,7 @@ function WarehouseProduct() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [importFile, setImportFile] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const productPerPage = 6;
+  const productPerPage = 5;
 
   const fetchProducts = async (search = '') => {
     try {

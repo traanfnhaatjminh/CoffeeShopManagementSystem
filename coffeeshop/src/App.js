@@ -59,7 +59,7 @@ function App() {
           }
         >
           <Route path="statistic" element={<LayoutStatistic />}></Route>
-          <Route path="userlist" element={<LayoutSetting />}></Route>
+          <Route path="setting" element={<LayoutSetting />}></Route>
         </Route>
 
         <Route path="/cashier"

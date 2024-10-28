@@ -10,12 +10,14 @@ const {
   getAllBill,
   getBill,
   createNewBill,
-  getStatistics
+  getStatistics,
+  getProductsSoldByCategory
 } = require("../controllers/models/bill-controller");
 
 billRouter.get("", getBill);
 billRouter.post("/createBill", createNewBill);
 billRouter.get("/statistics", getStatistics);
+billRouter.get("/sold-by-category", getProductsSoldByCategory);
 billRouter.get("/table/:id", getBillFromTable);
 billRouter.put("/update/:id",postBillUpdate);
 

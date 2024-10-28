@@ -46,6 +46,50 @@ const getStatistics = async (req, res) => {
   }
 };
 
+const getProductsSoldByCategory = async (req, res) => {
+  try {
+    const result = await Bill.aggregate([
+      { $unwind: "$product_list" }, // Unwind the product_list array
+      {
+        $lookup: {
+          from: "products", // Name of the products collection
+          localField: "product_list.productId",
+          foreignField: "_id",
+          as: "productDetails",
+        },
+      },
+      { $unwind: "$productDetails" }, // Unwind to access the product details
+      {
+        $lookup: {
+          from: "categories", // Name of the categories collection
+          localField: "productDetails.category_id",
+          foreignField: "_id",
+          as: "categoryDetails",
+        },
+      },
+      { $unwind: "$categoryDetails" }, // Unwind to access category details
+      {
+        $group: {
+          _id: "$categoryDetails.category_name", // Group by category name
+          totalSold: { $sum: "$product_list.quantityP" }, // Sum quantities sold
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          category: "$_id",
+          totalSold: 1,
+        },
+      },
+    ]);
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error('Error fetching products sold by category:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
 const postBill = async (req, res) => {
   try {
     const {
@@ -114,6 +158,8 @@ const postBillUpdate = async (req, res, next) => {
     const updatedBill = {
       status: 1,
       payment: req.body.payment,
+      discount: req.body.discount,
+      total_cost: req.body.totalCost
     };
     const bill = await Bill.findByIdAndUpdate(id, updatedBill, { new: true });
 
@@ -154,8 +200,8 @@ const getBill = async (req, res, next) => {
         {
           "product_list.nameP": { $regex: searchLower, $options: "i" },
         },
-        
-        
+
+
       ],
     });
 
@@ -217,5 +263,6 @@ module.exports = {
   postBillUpdate,
   getAllBill,
   createNewBill,
-  getStatistics
+  getStatistics,
+  getProductsSoldByCategory
 };
