@@ -214,7 +214,7 @@ function WarehouseProduct() {
                 ) : (
                   currentProducts.map((product, index) => (
                     <tr key={product._id} className="border-b hover:bg-gray-100 transition-colors duration-300">
-                      <td className="px-6 py-4 text-lg font-medium text-gray-900">{index + 1}</td>
+                      <td className="px-6 py-4 text-lg font-medium text-gray-900"> {index + 1 + (currentPage - 1) * productPerPage}</td>
                       <td className="px-6 py-4 text-md text-gray-500">{product.pname}</td>
                       <td className="px-6 py-4 text-md text-gray-500">{product.quantity}</td>
                       <td className="px-6 py-4 text-md text-gray-500">{product.price}</td>
