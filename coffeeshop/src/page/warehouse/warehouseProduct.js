@@ -207,7 +207,7 @@ function WarehouseProduct() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {currentProducts.length === 0 ? (
                   <tr>
-                    <td colSpan="6" className="text-center py-4 font-bold text-lg font-lauren italic text-gray-400">
+                    <td colSpan="6" className="text-center py-4 font-bold text-lg italic text-gray-400">
                       Không tìm thấy sản phẩm nào, hãy nhập chính xác và thử lại...
                     </td>
                   </tr>

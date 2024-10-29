@@ -9,6 +9,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { IoSearch } from 'react-icons/io5';
 import { confirmAlert } from 'react-confirm-alert';
+import Paging from '../../components/common/paging';
 
 function WarehouseCategory() {
   const [categories, setCategories] = useState([]);
@@ -16,11 +17,11 @@ function WarehouseCategory() {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const categoryPerPage = 7;
 
   // Fetch categories from the backend
   const fetchCategories = async (search = '') => {
-    setLoading(true);
     try {
       const response = await axios.get('/categories/list');
       const filteredCategories = response.data.filter(category =>
@@ -29,8 +30,6 @@ function WarehouseCategory() {
       setCategories(filteredCategories);
     } catch (error) {
       console.error('Error fetching categories:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -87,7 +86,8 @@ function WarehouseCategory() {
       ]
     });
   };
-
+  //paging
+  const currentCategories = categories.slice((currentPage - 1) * categoryPerPage, currentPage * categoryPerPage);
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
       <Header />
@@ -119,10 +119,6 @@ function WarehouseCategory() {
               <FaPlus className="mr-1" />
               Thêm
             </button>
-            <button className="bg-teal-400 text-white p-2 rounded-lg flex items-center">
-              <FaFileImport className="mr-1" />
-              Import
-            </button>
           </div>
 
           <div className="overflow-x-auto">
@@ -136,14 +132,12 @@ function WarehouseCategory() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {loading ? (
-                  <tr><td colSpan="4" className="text-center py-4 font-bold text-lg italic text-gray-400">Đang tải dữ liệu...</td></tr>
-                ) : categories.length === 0 ? (
+                {currentCategories.length === 0 ? (
                   <tr><td colSpan="4" className="text-center py-4 font-bold text-lg italic text-gray-400">Không tìm thấy danh mục nào...</td></tr>
                 ) : (
-                  categories.map((category, index) => (
+                  currentCategories.map((category, index) => (
                     <tr key={category._id} className="border-b hover:bg-gray-100">
-                      <td className="px-6 py-4 text-lg font-medium text-gray-900">{index + 1}</td>
+                      <td className="px-6 py-4 text-lg font-medium text-gray-900">{index + 1 + (currentPage - 1) * categoryPerPage}</td>
                       <td className="px-6 py-4 text-md text-gray-500">{category.group_name}</td>
                       <td className="px-6 py-4 text-md text-gray-500">{category.category_name}</td>
                       <td className="px-6 py-4 text-md font-medium flex">
@@ -154,7 +148,7 @@ function WarehouseCategory() {
                           <FaPen />
                         </button>
                         <button
-                          className="bg-brown-900 text-white py-1 px-3 rounded-lg"
+                          className="bg-brown-900 text-white py-2 px-3 rounded-lg"
                           onClick={() => handleDeleteCategory(category._id)}
                         >
                           <FaTrash />
@@ -166,7 +160,12 @@ function WarehouseCategory() {
               </tbody>
             </table>
           </div>
-
+          <Paging
+            currentPage={currentPage}
+            totalItems={categories.length}
+            itemsPerPage={categoryPerPage}
+            onPageChange={setCurrentPage}
+          />
           {showAddModal && (
             <AddCategoryModal
               closeModal={() => setShowAddModal(false)}
