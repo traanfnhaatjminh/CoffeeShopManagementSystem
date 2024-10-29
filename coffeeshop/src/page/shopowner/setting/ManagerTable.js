@@ -66,7 +66,7 @@ const ManagerTable = () => {
     }
   };
   const handleUpdateTable = async () => {
-    if (!tableToEdit || !tableToEdit._id) return; // Kiểm tra thêm điều kiện này
+    if (!tableToEdit || !tableToEdit._id) return; 
   
     try {
       const response = await axios.put(`/tables/update/${tableToEdit._id}`, {
