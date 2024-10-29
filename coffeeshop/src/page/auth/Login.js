@@ -53,8 +53,10 @@ const AuthLogin = () => {
       setErrors({});
       dispatch(login(formData)).then((data) => {
         if (data.payload.success) {
+          setLoading(false);
           toast.success(data.payload.message);
         } else if (!data.payload.success || !data) {
+          setLoading(false);
           toast.error(data.payload.message);
         }
       });
@@ -64,7 +66,7 @@ const AuthLogin = () => {
         newErrors[error.path] = error.message;
       });
       setErrors(newErrors);
-    } finally {
+      console.log('errors:', errors);
       setLoading(false);
     }
   };
@@ -128,6 +130,7 @@ const AuthLogin = () => {
                       onChange={handleChange}
                     ></input>
                   </div>
+                  {errors.email && <div className="text-red-500 mt-1">{errors.email}</div>}
                 </div>
                 <div className="password-login mt-4">
                   <label htmlFor="password">Password</label>
@@ -148,7 +151,7 @@ const AuthLogin = () => {
                       onChange={handleChange}
                     ></input>
                   </div>
-                  {errors.general && <div className="text-red-500 mt-1">{errors.general}</div>}
+                  {errors.password && <div className="text-red-500 mt-1">{errors.password}</div>}
                 </div>
                 <div className="feature-login flex justify-between mt-2">
                   <div className="remember-account flex items-center">
@@ -174,27 +177,6 @@ const AuthLogin = () => {
                     Sign up
                   </span>
                 </p>
-                <div className="line-other flex mt-5 items-center ">
-                  <div className="flex-grow h-px bg-gray-300"></div>
-                  <span className="mx-4 text-gray-400">Or login with</span>
-                  <div className="flex-grow h-px bg-gray-300"></div>
-                </div>
-                <div className="register-by-other mt-5 flex">
-                  <button
-                    type="button"
-                    className="justify-center text-white bg-[#3b5998] hover:bg-[#3b5998]/90 focus:ring-4 focus:outline-none focus:ring-[#3b5998]/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-[#3b5998]/55 me-2 mb-2 w-6/12 ml-1"
-                  >
-                    <FaFacebook className="w-4 h-4 me-2" fill="currentColor" />
-                    Sign in with Facebook
-                  </button>
-                  <button
-                    type="button"
-                    className="justify-center text-white bg-[#4285F4] hover:bg-[#4285F4]/90 focus:ring-4 focus:outline-none focus:ring-[#4285F4]/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-[#4285F4]/55 me-2 mb-2 w-6/12"
-                  >
-                    <FaGoogle className="w-4 h-4 me-2" />
-                    Sign in with Google
-                  </button>
-                </div>
               </div>
             </form>
           </div>

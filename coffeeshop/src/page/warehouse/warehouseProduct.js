@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { FaPen, FaTrash, FaPlus, FaFileImport } from 'react-icons/fa';
+import { FaPen, FaTrash, FaPlus, FaFileImport, FaCheck } from 'react-icons/fa';
 import { IoSearch } from 'react-icons/io5';
+import { MdCancel, MdBlock } from 'react-icons/md'; // Import the cancel icon
 import Sidebar from '../../components/common/sidebar';
 import Header from '../../components/common/header';
 import EditProductModal from './EditProductModal';
@@ -20,17 +21,16 @@ function WarehouseProduct() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [importFile, setImportFile] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const productPerPage = 6;
-
+  const productPerPage = 5;
   const fetchProducts = async (search = '') => {
     try {
       const response = await axios.get('/products/listall');
-      //status 1 -> 0
-      const activeProducts = response.data.filter((product) => product.status !== 0);
+      const allProducts = response.data;
       //filer
-      const filteredProducts = activeProducts.filter((product) =>
+      const filteredProducts = allProducts.filter((product) =>
         product.pname.toLowerCase().includes(search.toLowerCase())
       );
+      
       setProducts(filteredProducts);
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -47,21 +47,22 @@ function WarehouseProduct() {
   const handleAddProduct = () => {
     setShowAddModal(true);
   };
+  
   const deleteProduct = async (productId) => {
     try {
       const response = await axios.put(`/products/deleteProduct/${productId}`);
       if (response.status === 200) {
-        toast.success('Xóa sản phẩm thành công!');
+        toast.success('Đã ngừng kích hoạt sản phẩm!');
         fetchProducts(searchTerm);
       }
     } catch (error) {
-      console.error('Có lỗi xảy ra khi xóa sản phẩm:', error);
+      console.error('Có lỗi xảy ra khi ngưng kích hoạt sản phẩm:', error);
     }
   };
   const confirmDeleteProduct = (productId) => {
     confirmAlert({
-      title: 'Xác nhận xóa',
-      message: 'Bạn có chắc chắn muốn xóa sản phẩm này?',
+      title: 'Xác nhận',
+      message: 'Bạn có chắc chắn muốn ngưng kích hoạt sản phẩm này?',
       buttons: [
         {
           label: 'Có',
@@ -69,7 +70,7 @@ function WarehouseProduct() {
         },
         {
           label: 'Không',
-          onClick: () => toast.info('Hãy suy nghĩ thật kĩ nhé!'),
+          onClick: () => toast.info('Hãy thử lại sau!'),
         },
       ],
     });
@@ -206,15 +207,25 @@ function WarehouseProduct() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {currentProducts.length === 0 ? (
                   <tr>
-                    <td colSpan="6" className="text-center py-4 font-bold text-lg font-lauren italic text-gray-400">
+                    <td colSpan="6" className="text-center py-4 font-bold text-lg italic text-gray-400">
                       Không tìm thấy sản phẩm nào, hãy nhập chính xác và thử lại...
                     </td>
                   </tr>
                 ) : (
                   currentProducts.map((product, index) => (
                     <tr key={product._id} className="border-b hover:bg-gray-100 transition-colors duration-300">
-                      <td className="px-6 py-4 text-lg font-medium text-gray-900">{index + 1}</td>
-                      <td className="px-6 py-4 text-md text-gray-500">{product.pname}</td>
+                      <td className="px-6 py-4 text-lg font-medium text-gray-900"> {index + 1 + (currentPage - 1) * productPerPage}</td>
+                      <td className="px-6 py-4 text-md text-gray-500">{product.pname}
+                      {product.status === 1 && (
+                        <span className="text-green-500 ml-2">
+                          <FaCheck title="Sản phẩm khả dụng" />
+                        </span>
+                      )}
+                      {product.status === 0 && (
+                        <span className="text-red-500 ml-2">không khả dụng
+                          <MdCancel title="Sản phẩm không khả dụng" />
+                        </span>
+                      )}</td>
                       <td className="px-6 py-4 text-md text-gray-500">{product.quantity}</td>
                       <td className="px-6 py-4 text-md text-gray-500">{product.price}</td>
                       <td className="px-6 py-4 text-md text-gray-500">
@@ -231,7 +242,7 @@ function WarehouseProduct() {
                           className="bg-brown-900 text-white py-1 px-3 rounded-lg"
                           onClick={() => confirmDeleteProduct(product._id)}
                         >
-                          <FaTrash className="inline-block" />
+                          <MdBlock className="inline-block" />
                         </button>
                       </td>
                     </tr>
@@ -245,7 +256,6 @@ function WarehouseProduct() {
               itemsPerPage={productPerPage}
               onPageChange={setCurrentPage}
             />
-
             {showEditModal && (
               <EditProductModal
                 product={selectedProduct}
@@ -264,4 +274,3 @@ function WarehouseProduct() {
 }
 
 export default WarehouseProduct;
-//hehe

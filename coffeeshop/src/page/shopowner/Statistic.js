@@ -1,54 +1,102 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Chart from 'chart.js/auto';
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import axios from 'axios';
 
 export default function Statistic() {
   const areaChartRef = useRef(null);
   const pieChartRef = useRef(null);
-  const areaChartInstanceRef = useRef(null); // Reference to area chart instance
-  const pieChartInstanceRef = useRef(null); // Reference to pie chart instance
+  const areaChartInstanceRef = useRef(null);
+  const pieChartInstanceRef = useRef(null);
+  // State to hold statistics data
+  const [statistics, setStatistics] = useState({
+    totalRevenue: 0,
+    totalOrders: 0,
+    bestSellingDrink: '',
+    totalDrinksSold: 0,
+    categories: [],
+    soldQuantities: []
+  });
+
+  const fetchStatistics = async () => {
+    try {
+      const response = await axios.get('/bills/statistics');
+      const responseCate = await axios.get('/categories/list');
+      const soldQuantitiesResponse = await axios.get('/bills/sold-by-category');
+      const data = response.data;
+      const categoriesData = responseCate.data;
+      setStatistics({
+        totalRevenue: data.totalRevenue,
+        totalOrders: data.totalOrders,
+        bestSellingDrink: data.bestSellingDrink,
+        totalDrinksSold: data.totalDrinksSold,
+        categories: categoriesData,
+        soldQuantities: soldQuantitiesResponse.data
+      });
+    } catch (error) {
+      console.error('Failed to fetch statistics:', error);
+    }
+  };
+
+  const getRandomColor = () => {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+      color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+  };
+
 
   useEffect(() => {
-    // Initialize Area Chart
-    const ctx = areaChartRef.current.getContext('2d');
+    fetchStatistics();
+    // const ctx = areaChartRef.current.getContext('2d');
 
-    // Destroy previous chart if it exists to avoid canvas reuse error
-    if (areaChartInstanceRef.current) {
-      areaChartInstanceRef.current.destroy();
-    }
+    // if (areaChartInstanceRef.current) {
+    //   areaChartInstanceRef.current.destroy();
+    // }
 
-    areaChartInstanceRef.current = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-        datasets: [
-          {
-            label: 'Doanh thu',
-            data: [0, 10000, 5000, 15000, 10000, 20000, 15000, 25000, 20000, 30000, 25000, 40000],
-            backgroundColor: 'rgba(78, 115, 223, 0.05)',
-            borderColor: 'rgba(78, 115, 223, 1)',
-            pointRadius: 3,
-            pointBackgroundColor: 'rgba(78, 115, 223, 1)',
-          },
-        ],
-      },
-      options: {
-        maintainAspectRatio: false,
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: {
-              callback: (value) => `${value} VND`,
-            },
-          },
-        },
-      },
-    });
+    // areaChartInstanceRef.current = new Chart(ctx, {
+    //   type: 'line',
+    //   data: {
+    //     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+    //     datasets: [
+    //       {
+    //         label: 'Doanh thu',
+    //         data: [0, 10000, 5000, 15000, 10000, 20000, 15000, 25000, 20000, 30000, 25000, 40000],
+    //         backgroundColor: 'rgba(78, 115, 223, 0.05)',
+    //         borderColor: 'rgba(78, 115, 223, 1)',
+    //         pointRadius: 3,
+    //         pointBackgroundColor: 'rgba(78, 115, 223, 1)',
+    //       },
+    //     ],
+    //   },
+    //   options: {
+    //     maintainAspectRatio: false,
+    //     scales: {
+    //       y: {
+    //         beginAtZero: true,
+    //         ticks: {
+    //           callback: (value) => `${value} VND`,
+    //         },
+    //       },
+    //     },
+    //   },
+    // });
 
-    // Initialize Pie Chart
+    // // Cleanup function to destroy charts when the component unmounts
+    // return () => {
+    //   if (areaChartInstanceRef.current) {
+    //     areaChartInstanceRef.current.destroy();
+    //   }
+    // };
+  }, []);
+
+  useEffect(() => {
+    if (statistics.categories.length === 0) return;
+
     const pieCtx = pieChartRef.current.getContext('2d');
 
-    // Destroy previous chart if it exists to avoid canvas reuse error
     if (pieChartInstanceRef.current) {
       pieChartInstanceRef.current.destroy();
     }
@@ -56,20 +104,11 @@ export default function Statistic() {
     pieChartInstanceRef.current = new Chart(pieCtx, {
       type: 'doughnut',
       data: {
-        labels: [
-          'Cà phê highlight',
-          'Cà phê Việt Nam',
-          'Cà phê máy',
-          'Cold brew',
-          'Trà trái cây',
-          'Hi-tea',
-          'Trà xanh tây bắc',
-          'Chocolate',
-        ],
+        labels: statistics.soldQuantities.map((q) => q.category),
         datasets: [
           {
-            data: [55, 30, 15, 25, 12, 54, 13, 21],
-            backgroundColor: ['#00ffff', '#1cc88a', '#36b9cc', '#8a2be2', '#a52a2a', '#deb887', '#5f9ea0', '#7fff00'],
+            data: statistics.soldQuantities.map(q => q.totalSold),
+            backgroundColor: statistics.soldQuantities.map(() => getRandomColor()),
           },
         ],
       },
@@ -77,17 +116,7 @@ export default function Statistic() {
         maintainAspectRatio: false,
       },
     });
-
-    // Cleanup function to destroy charts when the component unmounts
-    return () => {
-      if (areaChartInstanceRef.current) {
-        areaChartInstanceRef.current.destroy();
-      }
-      if (pieChartInstanceRef.current) {
-        pieChartInstanceRef.current.destroy();
-      }
-    };
-  }, []);
+  }, [statistics]);
 
   return (
     <div className="flex-1 p-4">
@@ -112,7 +141,7 @@ export default function Statistic() {
                 >
                   Doanh thu
                 </div>
-                <div className="h5 mb-0 font-weight-bold text-gray-800">1.000.000 vnd</div>
+                <div className="h5 mb-0 font-weight-bold text-gray-800">{statistics.totalRevenue.toLocaleString()} VND</div>
               </div>
             </div>
           </div>
@@ -128,7 +157,7 @@ export default function Statistic() {
                 >
                   Số đơn hàng
                 </div>
-                <div className="h5 mb-0 font-weight-bold text-gray-800">1000</div>
+                <div className="h5 mb-0 font-weight-bold text-gray-800">{statistics.totalOrders}</div>
               </div>
             </div>
           </div>
@@ -144,7 +173,7 @@ export default function Statistic() {
                 >
                   Đồ uống bán chạy
                 </div>
-                <div className="h5 mb-0 font-weight-bold text-gray-800">Bạc sỉu</div>
+                <div className="h5 mb-0 font-weight-bold text-gray-800">{statistics.bestSellingDrink}</div>
               </div>
             </div>
           </div>
@@ -160,7 +189,7 @@ export default function Statistic() {
                 >
                   Số đồ uống bán được
                 </div>
-                <div className="h5 mb-0 font-weight-bold text-gray-800">1221</div>
+                <div className="h5 mb-0 font-weight-bold text-gray-800">{statistics.totalDrinksSold}</div>
               </div>
             </div>
           </div>
@@ -168,9 +197,9 @@ export default function Statistic() {
       </div>
 
       {/* Charts */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="center gap-4">
         {/* Area Chart */}
-        <div className="card shadow h-100">
+        {/* <div className="card shadow h-100">
           <div className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
             <h6 className="font-weight-bold text-primary">Doanh thu từng tháng</h6>
           </div>
@@ -179,42 +208,16 @@ export default function Statistic() {
               <canvas ref={areaChartRef}></canvas>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Pie Chart */}
         <div className="card shadow h-100">
           <div className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-            <h6 className="font-weight-bold text-primary">Thống kê số lượng theo loại đồ uống</h6>
+            <h6 className="font-weight-bold text-primary">Thống kê lượng bán ra của từng loại đồ uống (Đơn vị: Cốc)</h6>
           </div>
           <div className="card-body">
             <div className="chart-pie pt-4 pb-2">
               <canvas ref={pieChartRef}></canvas>
-            </div>
-            <div className="mt-4 text-center small">
-              <span className="mr-2">
-                <i className="fas fa-circle" style={{ color: '#00ffff' }}></i> Cà phê highlight
-              </span>
-              <span className="mr-2">
-                <i className="fas fa-circle" style={{ color: '#7fffd4' }}></i> Cà phê Việt Nam
-              </span>
-              <span className="mr-2">
-                <i className="fas fa-circle" style={{ color: '#0000ff' }}></i> Cà phê máy
-              </span>
-              <span className="mr-2">
-                <i className="fas fa-circle" style={{ color: '#8a2be2' }}></i> Cold brew
-              </span>
-              <span className="mr-2">
-                <i className="fas fa-circle" style={{ color: '#a52a2a' }}></i> Trà trái cây
-              </span>
-              <span className="mr-2">
-                <i className="fas fa-circle" style={{ color: '#deb887' }}></i> Hi-tea
-              </span>
-              <span className="mr-2">
-                <i className="fas fa-circle" style={{ color: '#5f9ea0' }}></i> Trà xanh tây bắc
-              </span>
-              <span className="mr-2">
-                <i className="fas fa-circle" style={{ color: '#7fff00' }}></i> Chocolate
-              </span>
             </div>
           </div>
         </div>

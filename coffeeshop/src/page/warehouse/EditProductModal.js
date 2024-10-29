@@ -10,6 +10,7 @@ export default function EditProductModal({ product, closeModal, refreshProducts 
     const [imagePreview, setImagePreview] = useState('');
     const [category, setCategory] = useState('');
     const [categories, setCategories] = useState([]);
+    const [status, setStatus] = useState('');
     const [quantityError, setQuantityError] = useState('');
     const [priceError, setPriceError] = useState('');
     const [imageError, setImageError] = useState('');
@@ -32,6 +33,7 @@ export default function EditProductModal({ product, closeModal, refreshProducts 
             setPrice(product.price);
             setImage(product.image);
             setCategory(product.category_id ? product.category_id._id : '');
+            setStatus(product.status);
             setImagePreview(product.image); //xem trc ảnh
         }
     }, [product]);
@@ -73,6 +75,7 @@ export default function EditProductModal({ product, closeModal, refreshProducts 
         formData.append('quantity', quantity);
         formData.append('price', price);
         formData.append('category_id', category);
+        formData.append('status', status);
         if (image) {
             formData.append('image', image);  // thêm file ảnh vào FormData
         }
@@ -120,7 +123,7 @@ export default function EditProductModal({ product, closeModal, refreshProducts 
                                 className="border rounded-md p-2 w-full"
                                 min="0"
                             />
-                            {quantityError && <p className="text-red-500">{quantityError}</p>} 
+                            {quantityError && <p className="text-red-500">{quantityError}</p>}
                         </div>
                         <div>
                             <label>Giá</label>
@@ -142,7 +145,7 @@ export default function EditProductModal({ product, closeModal, refreshProducts 
                                 onChange={handleImageChange}
                                 className="border rounded-md p-2 w-full"
                             />
-                            {imageError && <p className="text-red-500">{imageError}</p>} 
+                            {imageError && <p className="text-red-500">{imageError}</p>}
                             {imagePreview && <img src={imagePreview} alt="Product" className="mt-2 w-16 h-16 object-cover rounded-lg" />}
                         </div>
                         <div>
@@ -158,6 +161,18 @@ export default function EditProductModal({ product, closeModal, refreshProducts 
                                         {cat.category_name}
                                     </option>
                                 ))}
+                            </select>
+                        </div>
+                        <div>
+                            <label>Trạng thái</label>
+                            <select
+                                name="status"
+                                value={status}
+                                onChange={(e) => setStatus(e.target.value)}
+                                className="border rounded-md p-2 w-full"
+                            >
+                                <option value="1">Active</option>
+                                <option value="0">Inactive</option>
                             </select>
                         </div>
                     </div>

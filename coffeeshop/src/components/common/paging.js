@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'react'
 import { GrFormPrevious, GrFormNext } from 'react-icons/gr';
 
 const Paging = ({ currentPage, totalItems, itemsPerPage, onPageChange }) => {
@@ -24,11 +24,10 @@ const Paging = ({ currentPage, totalItems, itemsPerPage, onPageChange }) => {
           <button
             key={index}
             onClick={() => handlePageChange(index + 1)}
-            className={`relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg ${
-              currentPage === index + 1
-                ? 'bg-brown-500 text-white'
-                : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
-            }`}
+            className={`relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg ${currentPage === index + 1
+              ? 'bg-brown-500 text-white'
+              : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
+              }`}
           >
             {index + 1}
           </button>
@@ -45,4 +44,5 @@ const Paging = ({ currentPage, totalItems, itemsPerPage, onPageChange }) => {
     </div>
   );
 };
+
 export default Paging;

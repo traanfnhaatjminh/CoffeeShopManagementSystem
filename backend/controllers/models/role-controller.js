@@ -18,5 +18,12 @@ const createNewRole = async (req, res, next) => {
         next(error);
     }
 };
-
-module.exports = {createNewRole};
+const getAllRole = async (req, res, next) => {
+    try {
+        const roles = await Role.find();
+        res.status(200).json(roles);
+    } catch (error) {
+        next(error);
+    }
+};
+module.exports = {createNewRole, getAllRole};

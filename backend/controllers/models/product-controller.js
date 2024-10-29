@@ -95,7 +95,7 @@ const updateProduct = async (req, res, next) => {
     const { productId } = req.params;
     console.log(productId);
 
-    const { pname, quantity, price, category_id } = req.body;
+    const { pname, quantity, price, category_id, status } = req.body;
     const image = req.file ? req.file.filename : undefined;  // không có ảnh mới thì để undefined hihi
 
     try {
@@ -104,6 +104,7 @@ const updateProduct = async (req, res, next) => {
             quantity,
             price,
             category_id,
+            status,
         };
         //cập nhật đường dẫn ảnh
         if (image) {

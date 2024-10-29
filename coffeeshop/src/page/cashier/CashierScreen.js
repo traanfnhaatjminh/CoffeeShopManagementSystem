@@ -4,6 +4,11 @@ import Sidebar from '../../components/common/sidebar';
 import Header from '../../components/common/header';
 import { IoSearch } from 'react-icons/io5';
 import axios from 'axios';
+import Paging from '../../components/common/paging';
+import 'react-toastify/dist/ReactToastify.css';
+import 'react-confirm-alert/src/react-confirm-alert.css';
+import { toast, ToastContainer } from 'react-toastify';
+
 
 export default function CashierScreen() {
   const [isOpen, setIsOpen] = useState(false);
@@ -18,7 +23,8 @@ export default function CashierScreen() {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [noResultsMessage, setNoResultsMessage] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [successMessage, setSuccessMessage] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const productPerPage = 5;
 
   useEffect(() => {
     // Fetch categories, products, and tables when the component mounts
@@ -140,10 +146,7 @@ export default function CashierScreen() {
         status: 0,
         discount: 0,
       }; // phan nay sua lai 1 chut them cac truong nhu productId: item._id,
-      // nameP: item.pname,
-      // imageP: item.image,
-      // priceP: item.price,
-      // quantityP: item.quantity,
+
       console.log(billData, 'billData');
 
       const response = await axios.post('/bills/createBill', billData);
@@ -152,16 +155,27 @@ export default function CashierScreen() {
       const tableId = tables[selectedTable]._id;
       await axios.put(`/tables/updateStatus/${tableId}`, { status: false });
 
-      setSuccessMessage('Create bill successfully.');
+      toast.success('Tạo hóa đơn thành công.');
     } catch (error) {
       console.error('Error creating bill:', error);
+      toast.error('Lỗi tạo hóa đơn!');
     }
   };
+
+  const currentProducts = filteredProducts.slice((currentPage - 1) * productPerPage, currentPage * productPerPage);
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
       <Header />
-
+      <ToastContainer
+        position="top-right"
+        autoClose={2000}
+        hideProgressBar={false}
+        closeOnClick
+        pauseOnHover
+        draggable
+        pauseOnFocusLoss
+      />
       {/* Main content */}
       <main className="flex flex-1">
         <Sidebar />
@@ -171,7 +185,7 @@ export default function CashierScreen() {
           {/* Menu Section */}
           <section className="flex-1">
             <div className="flex">
-              <h2 className="text-lg font-bold flex-1">Menu</h2>
+              <h2 className="text-lg font-bold px-2 py-1 font-lauren border bg-brown-900 text-white border-brown-400 rounded-lg">Menu</h2>
               <div className="relative flex flex-1 justify-end">
                 <input
                   ref={inputRef}
@@ -213,8 +227,8 @@ export default function CashierScreen() {
 
             {/* Drinks List */}
             <div className="grid grid-cols-5 gap-4">
-              {filteredProducts.length > 0 ? (
-                filteredProducts
+              {currentProducts.length > 0 ? (
+                currentProducts
                   .filter((product) => product.status !== 0)
                   .map((product) => (
                     <div
@@ -231,6 +245,12 @@ export default function CashierScreen() {
                 <div className="col-span-5 text-center text-red-600">{noResultsMessage}</div>
               )}
             </div>
+            <Paging
+              currentPage={currentPage}
+              totalItems={filteredProducts.length}
+              itemsPerPage={productPerPage}
+              onPageChange={setCurrentPage}
+            />
           </section>
 
           {/* Cart Section */}
@@ -310,7 +330,6 @@ export default function CashierScreen() {
             >
               Create Bill
             </button>
-            {successMessage && <div className="text-green-600 font-bold mt-4">{successMessage}</div>}
           </section>
         </div>
       </main>

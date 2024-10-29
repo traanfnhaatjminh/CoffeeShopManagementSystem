@@ -49,11 +49,50 @@ const createNewUser = async (req, res, next) => {
 
 const getAllUser = async (req, res, next) => {
     try {
-        const users = await User.find();
+        const users = await User.find({status: 1});
         res.status(200).json(users);
     } catch (error) {
         next(error);
     }
 };
 
-module.exports = { createNewUser, getAllUser };
+const getAllUsersWithRole = async (req, res, next) => {
+    try {
+        const users = await User.find()
+            .populate('role')
+            .exec();
+        res.status(200).json(users);
+    } catch (error) {
+        next(error);
+    }
+}
+// const deleteUser = async (req, res, next) =>{
+//     try {
+//         const {userId} = req.params;
+//         const deleteUser = await User.findByIdAndUpdate(userId, {status: 0}, {new:true});
+//         res.status(200).json({
+//             message: "User status updated successfully",
+//             result: deleteUser
+//         });
+//     } catch (error) {
+//         next(error);
+//     }
+// }
+const editUser = async (req, res, next) => {
+    try {
+        const {userId} = req.params;
+        const {newRole, status} = req.body;
+        const role = await Role.findOne({role_name: newRole});
+        const updateUser = await User.findByIdAndUpdate(userId, {role: role._id, status: status}, {new: true}).populate('role');
+        if(!updateUser){
+            return res.status(404).json({message: "User not found"});
+        }
+        res.status(200).json({
+            message: "Updated successfully",
+            result: updateUser
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+module.exports = { createNewUser, getAllUser, getAllUsersWithRole, editUser};
