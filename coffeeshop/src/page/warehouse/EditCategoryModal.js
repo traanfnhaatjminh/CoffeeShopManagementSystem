@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { toast } from 'react-toastify';
 
-export default function EditProductModal({ category, closeModal }) {
+export default function EditProductModal({ category, closeModal, updateCategory, fetchCategories  }) {
   const [formData, setFormData] = useState({
-    groupName: '',
-    categoryName: '',
+    group_name: '',
+    category_name: '',
   });
 
   // Update form data when category prop changes
   useEffect(() => {
     if (category) {
       setFormData({
-        groupName: category.group_name || '',
-        categoryName: category.category_name || '',
+        group_name: category.group_name || '',
+        category_name: category.category_name || '',
       });
     }
   }, [category]);
@@ -23,10 +25,23 @@ export default function EditProductModal({ category, closeModal }) {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Updated Category:', formData);
-    closeModal();
+    try {
+      const response = await axios.put(`/categories/${category._id}`, formData);
+      if (response.data) {
+        console.log('Category updated:', response.data);
+        updateCategory(response.data); // This should update the state directly
+        toast.success("Cập nhật danh mục thành công");
+        fetchCategories();
+        closeModal(); // Close modal after successful update
+      } else {
+        console.error('No data returned from update');
+      }
+    } catch (error) {
+      console.error('Error updating category:', error);
+      toast.error("Đã xảy ra lỗi cập nhật danh mục.");
+    }
   };
 
   return (
@@ -40,22 +55,20 @@ export default function EditProductModal({ category, closeModal }) {
               <label>Tên nhóm</label>
               <input
                 type="text"
-                name="groupName"
-                value={formData.groupName}
+                name="group_name"
+                value={formData.group_name}
                 onChange={handleChange}
                 className="border rounded-md p-2 w-full"
-                required
               />
             </div>
             <div>
               <label>Tên danh mục</label>
               <input
                 type="text"
-                name="categoryName"
-                value={formData.categoryName}
+                name="category_name"
+                value={formData.category_name}
                 onChange={handleChange}
                 className="border rounded-md p-2 w-full"
-                required
               />
             </div>
           </div>

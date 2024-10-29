@@ -22,7 +22,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { checkAuth } from './store/auth-slice/authSlice';
 import CheckAuth from '@/page/common/CheckAuth';
 import NotFound from '@/page/auth/NotFound';
-import Statistic from './page/shopowner/Statistic';
 
 function App() {
   const { isAuthenticated, isLoading, user } = useSelector((state) => state.auth);
@@ -59,11 +58,20 @@ function App() {
             </CheckAuth>
           }
         >
+          <Route path="statistic" element={<LayoutStatistic />}></Route>
+          <Route path="setting" element={<LayoutSetting />}></Route>
+        </Route>
+
+        <Route path="/cashier"
+          element={
+            <CheckAuth isAuthenticated={isAuthenticated} user={user}>
+              <CashierLayout></CashierLayout>
+            </CheckAuth>
+          }
+        >
           <Route path="allbill" element={<AllBillScreen />}></Route>
           <Route path="createBill" element={<CashierScreen />}></Route>
           <Route path="tablelist" element={<TableList />}></Route>
-          <Route path="statistic" element={<LayoutStatistic />}></Route>
-          <Route path="setting" element={<LayoutSetting />}></Route>
         </Route>
 
         <Route

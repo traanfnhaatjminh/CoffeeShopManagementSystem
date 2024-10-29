@@ -11,7 +11,7 @@ const CheckAuth = ({ isAuthenticated, user, children }) => {
     if (user.role.role_name === 'admin') {
       return <Navigate to="/admin/statistic"></Navigate>;
     } else if (user.role.role_name === 'cashier') {
-      return <Navigate to="/"></Navigate>;
+      return <Navigate to="/cashier/createbill"></Navigate>;
     } else if (user.role.role_name === 'warehouse manager') {
       return <Navigate to="/warehouse/products"></Navigate>;
     }

@@ -3,6 +3,93 @@ const mongoose = require("mongoose");
 const Bill = require("../../model/Bill");
 const Table = require("../../model/TableList");
 
+const getStatistics = async (req, res) => {
+  try {
+    // Get total revenue and order count
+    const [revenueData] = await Bill.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalRevenue: { $sum: "$total_cost" },
+          totalOrders: { $sum: 1 },
+        },
+      },
+    ]);
+
+    // Get best-selling drink and total drinks sold
+    const [drinkData] = await Bill.aggregate([
+      { $unwind: "$product_list" }, // Flatten product_list arrays
+      {
+        $group: {
+          _id: "$product_list.nameP",
+          totalQuantity: { $sum: "$product_list.quantityP" },
+        },
+      },
+      { $sort: { totalQuantity: -1 } }, // Sort by highest quantity
+      {
+        $group: {
+          _id: null,
+          bestSellingDrink: { $first: "$_id" },
+          totalDrinksSold: { $sum: "$totalQuantity" },
+        }
+      },
+    ]);
+
+    res.json({
+      totalRevenue: revenueData?.totalRevenue || 0,
+      totalOrders: revenueData?.totalOrders || 0,
+      bestSellingDrink: drinkData?.bestSellingDrink || "No Data",
+      totalDrinksSold: drinkData?.totalDrinksSold || 0,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error calculating statistics", error });
+  }
+};
+
+const getProductsSoldByCategory = async (req, res) => {
+  try {
+    const result = await Bill.aggregate([
+      { $unwind: "$product_list" }, // Unwind the product_list array
+      {
+        $lookup: {
+          from: "products", // Name of the products collection
+          localField: "product_list.productId",
+          foreignField: "_id",
+          as: "productDetails",
+        },
+      },
+      { $unwind: "$productDetails" }, // Unwind to access the product details
+      {
+        $lookup: {
+          from: "categories", // Name of the categories collection
+          localField: "productDetails.category_id",
+          foreignField: "_id",
+          as: "categoryDetails",
+        },
+      },
+      { $unwind: "$categoryDetails" }, // Unwind to access category details
+      {
+        $group: {
+          _id: "$categoryDetails.category_name", // Group by category name
+          totalSold: { $sum: "$product_list.quantityP" }, // Sum quantities sold
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          category: "$_id",
+          totalSold: 1,
+        },
+      },
+    ]);
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error('Error fetching products sold by category:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
+
 const postBill = async (req, res) => {
   try {
     const {
@@ -46,6 +133,7 @@ const postBill = async (req, res) => {
     });
   }
 };
+
 const getBillFromTable = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -70,6 +158,8 @@ const postBillUpdate = async (req, res, next) => {
     const updatedBill = {
       status: 1,
       payment: req.body.payment,
+      discount: req.body.discount,
+      total_cost: req.body.totalCost
     };
     const bill = await Bill.findByIdAndUpdate(id, updatedBill, { new: true });
 
@@ -110,8 +200,8 @@ const getBill = async (req, res, next) => {
         {
           "product_list.nameP": { $regex: searchLower, $options: "i" },
         },
-        
-        
+
+
       ],
     });
 
@@ -173,4 +263,6 @@ module.exports = {
   postBillUpdate,
   getAllBill,
   createNewBill,
+  getStatistics,
+  getProductsSoldByCategory
 };

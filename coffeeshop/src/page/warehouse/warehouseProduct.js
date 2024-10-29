@@ -20,7 +20,7 @@ function WarehouseProduct() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [importFile, setImportFile] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const productPerPage = 6;
+  const productPerPage = 5;
 
   const fetchProducts = async (search = '') => {
     try {
@@ -47,6 +47,7 @@ function WarehouseProduct() {
   const handleAddProduct = () => {
     setShowAddModal(true);
   };
+  
   const deleteProduct = async (productId) => {
     try {
       const response = await axios.put(`/products/deleteProduct/${productId}`);
@@ -245,7 +246,6 @@ function WarehouseProduct() {
               itemsPerPage={productPerPage}
               onPageChange={setCurrentPage}
             />
-
             {showEditModal && (
               <EditProductModal
                 product={selectedProduct}
@@ -264,4 +264,3 @@ function WarehouseProduct() {
 }
 
 export default WarehouseProduct;
-//hehe
