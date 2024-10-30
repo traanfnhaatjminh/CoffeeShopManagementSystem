@@ -3,7 +3,7 @@ const Category = require('../../model/Category'); // Đường dẫn tới model
 const mongoose = require("mongoose");
 const csv = require("csvtojson");
 const createNewProduct = async (req, res, next) => {
-    try { 
+    try {
         const { pname, quantity, price, category_id } = req.body;
         const pId = new mongoose.Types.ObjectId();
         const discount = 0;
@@ -35,7 +35,7 @@ const getAllProductInWarehouse = async (req, res, next) => {
 
 const getAllProductInHome = async (req, res, next) => {
     try {
-        const products = await Product.find()
+        const products = await Product.find({ status: 1 })
         res.status(200).json(products);
     } catch (error) {
         next(error);
