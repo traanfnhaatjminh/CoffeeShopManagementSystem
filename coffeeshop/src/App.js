@@ -1,40 +1,86 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import LayoutProduct from './page/warehouse/layout_product';
+import LayoutCategory from './page/warehouse/layout_category';
+import AuthLogin from '@/page/auth/Login';
+import ForgotPassword from '@/page/auth/ForgotPassword';
+import VerifyPassword from '@/page/auth/VerifyPassword';
+import ResetPassword from '@/page/auth/ResetPassword';
+
+import AuthLayout from '@/page/auth/Layout';
+import AdminLayout from '@/page/shopowner/ShopownerLayout';
+import WarehouseLayout from '@/page/warehouse/WarehouseLayout';
+import CashierLayout from '@/page/cashier/CashierLayout';
+
+import React, { useEffect } from 'react';
+import LayoutSetting from './page/shopowner/layout_setting';
+import CashierScreen from './page/cashier/CashierScreen';
+import AllBillScreen from './page/cashier/AllBillScreen';
+import TableList from './page/cashier/TableList';
+import LayoutStatistic from './page/shopowner/layout_statistic';
+import LandingPage from './components/common/landing';
+import { useDispatch, useSelector } from 'react-redux';
+import { checkAuth } from './store/auth-slice/authSlice';
+import CheckAuth from '@/page/common/CheckAuth';
+import NotFound from '@/page/auth/NotFound';
+import Statistic from './page/shopowner/Statistic';
 
 function App() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [token, setToken] = useState(null);
+  const { isAuthenticated, isLoading, user } = useSelector((state) => state.auth);
 
-  const handleLogin = async () => {
-    try {
-      const response = await axios.post('/login', { username, password });
-      setToken(response.data.token);
-      alert('Login successful');
-    } catch (error) {
-      alert('Login failed');
-    }
-  };
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(checkAuth());
+  }, [dispatch]);
 
   return (
-    <div className="App">
-      <h1>Login</h1>
-      <input 
-        type="text" 
-        placeholder="Username" 
-        value={username} 
-        onChange={(e) => setUsername(e.target.value)} 
-      />
-      <input 
-        type="password" 
-        placeholder="Password" 
-        value={password} 
-        onChange={(e) => setPassword(e.target.value)} 
-      />
-      <button onClick={handleLogin}>Login</button>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<LandingPage />}></Route>
+        <Route
+          path="/auth"
+          element={
+            <CheckAuth isAuthenticated={isAuthenticated} user={user}>
+              <AuthLayout></AuthLayout>
+            </CheckAuth>
+          }
+        >
+          <Route path="login" element={<AuthLogin />}></Route>
+          <Route path="login/forgot-password" element={<ForgotPassword />}></Route>
+          <Route path="login/verify-password" element={<VerifyPassword />}></Route>
+          <Route path="login/reset-password" element={<ResetPassword />}></Route>
+        </Route>
 
-      {token && <p>Token: {token}</p>}
-    </div>
+        <Route
+          path="/admin"
+          element={
+            <CheckAuth isAuthenticated={isAuthenticated} user={user}>
+              <AdminLayout></AdminLayout>
+            </CheckAuth>
+          }
+        >
+          <Route path="allbill" element={<AllBillScreen />}></Route>
+          <Route path="createBill" element={<CashierScreen />}></Route>
+          <Route path="tablelist" element={<TableList />}></Route>
+          <Route path="statistic" element={<LayoutStatistic />}></Route>
+          <Route path="userlist" element={<LayoutSetting />}></Route>
+        </Route>
+
+        <Route
+          path="/warehouse"
+          element={
+            <CheckAuth isAuthenticated={isAuthenticated} user={user}>
+              <WarehouseLayout></WarehouseLayout>
+            </CheckAuth>
+          }
+        >
+          <Route path="categories" element={<LayoutCategory />} />
+          <Route path="products" element={<LayoutProduct />} />
+        </Route>
+
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
