@@ -32,6 +32,7 @@ const StoreInfoSettings = () => {
   useEffect(() => {
     fetchStoreInfo();
   }, []);
+  
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     
@@ -52,7 +53,6 @@ const StoreInfoSettings = () => {
     }
   };
   
-
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {

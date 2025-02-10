@@ -16,8 +16,8 @@ function Settings() {
         return <StoreInfoSettings />;
       case 'userRoles':
         return <UserRolesSettings />;
-      case 'menuPricing':
-        return <MenuPricingSettings />;
+      // case 'menuPricing':
+      //   return <MenuPricingSettings />;
       case 'table':
         return <ManagerTable />;
       default:

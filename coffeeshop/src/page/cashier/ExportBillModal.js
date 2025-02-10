@@ -109,8 +109,7 @@ export default function ExportBillModal({ show, onClose, data, tableInfo }) {
             id="csvLink"
             data={processedData} // Chỉ xuất khi processedData đã được cập nhật
             headers={headersExport}
-            separator=";"
-            enclosingCharacter={``}
+            separator=","
             filename={`Bill-${fromDate}-${toDate}`}
             className={`bg-brown-500 hover:bg-brown-600 text-white px-4 py-2 rounded-lg ${processedData.length === 0 ? 'hidden' : ''}`} // Ẩn nếu không có dữ liệu
           >

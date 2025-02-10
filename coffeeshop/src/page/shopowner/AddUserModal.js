@@ -50,15 +50,14 @@ export default function AddUserModal({ closeModal }) {
     try {
       setLoading(true);
       await validationSchema.validate(formData, { abortEarly: false });
-      dispatch(register(formData)).then((data) => {
-        console.log('data:', data);
-        if (data.payload.success) {
-          toast.success(data.payload.message);
-        } else if (!data.payload.success || !data) {
-          toast.error(data.payload.message);
-        }
-      });
-      console.log('formData:', formData);
+      const result = await dispatch(register(formData));
+      if (result.payload?.success) {
+        toast.success(result.payload.message || 'User created successfully');
+        closeModal();
+      } else {
+        toast.error(result.payload.message || 'Failed to create user');
+      }
+
       setErrors({});
     } catch (error) {
       const newErrors = {};

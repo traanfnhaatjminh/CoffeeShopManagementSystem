@@ -159,7 +159,8 @@ const postBillUpdate = async (req, res, next) => {
       status: 1,
       payment: req.body.payment,
       discount: req.body.discount,
-      total_cost: req.body.totalCost
+      total_cost: req.body.totalCost,
+      updated_time: Date.now()
     };
     const bill = await Bill.findByIdAndUpdate(id, updatedBill, { new: true });
 

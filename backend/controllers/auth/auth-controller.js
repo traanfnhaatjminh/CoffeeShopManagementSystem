@@ -287,6 +287,7 @@ const verifyOTP = async (req, res, next) => {
         }
     });
 };
+
 const authController = {
     loginUser,
     updatePassword,

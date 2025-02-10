@@ -35,8 +35,10 @@ export default function TableList() {
         (total, item) => total + item.priceP * item.quantityP,
         0
       );
-      const discountedTotal = subtotal * ((100 - discount) / 100);
-      setTotalCost(discountedTotal);
+      if (discount !== '') {
+        const discountedTotal = subtotal * ((100 - discount) / 100);
+        setTotalCost(discountedTotal);
+      }
     }
   }, [discount]);
 
@@ -84,13 +86,27 @@ export default function TableList() {
 
   const handleUpdateBill = async () => {
     try {
-      if (selectedTable && paymentMethod) {
+      if (selectedTable && paymentMethod && discount !== '') {
         const billUpdateData = {
           payment: paymentMethod,
           status: 1,
           table_id: selectedTable._id,
           discount: discount,
           totalCost: totalCost
+        };
+        await axios.put(`/bills/update/${selectBill._id}`, billUpdateData);
+        await loadData();
+
+        toast.success('Thanh toán thành công!');
+        setSelectedTable(null);
+        setPaymentMethod('');
+        setDiscount(0);
+      } else if (selectedTable && paymentMethod && discount === '') {
+        const billUpdateData = {
+          payment: paymentMethod,
+          status: 1,
+          table_id: selectedTable._id,
+          discount: 0
         };
         await axios.put(`/bills/update/${selectBill._id}`, billUpdateData);
         await loadData();

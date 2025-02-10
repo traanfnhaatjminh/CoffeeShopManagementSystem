@@ -8,8 +8,8 @@ const ManagerTable = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [newTable, setNewTable] = useState({ number_of_chair: '', status: false, location_table: '' });
-  const [tableToEdit, setTableToEdit] = useState({ number_of_chair: '', status: false, location_table: '' });
+  const [newTable, setNewTable] = useState({ number_of_chair: '', status: true, location_table: '' });
+  const [tableToEdit, setTableToEdit] = useState({ number_of_chair: '', location_table: '' });
   const [tableToDelete, setTableToDelete] = useState(null);
   const [selectedTable, setSelectedTable] = useState(null); // Thêm trạng thái để theo dõi bàn đã chọn
 
@@ -17,7 +17,7 @@ const ManagerTable = () => {
     try {
       const response = await axios.get('/tables/list');
       setTableList(response.data);
-      console.log(response.data); 
+      console.log(response.data);
     } catch (error) {
       console.error('Error loading:', error);
     }
@@ -66,21 +66,21 @@ const ManagerTable = () => {
     }
   };
   const handleUpdateTable = async () => {
-    if (!tableToEdit || !tableToEdit._id) return; 
-  
+    if (!tableToEdit || !tableToEdit._id) return;
+
     try {
       const response = await axios.put(`/tables/update/${tableToEdit._id}`, {
         ...tableToEdit,
         _id: tableToEdit._id,
       });
       setTableList((prev) => prev.map((table) => (table._id === tableToEdit._id ? response.data.updatedTables : table)));
-     loadData();
+      loadData();
       closeEditModal();
     } catch (error) {
       console.error('Error updating table:', error.response ? error.response.data : error.message);
     }
   };
-  
+
 
   const handleConfirmDelete = async () => {
     if (!tableToDelete) return;
@@ -105,20 +105,20 @@ const ManagerTable = () => {
   const groupedTables = tableList.reduce((acc, table) => {
     if (table && table.location_table) { // Kiểm tra xem bàn có tồn tại và có thuộc tính location_table không
       const location = table.location_table;
-  
+
       if (!acc[location]) {
         acc[location] = [];
       }
-  
+
       acc[location].push(table);
     }
     return acc;
   }, {});
-  
-  
+
+
   let totalTables = 0;
-  console.log(tableToEdit,"dbdbsbd");
-  
+  console.log(tableToEdit, "dbdbsbd");
+
   return (
     <div className="space-y-6">
       <div className="bg-white rounded-lg shadow-md p-6">
@@ -214,17 +214,6 @@ const ManagerTable = () => {
                 placeholder="Nhập vị trí"
               />
             </div>
-            <div className="mb-4">
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={newTable.status}
-                  onChange={(e) => setNewTable({ ...newTable, status: e.target.checked })}
-                  className="mr-2"
-                />
-                Bàn trống
-              </label>
-            </div>
             <div className="flex justify-end">
               <button onClick={closeAddModal} className="text-gray-500 hover:underline mr-4">
                 Hủy
@@ -253,7 +242,7 @@ const ManagerTable = () => {
               />
             </div>
             <div className="mb-4">
-              <label className="block mb-1">Vị trí:</label>
+              <label className="block mb-1">Vị trí(Tầng):</label>
               <input
                 type="number"
                 value={tableToEdit.location_table}
@@ -261,17 +250,6 @@ const ManagerTable = () => {
                 className="border border-gray-300 rounded-md p-2 w-full"
                 placeholder="Nhập vị trí"
               />
-            </div>
-            <div className="mb-4">
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={tableToEdit.status}
-                  onChange={(e) => setTableToEdit({ ...tableToEdit, status: e.target.checked })}
-                  className="mr-2"
-                />
-                Bàn trống
-              </label>
             </div>
             <div className="flex justify-end">
               <button onClick={closeEditModal} className="mr-2 bg-gray-300 px-4 py-2 rounded-md">

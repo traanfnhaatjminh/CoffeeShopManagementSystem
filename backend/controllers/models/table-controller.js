@@ -70,24 +70,40 @@ const updateStatus = async (req, res, next) => {
   }
 };
 const updateTable = async (req, res, next) => {
-    try {
-      const { idTables } = req.params;
-      const { number_of_chair, status, location_table } = req.body;
-      const updatedT = { number_of_chair, status, location_table };
-      
-      const updatedTable = await TableList.findByIdAndUpdate(idTables, updatedT, {
-        new: true,
-      });
-      
-      if (!updatedTable) {
-        return res.status(404).json({ message: "Table not found" });
-      }
-      
-      res.status(200).json({ message: "Table updated successfully" });
-    } catch (error) {
-      next(error);
+  try {
+    const { idTables } = req.params;
+    const { number_of_chair, status, location_table } = req.body;
+    const updatedT = { number_of_chair, status, location_table };
+
+    const updatedTable = await TableList.findByIdAndUpdate(idTables, updatedT, {
+      new: true,
+    });
+
+    if (!updatedTable) {
+      return res.status(404).json({ message: "Table not found" });
     }
-  };
+
+    res.status(200).json({ message: "Table updated successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const deleteTable = async (req, res, next) => {
+  const { tableId } = req.params;
+  try {
+    const deletedTable = await TableList.findByIdAndDelete(tableId);
+    if (!deletedTable) {
+      return res.status(404).json({ message: "Table not found" });
+    }
+    res.status(200).json({
+      message: "Table deleted successfully",
+      result: deletedTable
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 module.exports = {
   createNewTable,
@@ -95,4 +111,5 @@ module.exports = {
   updateStatus,
   getAllTables,
   updateTable,
+  deleteTable
 };

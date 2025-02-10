@@ -5,9 +5,8 @@ import { useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { MdOutlineMail } from 'react-icons/md';
 import * as yup from 'yup';
-import { FaGoogle, FaUserLock, FaFacebook } from 'react-icons/fa';
+import { FaUserLock } from 'react-icons/fa';
 import { login } from '@/store/auth-slice/authSlice';
-import { toast, ToastContainer } from 'react-toastify';
 import MoonLoader from 'react-spinners/MoonLoader';
 import RegisterModal from './RegisterModal';
 
@@ -15,6 +14,7 @@ const dataFormLogin = {
   email: '',
   password: '',
 };
+
 const cssOverride = {
   position: 'fixed',
   top: '0',
@@ -51,15 +51,14 @@ const AuthLogin = () => {
       setLoading(true);
       await validationSchema.validate(formData, { abortEarly: false });
       setErrors({});
-      dispatch(login(formData)).then((data) => {
-        if (data.payload.success) {
-          setLoading(false);
-          toast.success(data.payload.message);
-        } else if (!data.payload.success || !data) {
-          setLoading(false);
-          toast.error(data.payload.message);
-        }
-      });
+      const response = await dispatch(login(formData));
+
+      if (response.payload.success) {
+        setLoading(false);
+      } else {
+        setLoading(false);
+        setErrors({ general: response.payload.message }); // Set backend error message
+      }
     } catch (err) {
       const newErrors = {};
       err.inner.forEach((error) => {
@@ -82,15 +81,6 @@ const AuthLogin = () => {
   return (
     <>
       <HeaderAuthentication position="justify-start container mx-auto " />
-      <ToastContainer
-        position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        closeOnClick
-        pauseOnHover
-        draggable
-        pauseOnFocusLoss
-      />
       <div className="container px-20 flex font-mono relative">
         {loading && (
           <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
@@ -130,7 +120,7 @@ const AuthLogin = () => {
                       onChange={handleChange}
                     ></input>
                   </div>
-                  {errors.email && <div className="text-red-500 mt-1">{errors.email}</div>}
+
                 </div>
                 <div className="password-login mt-4">
                   <label htmlFor="password">Password</label>
@@ -151,7 +141,11 @@ const AuthLogin = () => {
                       onChange={handleChange}
                     ></input>
                   </div>
+                  {errors.email && <div className="text-red-500 mt-1">{errors.email}</div>}
                   {errors.password && <div className="text-red-500 mt-1">{errors.password}</div>}
+                  {errors.general && (
+                    <div className="text-red-500 mb-2">{errors.general}</div>
+                  )}
                 </div>
                 <div className="feature-login flex justify-between mt-2">
                   <div className="remember-account flex items-center">
@@ -171,12 +165,6 @@ const AuthLogin = () => {
                   Sign in to your account
                 </button>
                 <RegisterModal isOpen={isRegisterModalOpen} onClose={closeRegisterModal} />
-                <p className="register-account text-center font-mono">
-                  Don’t have an account?{' '}
-                  <span onClick={openRegisterModal} className="text-[#3B82F6] cursor-pointer">
-                    Sign up
-                  </span>
-                </p>
               </div>
             </form>
           </div>

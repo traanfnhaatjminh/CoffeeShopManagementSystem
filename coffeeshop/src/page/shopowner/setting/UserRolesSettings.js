@@ -4,6 +4,7 @@ import { FaPencilAlt, FaPlus, FaUser } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Paging from '../../../components/common/paging';
+import AddUserModal from '../AddUserModal';
 
 const UserRolesSettings = () => {
   const [users, setUsers] = useState([]);
@@ -16,6 +17,10 @@ const UserRolesSettings = () => {
   const userPerPage = 5;
   const [filterActive, setFilterActive] = useState(false);
   const [filterInactive, setFilterInactive] = useState(false);
+  const [showAddUserModal, setShowAddUserModal] = useState(false);
+
+  const openAddUserModal = () => setShowAddUserModal(true);
+  const closeAddUserModal = () => setShowAddUserModal(false);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -71,7 +76,7 @@ const UserRolesSettings = () => {
     }
   };
 
-  const filteredUsers = users.filter(user => 
+  const filteredUsers = users.filter(user =>
     (filterActive && user.status) || (filterInactive && !user.status) || (!filterActive && !filterInactive)
   );
 
@@ -113,7 +118,7 @@ const UserRolesSettings = () => {
 
         <div className="space-y-4">
           <div className="flex justify-end">
-            <button className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
+            <button onClick={openAddUserModal} className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
               <FaPlus className="w-4 h-4" />
               Thêm nhân viên
             </button>
@@ -130,7 +135,7 @@ const UserRolesSettings = () => {
                       Vai trò: {user.role ? user.role.role_name : 'Chưa phân quyền'}
                     </p>
                     <p className="text-sm font-bold">
-                      Trạng thái: 
+                      Trạng thái:
                       <span className={`font-bold ${user.status ? 'text-green-500 text-lg' : 'text-red-500 text-lg'}`}>
                         {user.status ? 'Active' : 'Inactive'}
                       </span>
@@ -191,6 +196,10 @@ const UserRolesSettings = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {showAddUserModal && (
+        <AddUserModal closeModal={closeAddUserModal} updateUsers={setUsers} />
       )}
 
       <Paging
