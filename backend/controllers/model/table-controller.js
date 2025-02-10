@@ -1,4 +1,4 @@
-const TableList = require("../../model/TableList");
+const TableList = require("../../models/TableList");
 const mongoose = require("mongoose"); // To create an ObjectId
 
 const createNewTable = async (req, res) => {

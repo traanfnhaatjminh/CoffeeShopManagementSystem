@@ -1,5 +1,5 @@
-const User = require("../../model/user");
-const Role = require("../../model/Role");
+const User = require("../../models/User");
+const Role = require("../../models/Role");
 const mongoose = require("mongoose"); // To create an ObjectId
 const bcrypt = require("bcryptjs");
 
