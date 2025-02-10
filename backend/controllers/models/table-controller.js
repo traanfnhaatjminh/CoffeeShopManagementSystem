@@ -17,7 +17,7 @@ const createNewTable = async (req, res) => {
         message: "Insert successfully.",
         result: newDoc,
       });
-    });
+       });
   } catch (error) {
     console.error(error);
     res.status(400).json({

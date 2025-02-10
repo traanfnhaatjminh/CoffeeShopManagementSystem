@@ -66,18 +66,7 @@ const getAllUsersWithRole = async (req, res, next) => {
         next(error);
     }
 }
-// const deleteUser = async (req, res, next) =>{
-//     try {
-//         const {userId} = req.params;
-//         const deleteUser = await User.findByIdAndUpdate(userId, {status: 0}, {new:true});
-//         res.status(200).json({
-//             message: "User status updated successfully",
-//             result: deleteUser
-//         });
-//     } catch (error) {
-//         next(error);
-//     }
-// }
+
 const editUser = async (req, res, next) => {
     try {
         const {userId} = req.params;

@@ -15,7 +15,7 @@ const TableRouter = require("./router/tablelist.route");
 const authRouter = require("./router/auth/auth.routers");
 const UserRouter = require("./router/user.route");
 const BillRouter = require("./router/bill.route");
-const InfoRouter= require("./router/info.route")
+const InfoRouter= require("./router/info.route");
 const RoleRouter = require("./router/role.route");
 
 const HOST = process.env.HOSTNAME;
