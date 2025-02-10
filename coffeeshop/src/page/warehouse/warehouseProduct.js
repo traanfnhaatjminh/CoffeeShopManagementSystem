@@ -241,6 +241,8 @@ function WarehouseProduct() {
                         <button
                           className="bg-brown-900 text-white py-1 px-3 rounded-lg"
                           onClick={() => confirmDeleteProduct(product._id)}
+                          disabled={product.status === 0} 
+
                         >
                           <MdBlock className="inline-block" />
                         </button>
