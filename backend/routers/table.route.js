@@ -1,6 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const { createNewTable, getAllTable,getAllTables,updateTable, updateStatus, deleteTable } = require("../controllers/models/table-controller");
+const { createNewTable, getAllTable,getAllTables,updateTable, updateStatus, deleteTable } = require("../controllers/model/table-controller");
 
 
 const tableRouter = express.Router();

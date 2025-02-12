@@ -1,7 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const Bill = require("../../model/Bill");
-const Table = require("../../model/TableList");
+const Bill = require("../../models/Bill");
+const Table = require("../../models/TableList");
 
 const getStatistics = async (req, res) => {
   try {

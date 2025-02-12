@@ -14,7 +14,6 @@ import CashierLayout from '@/page/cashier/CashierLayout';
 import React, { useEffect } from 'react';
 import LayoutSetting from './page/shopowner/layout_setting';
 import CashierScreen from './page/cashier/CashierScreen';
-import AllBillScreen from './page/cashier/AllBillScreen';
 import TableList from './page/cashier/TableList';
 import LayoutStatistic from './page/shopowner/layout_statistic';
 import LandingPage from './components/common/landing';
@@ -22,6 +21,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { checkAuth } from './store/auth-slice/authSlice';
 import CheckAuth from '@/page/common/CheckAuth';
 import NotFound from '@/page/auth/NotFound';
+import BillList from './page/cashier/BillList';
 
 function App() {
   const { isAuthenticated, isLoading, user } = useSelector((state) => state.auth);
@@ -44,7 +44,10 @@ function App() {
             </CheckAuth>
           }
         >
-
+          <Route path="login" element={<AuthLogin />}></Route>
+          <Route path="login/forgot-password" element={<ForgotPassword />}></Route>
+          <Route path="login/verify-password" element={<VerifyPassword />}></Route>
+          <Route path="login/reset-password" element={<ResetPassword />}></Route>
         </Route>
 
         <Route
@@ -66,7 +69,9 @@ function App() {
             </CheckAuth>
           }
         >
-
+          <Route path="allbill" element={<BillList />}></Route>
+          <Route path="createbill" element={<CashierScreen />}></Route>
+          <Route path="tablelist" element={<TableList />}></Route>
         </Route>
 
         <Route

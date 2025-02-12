@@ -150,7 +150,7 @@ export default function CashierScreen() {
         payment: null,
         status: 0,
         discount: 0,
-      }; // phan nay sua lai 1 chut them cac truong nhu productId: item._id,
+      };
 
       console.log(billData, 'billData');
 
