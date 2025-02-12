@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FaStore, FaUserCog, FaCoffee, FaChair, FaWallet, FaBell, FaChartBar, FaLanguage } from 'react-icons/fa';
-import ManagerTable from '../shopowner/setting/ManagerTable';
-import MenuPricingSettings from '../shopowner/setting/MenuPricingSettings';
-import StoreInfoSettings from '../shopowner/setting/StoreInfoSettings';
+import ManagerTable from '../shopowner/settings/ManagerTable';
+import MenuPricingSettings from '../shopowner/settings/MenuPricingSettings';
+import StoreInfoSettings from '../shopowner/settings/StoreInfoSettings';
 
-import UserRolesSettings from '../shopowner/setting/UserRolesSettings';
+import UserRolesSettings from '../shopowner/settings/UserRolesSettings';
 
 function Settings() {
   const [activeTab, setActiveTab] = useState('storeInfo');

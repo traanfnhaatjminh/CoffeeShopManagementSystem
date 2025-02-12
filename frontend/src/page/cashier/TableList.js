@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import Sidebar from '../../components/common/sidebar';
-import Header from '../../components/common/header';
-import { IoSearch } from 'react-icons/io5';
-import data from '../../data/database.json';
+// import Sidebar from '../../components/common/sidebar';
+// import Header from '../../components/common/header';
+// import { IoSearch } from 'react-icons/io5';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 

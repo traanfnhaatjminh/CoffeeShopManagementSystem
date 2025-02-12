@@ -12,7 +12,7 @@ const {
   createNewBill,
   getStatistics,
   getProductsSoldByCategory
-} = require("../controllers/models/bill-controller");
+} = require("../controllers/model/bill-controller");
 
 billRouter.get("", getBill);
 billRouter.post("/createBill", createNewBill);

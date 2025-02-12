@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const { StatusCodes } = require("http-status-codes");
 const asyncHandle = require("express-async-handler");
-const db = require("../model/index");
+const db = require("../models/index");
 
 const protectRouter = asyncHandle(async (req, res, next) => {
     let token;

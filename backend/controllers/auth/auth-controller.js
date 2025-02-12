@@ -3,9 +3,9 @@ const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 const { StatusCodes } = require("http-status-codes");
-const db = require("../../model/index");
-const Role = require("../../model/Role");
-const User = require("../../model/user");
+const db = require("../../models/index");
+const Role = require("../../models/Role");
+const User = require("../../models/User");
 const { default: mongoose } = require("mongoose");
 const nodemailer = require("nodemailer");
 
