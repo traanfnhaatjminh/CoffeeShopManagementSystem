@@ -77,7 +77,8 @@ function App() {
             </CheckAuth>
           }
         >
-
+          <Route path="categories" element={<LayoutCategory />} />
+          <Route path="products" element={<LayoutProduct />} />
         </Route>
 
         <Route path="*" element={<NotFound />} />
