@@ -28,13 +28,15 @@ const cartSlice = createSlice({
       state.cart = state.cart.filter((item) => item._id !== productId);
     },
     updateQuantity(state, action) {
-      const { productId, quantity } = action.payload;
-      const product = state.cart.find((item) => item._id === productId);
+      const { _id, change } = action.payload; // Sửa lại cấu trúc payload
+      const product = state.cart.find((item) => item._id === _id);
+      
       if (product) {
-        product.quantity += quantity;
+        product.quantity += change;
         product.total = product.quantity * product.price;
+        
         if (product.quantity <= 0) {
-          state.cart = state.cart.filter((item) => item._id !== productId);
+          state.cart = state.cart.filter((item) => item._id !== _id);
         }
       }
     },
