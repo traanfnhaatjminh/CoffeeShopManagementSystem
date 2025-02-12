@@ -9,11 +9,13 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const { StatusCodes } = require("http-status-codes");
 
+const CategoryRouter = require("./routers/category.route");
+const ProductRouter = require("./routers/product.route");
 const TableRouter = require("./routers/table.route");
 const authRouter = require("./routers/auth/auth.routers");
 const UserRouter = require("./routers/user.route");
 const BillRouter = require("./routers/bill.route");
-const InfoRouter= require("./routers/infor.route");
+const InfoRouter= require("./routers/info.route");
 const RoleRouter = require("./routers/role.route");
 
 const HOST = process.env.HOSTNAME;
@@ -51,7 +53,6 @@ app.use("/api/auth", authRouter);
 app.use("/tables", TableRouter);
 app.use("/users", UserRouter);
 app.use("/roles", RoleRouter);
-app.use("/uploads", express.static("uploads"));
 app.use("/info", InfoRouter)
 
 app.use("/", async (req, res, next) => {
