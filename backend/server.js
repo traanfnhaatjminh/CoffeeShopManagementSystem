@@ -4,19 +4,17 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const morgan = require("morgan");
 const httpErrors = require("http-errors");
-const db = require("./model/index");
+const db = require("./models/index");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const { StatusCodes } = require("http-status-codes");
 
-const CategoryRouter = require("./router/category.route");
-const ProductRouter = require("./router/product.route");
-const TableRouter = require("./router/tablelist.route");
-const authRouter = require("./router/auth/auth.routers");
-const UserRouter = require("./router/user.route");
-const BillRouter = require("./router/bill.route");
-const InfoRouter= require("./router/info.route");
-const RoleRouter = require("./router/role.route");
+const TableRouter = require("./routers/table.route");
+const authRouter = require("./routers/auth/auth.routers");
+const UserRouter = require("./routers/user.route");
+const BillRouter = require("./routers/bill.route");
+const InfoRouter= require("./routers/infor.route");
+const RoleRouter = require("./routers/role.route");
 
 const HOST = process.env.HOSTNAME;
 const POST = process.env.POST;
@@ -45,11 +43,9 @@ app.use(bodyParser.json());
 app.use(express.json());
 
 app.get("/api", async (req, res, next) => {
-    res.status(StatusCodes.OK).json({ message: "Welcome to Group 6" });
+    res.status(StatusCodes.OK).json({ message: "Welcome to Group 2" });
 });
 
-app.use("/categories", CategoryRouter);
-app.use("/products", ProductRouter);
 app.use("/bills", BillRouter);
 app.use("/api/auth", authRouter);
 app.use("/tables", TableRouter);
