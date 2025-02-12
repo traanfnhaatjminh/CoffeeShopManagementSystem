@@ -4,7 +4,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const morgan = require("morgan");
 const httpErrors = require("http-errors");
-const db = require("./model/index");
+const db = require("./models/index");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const { StatusCodes } = require("http-status-codes");
@@ -45,11 +45,9 @@ app.use(bodyParser.json());
 app.use(express.json());
 
 app.get("/api", async (req, res, next) => {
-    res.status(StatusCodes.OK).json({ message: "Welcome to Group 6" });
+    res.status(StatusCodes.OK).json({ message: "Welcome to Group 2" });
 });
 
-app.use("/categories", CategoryRouter);
-app.use("/products", ProductRouter);
 app.use("/bills", BillRouter);
 app.use("/api/auth", authRouter);
 app.use("/tables", TableRouter);
