@@ -7,21 +7,21 @@ import VerifyPassword from '@/page/auth/VerifyPassword';
 import ResetPassword from '@/page/auth/ResetPassword';
 
 import AuthLayout from '@/page/auth/Layout';
-import AdminLayout from '@/page/shopowner/ShopownerLayout';
+import AdminLayout from '@/page/shopowner/AdminLayout';
 import WarehouseLayout from '@/page/warehouse/WarehouseLayout';
 import CashierLayout from '@/page/cashier/CashierLayout';
 
 import React, { useEffect } from 'react';
-import LayoutSetting from './page/shopowner/layout_setting';
 import CashierScreen from './page/cashier/CashierScreen';
 import TableList from './page/cashier/TableList';
-import LayoutStatistic from './page/shopowner/layout_statistic';
 import LandingPage from './components/common/landing';
 import { useDispatch, useSelector } from 'react-redux';
 import { checkAuth } from './store/auth-slice/authSlice';
 import CheckAuth from '@/page/common/CheckAuth';
 import NotFound from '@/page/auth/NotFound';
 import BillList from './page/cashier/BillList';
+import Statistic from './page/shopowner/Statistic';
+import Settings from './page/shopowner/Settings';
 
 function App() {
   const { isAuthenticated, isLoading, user } = useSelector((state) => state.auth);
@@ -58,8 +58,8 @@ function App() {
             </CheckAuth>
           }
         >
-          <Route path="statistic" element={<LayoutStatistic />}></Route>
-          <Route path="setting" element={<LayoutSetting />}></Route>
+          <Route path="statistic" element={<Statistic />}></Route>
+          <Route path="setting" element={<Settings />}></Route>
         </Route>
 
         <Route path="/cashier"

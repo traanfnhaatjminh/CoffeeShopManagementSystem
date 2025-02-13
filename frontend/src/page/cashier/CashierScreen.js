@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './style.css';
-import Sidebar from '../../components/common/sidebar';
-import Header from '../../components/common/header';
 import { IoSearch } from 'react-icons/io5';
 import axios from 'axios';
 import Paging from '../../components/common/paging';
@@ -171,7 +169,6 @@ export default function CashierScreen() {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
-      {/* <Header /> */}
       <ToastContainer
         position="top-right"
         autoClose={2000}
@@ -183,7 +180,6 @@ export default function CashierScreen() {
       />
       {/* Main content */}
       <main className="flex flex-1">
-        {/* <Sidebar /> */}
 
         {/* Menu and Cart */}
         <div className="flex space-x-6 p-4">
