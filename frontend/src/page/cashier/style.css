@@ -1,0 +1,59 @@
+.btn-sibebar {
+  @apply w-full py-2 px-4  bg-gray-300 hover:bg-gray-400 rounded text-center;
+}
+
+.text-items {
+  @apply text-sm font-semibold;
+}
+
+.text-price {
+  @apply text-sm  text-red-600;
+}
+
+.btn-categories {
+  @apply bg-brown-500 text-black py-2 px-4 rounded hover:bg-orange-400;
+}
+
+.table {
+  width: 70px; /* Điều chỉnh kích thước bàn */
+  height: 70px; /* Điều chỉnh chiều cao bàn */
+  border: 2px solid #ccc;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  text-align: center;
+}
+
+.available {
+  background-color: #50ff7c; /* Màu xanh nhạt cho bàn trống */
+}
+
+.occupied {
+  background-color: #ff4747; /* Màu đỏ nhạt cho bàn đầy */
+}
+
+.table::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0px; /* Chiều rộng của đỉnh bàn */
+  height: 0px; /* Chiều cao của đỉnh bàn */
+  background-color: inherit; /* Giữ màu nền của bàn */
+  border-radius: 5px;
+}
+
+/* Thêm lớp mới cho table được chọn */
+.bg-selected {
+  background-color: #1ca000; /* Màu xanh lá cho bàn được chọn */
+  color: white; /* Đổi màu chữ cho dễ đọc */
+  border: 1px solid #1ca000; /* Viền cùng màu */
+}
+
+.bg-dark {
+  background-color: #2c3e50; /* Example darker color */
+  color: white;
+}

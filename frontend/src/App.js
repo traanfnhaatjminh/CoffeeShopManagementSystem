@@ -23,6 +23,7 @@ import { checkAuth } from './store/auth-slice/authSlice';
 import CheckAuth from '@/page/common/CheckAuth';
 import NotFound from '@/page/auth/NotFound';
 
+
 function App() {
   const { isAuthenticated, isLoading, user } = useSelector((state) => state.auth);
 
@@ -44,7 +45,10 @@ function App() {
             </CheckAuth>
           }
         >
-
+          <Route path="login" element={<AuthLogin />}></Route>
+          <Route path="login/forgot-password" element={<ForgotPassword />}></Route>
+          <Route path="login/verify-password" element={<VerifyPassword />}></Route>
+          <Route path="login/reset-password" element={<ResetPassword />}></Route>
         </Route>
 
         <Route

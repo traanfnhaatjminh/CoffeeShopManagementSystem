@@ -105,7 +105,7 @@ export default function BillList() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {billList.map((bill, index) => (
+              {billList.slice().sort((a,b)=> new Date(b.created_time)-new Date(a.created_time)).map((bill, index) => (
                 <tr key={bill._id} className="hover:bg-gray-50 transition duration-150 ease-in-out">
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     {(currentPage - 1) * billPerPage + index + 1}
