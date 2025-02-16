@@ -1,6 +1,4 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import LayoutProduct from './page/warehouse/layout_product';
-import LayoutCategory from './page/warehouse/layout_category';
 import AuthLogin from '@/page/auth/Login';
 import ForgotPassword from '@/page/auth/ForgotPassword';
 import VerifyPassword from '@/page/auth/VerifyPassword';
@@ -22,6 +20,8 @@ import NotFound from '@/page/auth/NotFound';
 import BillList from './page/cashier/BillList';
 import Statistic from './page/shopowner/Statistic';
 import Settings from './page/shopowner/Settings';
+import WarehouseProduct from './page/warehouse/warehouseProduct';
+import WarehouseCategory from './page/warehouse/warehouseCategory';
 
 function App() {
   const { isAuthenticated, isLoading, user } = useSelector((state) => state.auth);
@@ -82,8 +82,8 @@ function App() {
             </CheckAuth>
           }
         >
-          <Route path="categories" element={<LayoutCategory />} />
-          <Route path="products" element={<LayoutProduct />} />
+          <Route path="categories" element={<WarehouseCategory />} />
+          <Route path="products" element={<WarehouseProduct />} />
         </Route>
 
         <Route path="*" element={<NotFound />} />

@@ -94,7 +94,7 @@ export default function CashierScreen() {
   };
 
   const handleQuantityChange = (_id, change) => {
-    dispatch(updateQuantity(_id,change))
+    dispatch(updateQuantity({_id,change}))
     // setCart(
     //   cart
     //     .map((item) =>

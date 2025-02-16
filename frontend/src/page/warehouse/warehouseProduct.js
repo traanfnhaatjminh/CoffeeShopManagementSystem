@@ -13,6 +13,7 @@ import { confirmAlert } from 'react-confirm-alert';
 import 'react-toastify/dist/ReactToastify.css';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 
+
 function WarehouseProduct() {
   const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -22,6 +23,8 @@ function WarehouseProduct() {
   const [importFile, setImportFile] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const productPerPage = 5;
+  
+
   const fetchProducts = async (search = '') => {
     try {
       const response = await axios.get('/products/listall');
@@ -36,6 +39,7 @@ function WarehouseProduct() {
       console.error('Error fetching products:', error);
     }
   };
+
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -44,6 +48,7 @@ function WarehouseProduct() {
     setSelectedProduct(product);
     setShowEditModal(true);
   };
+
   const handleAddProduct = () => {
     setShowAddModal(true);
   };
@@ -59,6 +64,7 @@ function WarehouseProduct() {
       console.error('Có lỗi xảy ra khi ngưng kích hoạt sản phẩm:', error);
     }
   };
+
   const confirmDeleteProduct = (productId) => {
     confirmAlert({
       title: 'Xác nhận',
@@ -133,7 +139,6 @@ function WarehouseProduct() {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
-      <Header />
       <ToastContainer
         position="top-right"
         autoClose={2000}
@@ -144,11 +149,10 @@ function WarehouseProduct() {
         pauseOnFocusLoss
       />
       <div className="flex flex-1">
-        <Sidebar />
         <div className="flex-1 p-4">
           <div className="mb-4 flex items-center justify-between">
             <h1 className="text-lg font-bold px-2 font-lauren border bg-brown-900 text-white border-brown-400 rounded-lg">
-              Danh sách sản phẩm
+              Danh sách đồ uống
             </h1>
           </div>
 
@@ -172,14 +176,14 @@ function WarehouseProduct() {
               <FaPlus className="mr-1" />
               Thêm
             </button>
-            <label
-              htmlFor="fileUpload"
+            {/* <label
+
               className="bg-teal-400 text-white p-2 rounded-lg flex items-center cursor-pointer"
             >
               <FaFileImport className="mr-1" />
               Import
             </label>
-            <input id="fileUpload" type="file" hidden onChange={handleFileChange} />
+            <input id="fileUpload" type="file" hidden onChange={handleFileChange} /> */}
           </div>
 
           <div className="overflow-x-auto">
@@ -194,7 +198,7 @@ function WarehouseProduct() {
                     Số lượng
                   </th>
                   <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                    Giá
+                    Giá bán 
                   </th>
                   <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                     Ảnh

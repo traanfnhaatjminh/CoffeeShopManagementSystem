@@ -109,12 +109,10 @@ const ManagerTable = () => {
       if (!acc[location]) {
         acc[location] = [];
       }
-
       acc[location].push(table);
     }
     return acc;
   }, {});
-
 
   let totalTables = 0;
   console.log(tableToEdit, "dbdbsbd");
