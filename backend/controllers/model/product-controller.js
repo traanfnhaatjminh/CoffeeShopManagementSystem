@@ -94,13 +94,12 @@ const updateProduct = async (req, res, next) => {
     const { productId } = req.params;
     console.log(productId);
 
-    const { pname, quantity, price, category_id, status } = req.body;
+    const { pname, price, category_id, status } = req.body;
     const image = req.file ? req.file.filename : undefined;  // không có ảnh mới thì để undefined hihi
 
     try {
         const updatedProduct = {
             pname,
-            quantity,
             price,
             category_id,
             status,
@@ -119,22 +118,7 @@ const updateProduct = async (req, res, next) => {
         next(error);
     }
 };
-//Delete product
-// const deleteProduct = async (req, res, next) => {
-//     try {
-//         const { productId } = req.params;
-//         const deletedProduct = await Product.findByIdAndDelete(productId);
-//         if (!deletedProduct) {
-//             return res.status(404).json({ message: " Product not found" });
-//         }
-//         res.status(200).json({
-//             message: "Product deleted successfully",
-//             result: deletedProduct
-//         });
-//     } catch (error) {
-//         next(error);
-//     }
-// };
+
 const deleteProduct = async (req, res, next) => {
     try {
         const { productId } = req.params;

@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { FaPen, FaTrash, FaPlus, FaFileImport, FaCheck } from 'react-icons/fa';
 import { IoSearch } from 'react-icons/io5';
 import { MdCancel, MdBlock } from 'react-icons/md'; // Import the cancel icon
-import Sidebar from '../../components/common/sidebar';
-import Header from '../../components/common/header';
 import EditProductModal from './EditProductModal';
 import AddProductModal from './AddProductModal';
 import Paging from '../../components/common/paging';
@@ -23,7 +21,7 @@ function WarehouseProduct() {
   const [importFile, setImportFile] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const productPerPage = 5;
-  
+
 
   const fetchProducts = async (search = '') => {
     try {
@@ -33,7 +31,7 @@ function WarehouseProduct() {
       const filteredProducts = allProducts.filter((product) =>
         product.pname.toLowerCase().includes(search.toLowerCase())
       );
-      
+
       setProducts(filteredProducts);
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -52,7 +50,7 @@ function WarehouseProduct() {
   const handleAddProduct = () => {
     setShowAddModal(true);
   };
-  
+
   const deleteProduct = async (productId) => {
     try {
       const response = await axios.put(`/products/deleteProduct/${productId}`);
@@ -63,23 +61,6 @@ function WarehouseProduct() {
     } catch (error) {
       console.error('Có lỗi xảy ra khi ngưng kích hoạt sản phẩm:', error);
     }
-  };
-
-  const confirmDeleteProduct = (productId) => {
-    confirmAlert({
-      title: 'Xác nhận',
-      message: 'Bạn có chắc chắn muốn ngưng kích hoạt sản phẩm này?',
-      buttons: [
-        {
-          label: 'Có',
-          onClick: () => deleteProduct(productId),
-        },
-        {
-          label: 'Không',
-          onClick: () => toast.info('Hãy thử lại sau!'),
-        },
-      ],
-    });
   };
 
   const handleSearchChange = (e) => {
@@ -192,13 +173,13 @@ function WarehouseProduct() {
                 <tr className="bg-gray-50">
                   <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">ID</th>
                   <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                    Tên Sản Phẩm
+                    Tên đồ uống
                   </th>
                   <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                    Số lượng
+                    Giá vốn
                   </th>
                   <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                    Giá bán 
+                    Giá bán
                   </th>
                   <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                     Ảnh
@@ -220,18 +201,20 @@ function WarehouseProduct() {
                     <tr key={product._id} className="border-b hover:bg-gray-100 transition-colors duration-300">
                       <td className="px-6 py-4 text-lg font-medium text-gray-900"> {index + 1 + (currentPage - 1) * productPerPage}</td>
                       <td className="px-6 py-4 text-md text-gray-500">{product.pname}
-                      {product.status === 1 && (
-                        <span className="text-green-500 ml-2">
-                          <FaCheck title="Sản phẩm khả dụng" />
-                        </span>
-                      )}
-                      {product.status === 0 && (
-                        <span className="text-red-500 ml-2">không khả dụng
-                          <MdCancel title="Sản phẩm không khả dụng" />
-                        </span>
-                      )}</td>
-                      <td className="px-6 py-4 text-md text-gray-500">{product.quantity}</td>
-                      <td className="px-6 py-4 text-md text-gray-500">{product.price}</td>
+                        {product.status === 1 && (
+                          <span className="text-green-500 ml-2">
+                            <FaCheck title="Sản phẩm khả dụng" />
+                          </span>
+                        )}
+                        {product.status === 0 && (
+                          <span className="text-red-500 ml-2">không khả dụng
+                            <MdCancel title="Sản phẩm không khả dụng" />
+                          </span>
+                        )}</td>
+                      <td className="px-6 py-4 text-md text-gray-500">0</td>
+                      <td className="px-6 py-4 text-md text-gray-500">
+                      {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(product.price)}
+                      </td>
                       <td className="px-6 py-4 text-md text-gray-500">
                         <img src={product.image} alt={product.pname} className="w-16 h-16 object-cover rounded-lg" />
                       </td>
@@ -241,14 +224,6 @@ function WarehouseProduct() {
                           onClick={() => handleEditProduct(product)}
                         >
                           <FaPen className="inline-block" />
-                        </button>
-                        <button
-                          className="bg-brown-900 text-white py-1 px-3 rounded-lg"
-                          onClick={() => confirmDeleteProduct(product._id)}
-                          disabled={product.status === 0} 
-
-                        >
-                          <MdBlock className="inline-block" />
                         </button>
                       </td>
                     </tr>
