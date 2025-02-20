@@ -1,16 +1,37 @@
 const Product = require("../../models/Product");
 const Category = require('../../models/Category'); // Đường dẫn tới model danh mục
 const mongoose = require("mongoose");
+const cloudinary = require("../../utils/cloudinary");
 const createNewProduct = async (req, res, next) => {
-    try { 
+    try {
         const { pname, quantity, price, category_id } = req.body;
         const pId = new mongoose.Types.ObjectId();
         const discount = 0;
         const status = 1;
-        const image = req.file ? `/uploads/${req.file.filename}` : '';
 
-        const newProduct = new Product({ _id: pId, pname, quantity, price, image, category_id, discount, status });
+        // Upload ảnh lên Cloudinary (nếu có file)
+        let imageUrl = "";
+        let cloudinaryId = "";
 
+        if (req.file) {
+            const result = await cloudinary.uploader.upload(req.file.path, {
+                folder: "products" // Ảnh sẽ được lưu trong thư mục "products"
+            });
+            imageUrl = result.secure_url;
+            cloudinaryId = result.public_id;
+        }
+        // Tạo sản phẩm mới
+        const newProduct = new Product({
+            _id: pId,
+            pname,
+            quantity,
+            price,
+            image: imageUrl,
+            cloudinary_id: cloudinaryId,
+            category_id,
+            discount,
+            status,
+        });
         const savedProduct = await newProduct.save();
         res.status(201).json({
             message: "Insert successfully.",

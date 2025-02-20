@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { FaPen, FaTrash, FaPlus, FaFileImport, FaCheck } from 'react-icons/fa';
+import { FaPen, FaPlus } from 'react-icons/fa';
 import { IoSearch } from 'react-icons/io5';
-import { MdCancel, MdBlock } from 'react-icons/md'; // Import the cancel icon
 import EditProductModal from './EditProductModal';
 import AddProductModal from './AddProductModal';
 import Paging from '../../components/common/paging';
 import axios from 'axios'; // Import axios
-import { toast, ToastContainer } from 'react-toastify';
-import { confirmAlert } from 'react-confirm-alert';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 
