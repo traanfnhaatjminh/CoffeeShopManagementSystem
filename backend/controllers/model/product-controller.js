@@ -27,7 +27,6 @@ const createNewProduct = async (req, res, next) => {
             quantity,
             price,
             image: imageUrl,
-            cloudinary_id: cloudinaryId,
             category_id,
             discount,
             status,
@@ -113,27 +112,29 @@ const getProductsByCategory = async (req, res, next) => {
 // };
 const updateProduct = async (req, res, next) => {
     const { productId } = req.params;
-    console.log(productId);
-
     const { pname, price, category_id, status } = req.body;
-    const image = req.file ? req.file.filename : undefined;  // không có ảnh mới thì để undefined hihi
 
     try {
-        const updatedProduct = {
-            pname,
-            price,
-            category_id,
-            status,
-        };
-        //cập nhật đường dẫn ảnh
-        if (image) {
-            updatedProduct.image = `/uploads/${image}`;
-        }
-
-        const product = await Product.findByIdAndUpdate(productId, updatedProduct, { new: true });
-        if (!product) {
+        // Kiểm tra sản phẩm có tồn tại không
+        const existingProduct = await Product.findById(productId);
+        if (!existingProduct) {
             return res.status(404).json({ message: "Product not found" });
         }
+
+        const updatedProduct = { pname, price, category_id, status };
+
+        if (req.file) {
+            const result = await cloudinary.uploader.upload(req.file.path, { folder: "products" });
+
+            updatedProduct.image = result.secure_url;
+
+            if (existingProduct.cloudinary_id) {
+                await cloudinary.uploader.destroy(existingProduct.cloudinary_id);
+            }
+        }
+        // Cập nhật sản phẩm
+        const product = await Product.findByIdAndUpdate(productId, updatedProduct, { new: true, fields: '-cloudinary_id' });
+
         res.status(200).json({ message: "Product updated successfully", product });
     } catch (error) {
         next(error);
