@@ -34,6 +34,16 @@ const getAllProductInWarehouse = async (req, res, next) => {
 
 const getAllProductInHome = async (req, res, next) => {
     try {
+        // const { search ="", page =1, limit= 10, selectCategory=""}= req.query;
+        // const searchLower= search.toLowerCase();
+
+        // const filteredProduct = await Product.find({
+        //     $or: [
+        //         {
+        //             "pname": { $regex: searchLower, $options : "i" }
+        //         }
+        //     ]
+        // })
         const products = await Product.find()
         res.status(200).json(products);
     } catch (error) {

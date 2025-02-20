@@ -11,6 +11,7 @@ import CashierLayout from '@/page/cashier/CashierLayout';
 
 import React, { useEffect } from 'react';
 import CashierScreen from './page/cashier/CashierScreen';
+import BillList  from './page/cashier/BillList';
 import TableList from './page/cashier/TableList';
 import LandingPage from './components/common/landing';
 import { useDispatch, useSelector } from 'react-redux';
@@ -31,7 +32,7 @@ function App() {
   useEffect(() => {
     dispatch(checkAuth());
   }, [dispatch]);
-
+       
   return (
     <BrowserRouter>
       <Routes>

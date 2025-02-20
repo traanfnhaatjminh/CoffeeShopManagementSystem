@@ -7,15 +7,13 @@ import 'react-toastify/dist/ReactToastify.css';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 import { toast, ToastContainer } from 'react-toastify';
 import { useDispatch ,useSelector} from 'react-redux';
-import {addToCart,updateQuantity} from '../../store/cart-slice/cartSlice' 
+import {addToCart,updateQuantity,setSelectedTable,clearCart,clearTable} from '../../store/cart-slice/cartSlice' 
 
 export default function CashierScreen() {
   const [isOpen, setIsOpen] = useState(false);
   const [selected, setSelected] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const inputRef = useRef(null);
-  const [selectedTable, setSelectedTable] = useState(null);
-  // const [cart, setCart] = useState([]);
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
   const [tables, setTables] = useState([]);
@@ -23,9 +21,10 @@ export default function CashierScreen() {
   const [noResultsMessage, setNoResultsMessage] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
-  const productPerPage = 5;
+  const productPerPage = 10;
   const dispatch= useDispatch();
   const cart = useSelector((state) => state.cart.cart);
+  const selectedTable= useSelector((state)=> state.cart.selectedTable)
 
   useEffect(() => {
     // Fetch categories, products, and tables when the component mounts
@@ -47,6 +46,7 @@ export default function CashierScreen() {
     };
     fetchData();
   }, []);
+console.log(products,"products");
 
   useEffect(() => {
     const results = products.filter((product) => {
@@ -72,48 +72,22 @@ export default function CashierScreen() {
 
   const handleTableSelect = (table, index) => {
     if (table.status === true) {
-      // Only allow if table is available
-      setSelectedTable(index);
+     dispatch(setSelectedTable(index))
     }
   };
 
   const handleAddToCart = (product) => {
     dispatch(addToCart(product))
-    // const existingProduct = cart.find((item) => item._id === product._id);
-    // if (existingProduct) {
-    //   setCart(
-    //     cart.map((item) =>
-    //       item._id === product._id
-    //         ? { ...item, quantity: item.quantity + 1, total: (item.quantity + 1) * item.price }
-    //         : item
-    //     )
-    //   );
-    // } else {
-    //   setCart([...cart, { ...product, quantity: 1, total: product.price }]);
-    // }
   };
 
   const handleQuantityChange = (_id, change) => {
     dispatch(updateQuantity({_id,change}))
-    // setCart(
-    //   cart
-    //     .map((item) =>
-    //       item._id === _id
-    //         ? {
-    //           ...item,
-    //           quantity: item.quantity + change,
-    //           total: (item.quantity + change) * item.price,
-    //         }
-    //         : item
-    //     )
-    //     .filter((item) => item.quantity > 0)
-    // );
   };
 
   const calculateTotalPrice = () => {
     return cart.reduce((sum, item) => sum + item.total, 0);
   };
-
+/////fix lại đống này 
   const handleCategorySelect = (categoryId) => {
     if (categoryId === 'all') {
       setFilteredProducts(products);
@@ -131,12 +105,18 @@ export default function CashierScreen() {
         });
     }
   };
-
   const handleCreateBill = async () => {
     try {
+      if (selectedTable === null || tables.length === 0) {
+        toast.error("Vui lòng chọn bàn trước khi tạo hóa đơn!");
+        return;
+      }
+  
+      const tableId = tables[selectedTable]._id;
+  
       const billData = {
         total_cost: calculateTotalPrice(),
-        table_id: tables[selectedTable]._id,
+        table_id: tableId,
         product_list: cart.map((item) => ({
           productId: item._id,
           nameP: item.pname,
@@ -149,21 +129,31 @@ export default function CashierScreen() {
         status: 0,
         discount: 0,
       };
-
-      console.log(billData, 'billData');
-
-      const response = await axios.post('/bills/createBill', billData);
-      console.log('Bill created successfully:', response.data);
-
-      const tableId = tables[selectedTable]._id;
+  
+      console.log(billData, "billData");
+  
+      const response = await axios.post("/bills/createBill", billData);
+      console.log("Bill created successfully:", response.data);
+  
+      // Cập nhật trạng thái bàn trong state ngay lập tức
+      setTables((prevTables) =>
+        prevTables.map((table) =>
+          table._id === tableId ? { ...table, status: false } : table
+        )
+      );
+  
+      // Cập nhật trạng thái bàn trên server
       await axios.put(`/tables/updateStatus/${tableId}`, { status: false });
-
-      toast.success('Tạo hóa đơn thành công.');
+  
+      toast.success("Tạo hóa đơn thành công.");
+      dispatch(clearCart());
+      dispatch(clearTable());
     } catch (error) {
-      console.error('Error creating bill:', error);
-      toast.error('Lỗi tạo hóa đơn!');
+      console.error("Error creating bill:", error);
+      toast.error("Lỗi tạo hóa đơn!");
     }
   };
+  
 
   const currentProducts = filteredProducts.slice((currentPage - 1) * productPerPage, currentPage * productPerPage);
 
@@ -278,9 +268,9 @@ export default function CashierScreen() {
               <thead>
                 <tr>
                   <th className="border-b py-2">Name</th>
-                  <th className="border-b py-2">Price</th>
+                  <th className="border-b py-2">Image</th>
                   <th className="border-b py-2">Quantity</th>
-                  <th className="border-b py-2">Total</th>
+                  {/* <th className="border-b py-2">Total</th> */}
                 </tr>
               </thead>
               <tbody>
@@ -288,7 +278,7 @@ export default function CashierScreen() {
                   cart.map((item, index) => (
                     <tr key={index}>
                       <td className="py-2">{item.pname}</td>
-                      <td className="py-2">{item.price} VND</td>
+                      <td className="py-2"><img className='h-10' src={item.image}/></td>
                       <td className="py-2">
                         <div className="flex items-center space-x-2">
                           <button
@@ -306,7 +296,7 @@ export default function CashierScreen() {
                           </button>
                         </div>
                       </td>
-                      <td className="py-2">{item.total} VND</td>
+                      {/* <td className="py-2">{item.total} VND</td> */}
                     </tr>
                   ))
                 ) : (

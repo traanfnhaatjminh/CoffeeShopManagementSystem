@@ -46,6 +46,9 @@ const cartSlice = createSlice({
     clearCart(state) {
       state.cart = [];
     },
+    clearTable(state){
+       state.selectedTable=null;
+    },
     setBills(state, action) {
       state.bills = action.payload;
     },
@@ -55,28 +58,9 @@ const cartSlice = createSlice({
   },
 });
 
-export const { addToCart, removeFromCart, updateQuantity, setSelectedTable, clearCart, setBills, setError } =
+export const { addToCart, removeFromCart,clearTable, updateQuantity, setSelectedTable, clearCart, setBills, setError } =
   cartSlice.actions;
 
-// Async action to create bill
-export const createBill = (billData) => async (dispatch) => {
-  try {
-    const response = await axios.post('/bills/createBill', billData);
-    dispatch(clearCart());
-    dispatch(getBills()); // Refetch bills after creating one
-  } catch (error) {
-    dispatch(setError(error.response?.data || 'Error creating bill'));
-  }
-};
 
-// Async action to get all bills
-export const getBills = () => async (dispatch) => {
-  try {
-    const response = await axios.get('/bills');
-    dispatch(setBills(response.data));
-  } catch (error) {
-    dispatch(setError(error.response?.data || 'Error fetching bills'));
-  }
-};
 
 export default cartSlice.reducer;

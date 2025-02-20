@@ -11,7 +11,7 @@ export default function TableList() {
   const [tableList, setTableList] = useState([]);
   const [billList, setBillList] = useState([]);
   const [selectBill, setSelectBill] = useState('');
-  const [discount, setDiscount] = useState('');
+  const [discount, setDiscount] = useState(0);
   const [totalCost, setTotalCost] = useState(0);
   console.log(totalCost);
 
@@ -29,11 +29,17 @@ export default function TableList() {
   useEffect(() => {
     loadData();
     if (selectedTable) {
-      const subtotal = selectedTable.bill.reduce((total, item) => total + item.priceP * item.quantityP, 0);
-      const discountedTotal = subtotal * ((100 - discount) / 100);
+      // Tính tổng tiền ban đầu
+      const subtotal = selectedTable.bill.reduce(
+        (total, item) => total + item.priceP * item.quantityP, 
+        0
+      );
+      const discountValue = discount || 0; // Sử dụng 0 nếu không có giảm giá
+      // Tính tổng tiền sau khi giảm giá
+      const discountedTotal = subtotal * ((100 - discountValue) / 100);
       setTotalCost(discountedTotal);
     }
-  }, [discount]);
+  }, [selectedTable, discount]); // Thêm selectedTable vào dependencies
 
   const handleTableClick = async (table) => {
     try {
@@ -63,7 +69,7 @@ export default function TableList() {
 
     // Nếu input rỗng, đặt discount là rỗng mà không hiển thị lỗi
     if (value === '') {
-      setDiscount('');
+      setDiscount(0);
       return;
     }
 
@@ -83,8 +89,12 @@ export default function TableList() {
           payment: paymentMethod,
           status: 1,
           table_id: selectedTable._id,
-          discount: discount,
-          totalCost: totalCost,
+          discount: discount || 0, // Sử dụng 0 nếu không có giảm giá
+          totalCost: totalCost || selectedTable.bill.reduce(
+            (total, item) => total + item.priceP * item.quantityP,
+            0
+          ), // Sử dụng tổng ban đầu nếu totalCost chưa được tính
+        
         };
         await axios.put(`/bills/update/${selectBill._id}`, billUpdateData);
         await loadData();
