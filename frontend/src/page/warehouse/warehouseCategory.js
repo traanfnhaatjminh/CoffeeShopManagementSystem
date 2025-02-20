@@ -90,10 +90,8 @@ function WarehouseCategory() {
   const currentCategories = categories.slice((currentPage - 1) * categoryPerPage, currentPage * categoryPerPage);
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
-      <Header />
       <ToastContainer position="top-right" autoClose={5000} hideProgressBar={false} />
       <div className="flex flex-1">
-        <Sidebar />
         <div className="flex-1 p-4">
           <div className="mb-4 flex items-center justify-between">
             <h1 className="text-lg font-bold px-2 font-lauren border bg-brown-900 text-white border-brown-400 rounded-lg">

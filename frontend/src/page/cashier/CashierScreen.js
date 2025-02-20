@@ -159,7 +159,6 @@ console.log(products,"products");
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
-      {/* <Header /> */}
       <ToastContainer
         position="top-right"
         autoClose={2000}
@@ -171,7 +170,6 @@ console.log(products,"products");
       />
       {/* Main content */}
       <main className="flex flex-1">
-        {/* <Sidebar /> */}
 
         {/* Menu and Cart */}
         <div className="flex space-x-6 p-4">

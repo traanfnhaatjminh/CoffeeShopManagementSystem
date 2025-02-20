@@ -4,14 +4,12 @@ import { toast } from 'react-toastify';
 
 export default function EditProductModal({ product, closeModal, refreshProducts }) {
     const [productName, setProductName] = useState('');
-    const [quantity, setQuantity] = useState(0);
     const [price, setPrice] = useState(0);
     const [image, setImage] = useState('');
     const [imagePreview, setImagePreview] = useState('');
     const [category, setCategory] = useState('');
     const [categories, setCategories] = useState([]);
     const [status, setStatus] = useState('');
-    const [quantityError, setQuantityError] = useState('');
     const [priceError, setPriceError] = useState('');
     const [imageError, setImageError] = useState('');
 
@@ -29,7 +27,6 @@ export default function EditProductModal({ product, closeModal, refreshProducts 
 
         if (product) {
             setProductName(product.pname);
-            setQuantity(product.quantity);
             setPrice(product.price);
             setImage(product.image);
             setCategory(product.category_id ? product.category_id._id : '');
@@ -55,13 +52,8 @@ export default function EditProductModal({ product, closeModal, refreshProducts 
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setQuantityError('');
         setPriceError('');
         setImageError('');
-        if (quantity <= 0) {
-            setQuantityError('*Số lượng phải lớn hơn 0');
-            return;
-        }
         if (price <= 0) {
             setPriceError('*Giá phải lớn hơn 0');
             return;
@@ -72,7 +64,6 @@ export default function EditProductModal({ product, closeModal, refreshProducts 
         }
         const formData = new FormData();
         formData.append('pname', productName);
-        formData.append('quantity', quantity);
         formData.append('price', price);
         formData.append('category_id', category);
         formData.append('status', status);
@@ -98,12 +89,12 @@ export default function EditProductModal({ product, closeModal, refreshProducts 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
             <div className="bg-white p-4 rounded-lg w-1/3 h-auto" style={{ maxHeight: '90vh', overflowY: 'auto' }}>
-                <h2 className="text-xl font-bold mb-2">Chỉnh sửa sản phẩm</h2>
+                <h2 className="text-xl font-bold mb-2">Chỉnh sửa thông tin đồ uống</h2>
 
                 <form onSubmit={handleSubmit}>
                     <div className="grid grid-cols-1 gap-2">
                         <div>
-                            <label>Tên sản phẩm</label>
+                            <label>Tên đồ uống</label>
                             <input
                                 type="text"
                                 name="productName"
@@ -114,19 +105,7 @@ export default function EditProductModal({ product, closeModal, refreshProducts 
                             />
                         </div>
                         <div>
-                            <label>Số lượng</label>
-                            <input
-                                type="number"
-                                name="quantity"
-                                value={quantity}
-                                onChange={(e) => setQuantity(e.target.value)}
-                                className="border rounded-md p-2 w-full"
-                                min="0"
-                            />
-                            {quantityError && <p className="text-red-500">{quantityError}</p>}
-                        </div>
-                        <div>
-                            <label>Giá</label>
+                            <label>Giá bán</label>
                             <input
                                 type="number"
                                 name="price"
@@ -149,7 +128,7 @@ export default function EditProductModal({ product, closeModal, refreshProducts 
                             {imagePreview && <img src={imagePreview} alt="Product" className="mt-2 w-16 h-16 object-cover rounded-lg" />}
                         </div>
                         <div>
-                            <label>Danh mục</label>
+                            <label>Loại đồ uống</label>
                             <select
                                 name="category"
                                 value={category}
