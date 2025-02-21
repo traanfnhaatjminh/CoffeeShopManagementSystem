@@ -11,14 +11,13 @@ import CashierLayout from '@/page/cashier/CashierLayout';
 
 import React, { useEffect } from 'react';
 import CashierScreen from './page/cashier/CashierScreen';
-import BillList  from './page/cashier/BillList';
+import BillList from './page/cashier/BillList';
 import TableList from './page/cashier/TableList';
 import LandingPage from './components/common/landing';
 import { useDispatch, useSelector } from 'react-redux';
 import { checkAuth } from './store/auth-slice/authSlice';
 import CheckAuth from '@/page/common/CheckAuth';
 import NotFound from '@/page/auth/NotFound';
-import BillList from './page/cashier/BillList';
 import Statistic from './page/shopowner/Statistic';
 import Settings from './page/shopowner/Settings';
 import WarehouseProduct from './page/warehouse/warehouseProduct';
@@ -34,7 +33,7 @@ function App() {
   useEffect(() => {
     dispatch(checkAuth());
   }, [dispatch]);
-       
+
   return (
     <BrowserRouter>
       <Routes>
