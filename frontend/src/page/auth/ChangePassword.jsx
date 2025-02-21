@@ -1,15 +1,27 @@
 import React from 'react';
+import { IoArrowBackSharp } from 'react-icons/io5';
+import { Link } from 'react-router-dom';
+import { labelChangePassword, dataInfoPassword, sloganChangePassword, titleChangePassword } from '@/data/profile';
 
 const ChangePassword = () => {
   return (
-    <div className="main_container flex flex-col lg:flex-row gap-6 items-center justify-center h-auto lg:h-[90%] p-6 bg-[#F5F5DC] pt-0">
-      <div className="info w-full md:w-2/3 lg:w-1/3 bg-[#FFF9F2] mt-5 lg:mt-5 shadow-lg rounded-lg p-6 border border-[#6B4226] lg:h-[80%] lg:pt-[30px]">
-        <h2 className="flex justify-center text-3xl font-mono font-semibold text-[#6B4226]">Đổi Mật Khẩu</h2>
+    <div className="main_container flex flex-col lg:flex-row gap-6 items-center justify-center h-full p-6 bg-[#F5F5DC] pt-0">
+      <Link
+        className="back absolute top-24 left-36 flex items-center gap-1 hover:text-brown-700"
+        to={'/cashier/profile'}
+      >
+        <IoArrowBackSharp />
+        <span className="text-lg">Trở về</span>
+      </Link>
+      <div className="info w-full md:w-2/3 lg:w-1/3 bg-[#FFF9F2] mt-5 lg:mt-0 shadow-lg rounded-lg p-6 border border-[#6B4226] lg:h-[80%]">
+        <h2 className="flex justify-center text-3xl font-mono font-semibold text-[#6B4226]">
+          {titleChangePassword.titleChange}
+        </h2>
 
         <form className="mt-6 space-y-4">
           <div>
             <label htmlFor="oldPassword" className="block text-lg text-[#6B4226]">
-              Mật khẩu cũ
+              {labelChangePassword.oldPassword}
             </label>
             <input
               type="password"
@@ -20,7 +32,7 @@ const ChangePassword = () => {
 
           <div>
             <label htmlFor="newPassword" className="block text-lg text-[#6B4226]">
-              Mật khẩu mới
+              {labelChangePassword.newPassword}
             </label>
             <input
               type="password"
@@ -31,7 +43,7 @@ const ChangePassword = () => {
 
           <div>
             <label htmlFor="confirmPassword" className="block text-lg text-[#6B4226]">
-              Xác nhận mật khẩu mới
+              {labelChangePassword.confirmPassword}
             </label>
             <input
               type="password"
@@ -49,6 +61,25 @@ const ChangePassword = () => {
             </button>
           </div>
         </form>
+      </div>
+
+      <div className="info-box w-full md:w-2/3 lg:w-1/3 bg-[#FFF9F2] mt-5 lg:mt-0 shadow-lg rounded-lg p-6 border border-[#6B4226] lg:h-[80%] flex flex-col items-center text-center gap-8">
+        <h3 className="text-2xl font-semibold text-[#6B4226] font-mono pt-5">
+          {titleChangePassword.titleInfoPassword}
+        </h3>
+        <ul className="mt-4 text-[#6B4226] text-lg list-disc list-inside text-left">
+          {dataInfoPassword.map((item, index) => {
+            return <li key={item | index}>{item}</li>;
+          })}
+        </ul>
+        {sloganChangePassword &&
+          sloganChangePassword.map((item, index) => {
+            return (
+              <p className="text-lg italic text-[#6B4226]  font-mono" key={item | index}>
+                {item}
+              </p>
+            );
+          })}
       </div>
     </div>
   );

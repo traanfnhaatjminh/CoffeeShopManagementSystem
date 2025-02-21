@@ -14,7 +14,7 @@ const Profile = () => {
   };
   const dataUser = useSelector((state) => state.auth.user);
   return (
-    <div className="main_container flex flex-col lg:flex-row gap-6 items-center justify-center h-auto lg:h-[90%] p-6 bg-[#F5F5DC]">
+    <div className="main_container flex flex-col lg:flex-row gap-6 items-center justify-center h-auto h-full p-6 bg-[#F5F5DC]">
       <div className="info w-full md:w-2/3 lg:w-2/5 bg-white mt-5 lg:mt-5 shadow-lg rounded-lg p-6 border border-[#6B4226]">
         <div className="avatar flex flex-col sm:flex-row justify-between items-center">
           <img src={imgAvatar} alt="avatar" className="w-24 h-24 rounded-full border-4 border-[#6B4226]" />
@@ -66,9 +66,9 @@ const Profile = () => {
             </button>
           </div>
           <p className="text-sm text-gray-600 mt-3">
-            Lương Quốc Tuấn là một nhân viên tận tâm, có tinh thần trách nhiệm cao và luôn giữ thái độ chuyên nghiệp
-            trong công việc. Trong suốt thời gian làm việc, Tuấn luôn thể hiện sự nhanh nhẹn, chủ động và linh hoạt
-            trong mọi tình huống.
+            <span className="font-medium">{dataUser.userName}</span> là một nhân viên tận tâm, có tinh thần trách nhiệm
+            cao và luôn giữ thái độ chuyên nghiệp trong công việc. Trong suốt thời gian làm việc, Tuấn luôn thể hiện sự
+            nhanh nhẹn, chủ động và linh hoạt trong mọi tình huống.
           </p>
         </div>
       </div>
