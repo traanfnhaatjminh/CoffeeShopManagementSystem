@@ -13,7 +13,6 @@ const loginUser = async (req, res) => {
     const { email, password } = req.body;
     try {
         const checkUser = await db.User.findOne({ email }).populate("role");
-        console.log("checkUser:", checkUser);
 
         if (!checkUser)
             return res.json({
@@ -47,6 +46,7 @@ const loginUser = async (req, res) => {
                 role: checkUser.role,
                 id: checkUser._id,
                 userName: checkUser.fullName,
+                phone: checkUser.phone,
             },
         });
     } catch (err) {
@@ -119,15 +119,13 @@ const register = async (req, res, next) => {
             status,
         } = req.body;
         const role_id = await Role.findOne({ role_name: role });
-        console.log("role_id:", role_id);
 
-        // Hash the password before saving
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const newUser = new User({
             fullName,
             email,
-            password: hashedPassword, // Save hashed password
+            password: hashedPassword,
             dob,
             phone,
             address,
@@ -168,8 +166,8 @@ const transporter = nodemailer.createTransport({
 
 const forgotPassword = async (req, res, next) => {
     try {
-        console.log("req:", req.body);
         const { email } = req.body;
+        console.log("email:", email);
         const user = await db.User.findOne({ email });
         if (!user) {
             return res.json({
@@ -203,6 +201,7 @@ const forgotPassword = async (req, res, next) => {
         });
     } catch (error) {
         console.log(error);
+        next(error);
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: "Server Error!",
@@ -254,7 +253,6 @@ const resetPassword = (req, res, next) => {
 
 const verifyOTP = async (req, res, next) => {
     const { code } = req.body;
-    console.log("req.cookie:", req.cookies);
     const token = req.cookies.resetpassword;
     if (!token) {
         return res.status(StatusCodes.UNAUTHORIZED).json({
@@ -279,7 +277,6 @@ const verifyOTP = async (req, res, next) => {
                 email,
             });
         } else {
-            console.log("demo");
             return res.json({
                 success: false,
                 message: "OTP is incorrect. Please try again.",

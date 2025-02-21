@@ -9,7 +9,7 @@ const Paging = ({ currentPage, totalItems, itemsPerPage, onPageChange }) => {
       onPageChange(page);
     }
   };
-  return (
+  return (    
     <div className="flex justify-center py-4 border-t border-gray-200">
       <nav className="flex items-center space-x-2">
         <button
