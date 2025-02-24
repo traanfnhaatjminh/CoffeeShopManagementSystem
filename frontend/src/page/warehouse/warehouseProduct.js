@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { FaPen, FaTrash, FaPlus, FaFileImport, FaCheck } from 'react-icons/fa';
+import { FaPen, FaPlus } from 'react-icons/fa';
 import { IoSearch } from 'react-icons/io5';
-import { MdCancel, MdBlock } from 'react-icons/md'; // Import the cancel icon
 import EditProductModal from './EditProductModal';
 import AddProductModal from './AddProductModal';
 import Paging from '../../components/common/paging';
 import axios from 'axios'; // Import axios
-import { toast, ToastContainer } from 'react-toastify';
-import { confirmAlert } from 'react-confirm-alert';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 
@@ -18,7 +16,6 @@ function WarehouseProduct() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [importFile, setImportFile] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const productPerPage = 5;
 
@@ -51,69 +48,24 @@ function WarehouseProduct() {
     setShowAddModal(true);
   };
 
-  const deleteProduct = async (productId) => {
-    try {
-      const response = await axios.put(`/products/deleteProduct/${productId}`);
-      if (response.status === 200) {
-        toast.success('Đã ngừng kích hoạt sản phẩm!');
-        fetchProducts(searchTerm);
-      }
-    } catch (error) {
-      console.error('Có lỗi xảy ra khi ngưng kích hoạt sản phẩm:', error);
-    }
-  };
+  // const deleteProduct = async (productId) => {
+  //   try {
+  //     const response = await axios.put(`/products/deleteProduct/${productId}`);
+  //     if (response.status === 200) {
+  //       toast.success('Đã ngừng kích hoạt sản phẩm!');
+  //       fetchProducts(searchTerm);
+  //     }
+  //   } catch (error) {
+  //     console.error('Có lỗi xảy ra khi ngưng kích hoạt sản phẩm:', error);
+  //   }
+  // };
 
   const handleSearchChange = (e) => {
     const value = e.target.value;
     setSearchTerm(value);
     fetchProducts(value);
   };
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    const allowedExtensions = ['.csv'];
-    const fileExtension = file?.name.slice(file.name.lastIndexOf('.'));
-
-    if (file && !allowedExtensions.includes(fileExtension)) {
-      toast.error('Vui lòng chọn tệp CSV.');
-      return;
-    }
-    setImportFile(file);
-  };
-
-  const handleFileUpload = async (file) => {
-    if (!file) {
-      toast.error('Vui lòng chọn một tệp để nhập.');
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append('file', file);
-
-    try {
-      const response = await axios.post('/products/importProduct', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      if (response.data.success) {
-        toast.success(`${response.data.count} sản phẩm đã được nhập thành công!`);
-        fetchProducts();
-      } else {
-        toast.info('Không có sản phẩm mới để nhập.');
-      }
-    } catch (error) {
-      console.error('Error importing products:', error);
-      toast.error('Đã xảy ra lỗi trong quá trình nhập sản phẩm.');
-    } finally {
-      setImportFile(null);
-    }
-  };
-
-  useEffect(() => {
-    if (importFile) {
-      handleFileUpload(importFile);
-    }
-  }, [importFile]);
+  
 
   //paging
   const currentProducts = products.slice((currentPage - 1) * productPerPage, currentPage * productPerPage);
@@ -157,14 +109,6 @@ function WarehouseProduct() {
               <FaPlus className="mr-1" />
               Thêm
             </button>
-            {/* <label
-
-              className="bg-teal-400 text-white p-2 rounded-lg flex items-center cursor-pointer"
-            >
-              <FaFileImport className="mr-1" />
-              Import
-            </label>
-            <input id="fileUpload" type="file" hidden onChange={handleFileChange} /> */}
           </div>
 
           <div className="overflow-x-auto">
@@ -200,17 +144,17 @@ function WarehouseProduct() {
                   currentProducts.map((product, index) => (
                     <tr key={product._id} className="border-b hover:bg-gray-100 transition-colors duration-300">
                       <td className="px-6 py-4 text-lg font-medium text-gray-900"> {index + 1 + (currentPage - 1) * productPerPage}</td>
-                      <td className="px-6 py-4 text-md text-gray-500">{product.pname}
-                        {product.status === 1 && (
-                          <span className="text-green-500 ml-2">
-                            <FaCheck title="Sản phẩm khả dụng" />
-                          </span>
-                        )}
-                        {product.status === 0 && (
-                          <span className="text-red-500 ml-2">không khả dụng
-                            <MdCancel title="Sản phẩm không khả dụng" />
-                          </span>
-                        )}</td>
+                      <td className="px-6 py-4 text-md text-gray-500">{product.pname}</td>
+                     {/*  {product.status === 1 && (
+                        <span className="text-green-500 ml-2">
+                          <FaCheck title="Sản phẩm khả dụng" />
+                        </span>
+                      )}
+                      {product.status === 0 && (
+                        <span className="text-red-500 ml-2">không khả dụng
+                          <MdCancel title="Sản phẩm không khả dụng" />
+                        </span>
+                      )}</td>*/}
                       <td className="px-6 py-4 text-md text-gray-500">0</td>
                       <td className="px-6 py-4 text-md text-gray-500">
                       {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(product.price)}
