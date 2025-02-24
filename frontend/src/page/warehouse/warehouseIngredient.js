@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { FaPen, FaTrash, FaPlus, FaFileImport, FaCheck, FaFileExport } from 'react-icons/fa';
+import { FaPen, FaPlus, FaFileImport, FaFileExport } from 'react-icons/fa';
 import { IoSearch } from 'react-icons/io5';
-import { MdCancel, MdBlock } from 'react-icons/md'; // Import the cancel icon
-import EditingredientModal from './EditProductModal';
+import EditingredientModal from './EditIngredientModal';
 import AddingredientModal from './AddIngredientModal';
 import Paging from '../../components/common/paging';
 import axios from 'axios'; // Import axios
-import { toast, ToastContainer } from 'react-toastify';
-import { confirmAlert } from 'react-confirm-alert';
+import {ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 
@@ -18,7 +16,6 @@ function WarehouseIngredient() {
     const [selectedIngredient, setselectedIngredient] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showAddModal, setShowAddModal] = useState(false);
-    const [importFile, setImportFile] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const ingredientPerPage = 7;
 
@@ -55,53 +52,6 @@ function WarehouseIngredient() {
         setSearchTerm(value);
         fetchIngredients(value);
     };
-    
-    const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        const allowedExtensions = ['.csv'];
-        const fileExtension = file?.name.slice(file.name.lastIndexOf('.'));
-
-        if (file && !allowedExtensions.includes(fileExtension)) {
-            toast.error('Vui lòng chọn tệp CSV.');
-            return;
-        }
-        setImportFile(file);
-    };
-
-    const handleFileUpload = async (file) => {
-        if (!file) {
-            toast.error('Vui lòng chọn một tệp để nhập.');
-            return;
-        }
-
-        const formData = new FormData();
-        formData.append('file', file);
-
-        try {
-            const response = await axios.post('/ingredients/importingredient', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-            if (response.data.success) {
-                toast.success(`${response.data.count} sản phẩm đã được nhập thành công!`);
-                fetchIngredients();
-            } else {
-                toast.info('Không có sản phẩm mới để nhập.');
-            }
-        } catch (error) {
-            console.error('Error importing ingredients:', error);
-            toast.error('Đã xảy ra lỗi trong quá trình nhập sản phẩm.');
-        } finally {
-            setImportFile(null);
-        }
-    };
-
-    useEffect(() => {
-        if (importFile) {
-            handleFileUpload(importFile);
-        }
-    }, [importFile]);
 
     //paging
     const currentingredients = ingredients.slice((currentPage - 1) * ingredientPerPage, currentPage * ingredientPerPage);
@@ -159,7 +109,6 @@ function WarehouseIngredient() {
                             <FaFileExport className="mr-1" />
                             Export
                         </label>
-                        <input id="fileUpload" type="file" hidden onChange={handleFileChange} />
                     </div>
 
                     <div className="overflow-x-auto">
@@ -253,7 +202,7 @@ function WarehouseIngredient() {
                             />
                         )}
                         {showAddModal && (
-                            <AddingredientModal closeModal={() => setShowAddModal(false)} refreshingredients={fetchIngredients} />
+                            <AddingredientModal closeModal={() => setShowAddModal(false)} refreshIngredients={fetchIngredients} />
                         )}
                     </div>
                 </div>

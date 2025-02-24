@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
-const AddIngredientModal = ({ closeModal, refreshIngredients }) => {
-    // Các state dùng cho tab Thông tin
+export default function EditIngredientModal({ ingredient, closeModal, refreshingredients }) {
     const [productName, setProductName] = useState('');
     const [unit, setUnit] = useState('');
     const [quantity, setQuantity] = useState(0);
@@ -16,7 +15,6 @@ const AddIngredientModal = ({ closeModal, refreshIngredients }) => {
 
     // Các state cho tab Thành phần
     const [searchTerm, setSearchTerm] = useState('');
-    const [ingredientsList, setIngredientsList] = useState([]);
     const [filteredIngredients, setFilteredIngredients] = useState([]);
     const [selectedIngredients, setSelectedIngredients] = useState([]);
     // selectedIngredients là mảng chứa các ingredient mà bạn đã chọn
@@ -24,31 +22,17 @@ const AddIngredientModal = ({ closeModal, refreshIngredients }) => {
     // State quản lý tab hiện tại
     const [activeTab, setActiveTab] = useState('thongtin');
 
-    // Lấy danh sách ingredients
+    //list categories
     useEffect(() => {
-        const fetchIngredients = async () => {
-            try {
-                const response = await axios.get('/ingredients/getAll');
-                setIngredientsList(response.data);
-            } catch (error) {
-                console.error('Error fetching ingredients:', error);
-            }
-        };
-        fetchIngredients();
-    }, []);
 
-    // Mỗi khi searchTerm thay đổi, lọc ingredientsList
-    useEffect(() => {
-        if (!searchTerm) {
-            setFilteredIngredients([]);
-            return;
+        if (ingredient) {
+            setProductName(ingredient.name);
+            setUnit(ingredient.unit);
+            setQuantity(ingredient.quantity);
+            setCostPrice(ingredient.cost_price);
+            setCapacity(ingredient.capacity);
         }
-        // Giả sử ingredient có field 'name'
-        const filtered = ingredientsList.filter((item) =>
-            item.name.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-        setFilteredIngredients(filtered);
-    }, [searchTerm, ingredientsList]);
+    }, [ingredient]);
 
     // Xử lý khi user chọn 1 ingredient
     const handleSelectIngredient = (ingredient) => {
@@ -69,7 +53,6 @@ const AddIngredientModal = ({ closeModal, refreshIngredients }) => {
         setSelectedIngredients(selectedIngredients.filter((item) => item._id !== id));
     };
 
-    // Submit form
     const handleSubmit = async (e) => {
         e.preventDefault();
         // Kiểm tra lỗi
@@ -91,7 +74,7 @@ const AddIngredientModal = ({ closeModal, refreshIngredients }) => {
             setCapacityError('*Dung tích phải lớn hơn 0!');
             hasError = true;
         }
-        
+
         if (hasError) return; // Nếu có lỗi thì dừng lại
 
         // Tạo formData để gửi lên server
@@ -106,15 +89,14 @@ const AddIngredientModal = ({ closeModal, refreshIngredients }) => {
         // formData.append('ingredients', JSON.stringify(selectedIngredients));
 
         try {
-            await axios.post('/ingredients/createIngredient', formData);
-            toast.success('Thêm 1 nguyên liệu mới thành công');
-            refreshIngredients();
+            await axios.put(`/ingredients/updateIngredient/${ingredient._id}`, formData);
+            toast.success('Chỉnh sửa thông tin nguyên liệu thành công');
+            refreshingredients();
             closeModal();
         } catch (error) {
-            toast.error('Thêm nguyên liệu thất bại!');
+            toast.error('Chỉnh sửa thông tin nguyên liệu thất bại!');
         }
     };
-
 
     // Render nội dung của từng tab
     const renderTabContent = () => {
@@ -255,7 +237,7 @@ const AddIngredientModal = ({ closeModal, refreshIngredients }) => {
                 className="bg-white p-4 rounded-lg h-auto"
                 style={{ maxHeight: '150vh', width: '70%' }}
             >
-                <h2 className="text-xl font-bold mb-2">Thêm nguyên liệu mới</h2>
+                <h2 className="text-xl font-bold mb-2">Chỉnh sửa thông tin nguyên liệu</h2>
 
                 {/* Thanh tab */}
                 <div className="flex mb-4">
@@ -292,7 +274,7 @@ const AddIngredientModal = ({ closeModal, refreshIngredients }) => {
                             type="submit"
                             className="bg-green-400 text-white px-3 py-1 rounded-lg"
                         >
-                            Thêm
+                            Lưu
                         </button>
                     </div>
                 </form>
@@ -300,5 +282,3 @@ const AddIngredientModal = ({ closeModal, refreshIngredients }) => {
         </div>
     );
 }
-
-export default AddIngredientModal;

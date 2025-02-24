@@ -152,26 +152,45 @@ const getBillFromTable = async (req, res, next) => {
   }
 };
 
+
 const postBillUpdate = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const updatedBill = {
-      status: 1,
-      payment: req.body.payment,
-      discount: req.body.discount,
-      total_cost: req.body.totalCost,
-      updated_time: Date.now()
-    };
-    const bill = await Bill.findByIdAndUpdate(id, updatedBill, { new: true });
+    const { payment, discount = 0, totalCost } = req.body;
 
+    // Tìm hóa đơn hiện tại
+    const bill = await Bill.findById(id);
     if (!bill) {
-      return res.status(404).json({ message: "Bill not found" });
+      return res.status(404).json({ message: "Không tìm thấy hóa đơn" });
     }
 
+    // Tính lại tổng tiền nếu chưa được cung cấp
+    const calculatedTotalCost = totalCost || bill.product_list.reduce(
+      (total, item) => total + (item.priceP * item.quantityP),
+      0
+    ) * ((100 - (discount || 0)) / 100);
+
+    const updatedBill = {
+      status: 1, // Luôn đặt trạng thái là 1 khi đã thanh toán
+      payment,
+      discount: discount || 0,
+      total_cost: calculatedTotalCost,
+      updated_time: Date.now()
+    };
+
+    const updatedBillDoc = await Bill.findByIdAndUpdate(
+      id, 
+      updatedBill, 
+      { new: true }
+    );
+
+    // Cập nhật trạng thái bàn thành trống
     await Table.findByIdAndUpdate(bill.table_id, { status: true });
-    res
-      .status(200)
-      .json({ message: "Payment successful, table is now available", bill });
+    
+    res.status(200).json({ 
+      message: "Thanh toán thành công, bàn đã được giải phóng", 
+      bill: updatedBillDoc 
+    });
   } catch (error) {
     next(error);
   }

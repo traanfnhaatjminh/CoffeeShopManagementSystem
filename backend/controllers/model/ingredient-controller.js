@@ -23,6 +23,33 @@ const createNewIngredient = async (req, res, next) => {
     }
 };
 
+const updateIngredient = async (req, res, next) => {
+    const { ingredientId } = req.params;
+    console.log(ingredientId);
+
+    const {name, cost_price, unit, quantity, capacity} = req.body;
+    const current_quantity = quantity;
+
+    try {
+        const updatedIngredient = {
+            name,
+            cost_price,
+            unit,
+            quantity,
+            capacity,
+            current_quantity
+        };
+
+        const ingredient = await Ingredient.findByIdAndUpdate(ingredientId, updatedIngredient, { new: true });
+        if (!ingredient) {
+            return res.status(404).json({ message: "Không tìm thấy nguyên liệu!" });
+        }
+        res.status(200).json({ message: "Cập nhật nguyên liệu thành công.", ingredient });
+    } catch (error) {
+        next(error);
+    }
+};
+
 const getAllIngredients= async (req, res, next) => {
     try {
         const ingredients = await Ingredient.find();
@@ -34,4 +61,6 @@ const getAllIngredients= async (req, res, next) => {
     }
 };
 
-module.exports = {createNewIngredient, getAllIngredients};
+
+
+module.exports = {createNewIngredient, getAllIngredients, updateIngredient};

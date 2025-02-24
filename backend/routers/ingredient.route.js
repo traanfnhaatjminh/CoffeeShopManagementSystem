@@ -1,15 +1,15 @@
 const express = require("express");
-const bodyParser = require("body-parser");
-
-const {createNewIngredient, getAllIngredients} = require("../controllers/model/ingredient-controller");
+const multer = require("multer");
+const upload = multer(); // Nếu không gửi file, sử dụng upload.none() là đủ
+const { createNewIngredient, getAllIngredients, updateIngredient } = require("../controllers/model/ingredient-controller");
 
 const ingredientRoute = express.Router();
-ingredientRoute.use(bodyParser.json());
 
-//Create a new category
-ingredientRoute.post("/createIngredient", createNewIngredient);
+// Nếu dữ liệu được gửi dưới dạng multipart/form-data
+ingredientRoute.post("/createIngredient", upload.none(), createNewIngredient);
 
-// Get all categories
 ingredientRoute.get("/getAll", getAllIngredients);
+
+ingredientRoute.put("/updateIngredient/:ingredientId", upload.none(), updateIngredient);
 
 module.exports = ingredientRoute;
