@@ -22,6 +22,7 @@ import Statistic from './page/shopowner/Statistic';
 import Settings from './page/shopowner/Settings';
 import WarehouseProduct from './page/warehouse/warehouseProduct';
 import WarehouseCategory from './page/warehouse/warehouseCategory';
+import WarehouseIngredient from './page/warehouse/warehouseIngredient';
 
 function App() {
   const { isAuthenticated, isLoading, user } = useSelector((state) => state.auth);
@@ -84,6 +85,8 @@ function App() {
         >
           <Route path="categories" element={<WarehouseCategory />} />
           <Route path="products" element={<WarehouseProduct />} />
+          <Route path="ingredients" element={<WarehouseIngredient />} />
+
         </Route>
 
         <Route path="*" element={<NotFound />} />
