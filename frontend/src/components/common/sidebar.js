@@ -7,37 +7,41 @@ import { useDispatch, useSelector } from 'react-redux';
 import CheckAuth from '@/page/common/CheckAuth';
 
 function Sidebar() {
-
-  const {user} = useSelector((state) => state.auth);
+  const { user } = useSelector((state) => state.auth);
 
   return (
     <div className="flex min-h-screen">
       <aside className="w-28 bg-brown-800 p-4 flex flex-col items-center space-y-4 justify-self-center">
-        {
-          user.role.role_name === 'cashier' && (
-            <>
-              <div className="abc">
-                <FaHome className="w-6 h-6 mb-1 text-gray-700" />
-                <Link to="/cashier/createbill">
-                  <span className="text-sm text-gray-700 font-lauren font-semibold">Home</span>
-                </Link>
-              </div>
-              <div className="abc">
-                <FaThList className="w-6 h-6 mb-1 text-gray-700" />
-                <Link to="/cashier/tablelist">
-                  <span className="text-sm text-gray-700 font-lauren font-semibold">Table List</span>
-                </Link>
-              </div>
-              <div className="abc">
-                <MdListAlt className="w-6 h-6 mb-1 text-gray-700" />
+        {user.role.role_name === 'cashier' && (
+          <>
+            <div className="abc">
+              <FaHome className="w-6 h-6 mb-1 text-gray-700" />
+              <Link to="/cashier/createbill">
+                <span className="text-sm text-gray-700 font-lauren font-semibold">Home</span>
+              </Link>
+            </div>
+            <div className="abc">
+              <FaThList className="w-6 h-6 mb-1 text-gray-700" />
+              <Link to="/cashier/tablelist">
+                <span className="text-sm text-gray-700 font-lauren font-semibold">Table List</span>
+              </Link>
+            </div>
+            <div className="abc">
+              <MdListAlt className="w-6 h-6 mb-1 text-gray-700" />
 
-                <Link to="/cashier/allbill">
-                  <span className="text-sm text-gray-700 font-lauren font-semibold">AllBill</span>
-                </Link>
-              </div>
-            </>
-          )
-        }
+              <Link to="/cashier/allbill">
+                <span className="text-sm text-gray-700 font-lauren font-semibold">AllBill</span>
+              </Link>
+            </div>
+            <div className="abc">
+              <MdListAlt className="w-6 h-6 mb-1 text-gray-700" />
+
+              <Link to="/cashier/profile">
+                <span className="text-sm text-gray-700 font-lauren font-semibold">Thông tin</span>
+              </Link>
+            </div>
+          </>
+        )}
 
         {user.role.role_name === 'warehouse manager' && (
           <>
@@ -73,7 +77,6 @@ function Sidebar() {
             </div>
           </>
         )}
-
       </aside>
     </div>
   );

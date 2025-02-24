@@ -43,7 +43,7 @@ export default function EditProductModal({ product, closeModal, refreshProducts 
                 setImagePreview(URL.createObjectURL(file));
                 setImageError('');
             } else {
-                setImage('');
+                setImage(null);
                 setImagePreview('');
                 setImageError('*Tệp không hợp lệ. Vui lòng chọn tệp hình ảnh.')
             }

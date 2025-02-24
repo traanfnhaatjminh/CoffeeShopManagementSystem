@@ -16,7 +16,12 @@ const productSchema = new Schema(
             type: Number,
             required: true,
         },
-        image: String,
+        image:{
+            type: String
+        },
+        cloudinary_id:{
+            type: String
+        },
         category_id: {
             type: Schema.Types.ObjectId,
             ref: "Category",
