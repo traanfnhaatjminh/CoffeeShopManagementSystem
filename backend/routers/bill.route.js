@@ -11,7 +11,7 @@ const {
   getBill,
   createNewBill,
   getStatistics,
-  getProductsSoldByCategory
+  getProductsSoldByCategory, addProductsToBill
 } = require("../controllers/model/bill-controller");
 
 billRouter.get("", getBill);
@@ -20,5 +20,6 @@ billRouter.get("/statistics", getStatistics);
 billRouter.get("/sold-by-category", getProductsSoldByCategory);
 billRouter.get("/table/:id", getBillFromTable);
 billRouter.put("/update/:id",postBillUpdate);
+billRouter.put("/add-products/:id",addProductsToBill);
 
 module.exports = billRouter;
