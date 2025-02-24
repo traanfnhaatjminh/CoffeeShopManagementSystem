@@ -17,7 +17,6 @@ const createNewUser = async (req, res, next) => {
             status,
         } = req.body;
         const role_id = await Role.findOne({ role_name: role });
-        console.log("role_id:", role_id);
         const uId = new mongoose.Types.ObjectId();
 
         // Hash the password before saving
@@ -49,7 +48,7 @@ const createNewUser = async (req, res, next) => {
 
 const getAllUser = async (req, res, next) => {
     try {
-        const users = await User.find({status: 1});
+        const users = await User.find({ status: 1 });
         res.status(200).json(users);
     } catch (error) {
         next(error);
@@ -58,30 +57,32 @@ const getAllUser = async (req, res, next) => {
 
 const getAllUsersWithRole = async (req, res, next) => {
     try {
-        const users = await User.find()
-            .populate('role')
-            .exec();
+        const users = await User.find().populate("role").exec();
         res.status(200).json(users);
     } catch (error) {
         next(error);
     }
-}
+};
 
 const editUser = async (req, res, next) => {
     try {
-        const {userId} = req.params;
-        const {newRole, status} = req.body;
-        const role = await Role.findOne({role_name: newRole});
-        const updateUser = await User.findByIdAndUpdate(userId, {role: role._id, status: status}, {new: true}).populate('role');
-        if(!updateUser){
-            return res.status(404).json({message: "User not found"});
+        const { userId } = req.params;
+        const { newRole, status } = req.body;
+        const role = await Role.findOne({ role_name: newRole });
+        const updateUser = await User.findByIdAndUpdate(
+            userId,
+            { role: role._id, status: status },
+            { new: true }
+        ).populate("role");
+        if (!updateUser) {
+            return res.status(404).json({ message: "User not found" });
         }
         res.status(200).json({
             message: "Updated successfully",
-            result: updateUser
+            result: updateUser,
         });
     } catch (error) {
         next(error);
     }
-}
-module.exports = { createNewUser, getAllUser, getAllUsersWithRole, editUser};
+};
+module.exports = { createNewUser, getAllUser, getAllUsersWithRole, editUser };

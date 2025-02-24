@@ -29,7 +29,6 @@ const AuthLogin = () => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [isRegisterModalOpen, setRegisterModalOpen] = useState(false);
-  const openRegisterModal = () => setRegisterModalOpen(true);
   const closeRegisterModal = () => setRegisterModalOpen(false);
 
   const dispatch = useDispatch();
@@ -45,12 +44,11 @@ const AuthLogin = () => {
       await validationSchema.validate(formData, { abortEarly: false });
       setErrors({});
       const response = await dispatch(login(formData));
-
       if (response.payload.success) {
         setLoading(false);
       } else {
         setLoading(false);
-        setErrors({ general: response.payload.message }); // Set backend error message
+        setErrors({ general: response.payload.message });
       }
     } catch (err) {
       const newErrors = {};
@@ -86,15 +84,15 @@ const AuthLogin = () => {
         <div className="w-7/12">
           <div className="w-8/12 ml-40">
             <h1 className="header-container-form font-semibold text-5xl mt-5 text-amber-800 hover:text-amber-600">
-              Welcome back
+              Chào Mừng
             </h1>
             <p className="sub-header mt-3">
-              Login to access your <span className="text-[#FF1515]">CaffeShop</span> account
+              Đăng nhập để truy cập tài khoản <span className="text-[#FF1515]">CaffeShop</span> của bạn
             </p>
             <form onSubmit={handleLogin}>
               <div className="form-login mt-3">
                 <div className="email-login">
-                  <label htmlFor="email">Your Email</label>
+                  <label htmlFor="email">Email của bạn</label>
                   <div className="relative">
                     <div className="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
                       <MdOutlineMail
@@ -115,7 +113,7 @@ const AuthLogin = () => {
                   </div>
                 </div>
                 <div className="password-login mt-4">
-                  <label htmlFor="password">Password</label>
+                  <label htmlFor="password">Mật khẩu</label>
                   <div className="relative mb-1">
                     <div className="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
                       <FaUserLock
@@ -141,18 +139,18 @@ const AuthLogin = () => {
                   <div className="remember-account flex items-center">
                     <input type="checkbox" id="check-remember" className="h-6" />
                     <label htmlFor="check-remember" className="pl-2">
-                      Remember me
+                      Ghi nhớ
                     </label>
                   </div>
                   <Link className="forgot-password text-[#3B82F6]" to="./forgot-password">
-                    Forgot password
+                    Quên mật khẩu
                   </Link>
                 </div>
                 <button
                   type="submit"
                   className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 w-full mt-4"
                 >
-                  Sign in to your account
+                  Đăng nhập
                 </button>
                 <RegisterModal isOpen={isRegisterModalOpen} onClose={closeRegisterModal} />
               </div>
