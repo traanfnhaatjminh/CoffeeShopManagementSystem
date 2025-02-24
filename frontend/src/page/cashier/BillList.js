@@ -32,11 +32,6 @@ export default function BillList() {
     loadData();
   }, [search, currentPage]);
 
-  const getTableNumber = (tableId) => {
-    const tableIndex = tableList.findIndex((table) => table._id.toString() === tableId.toString());
-    return tableIndex !== -1 ? tableIndex + 1 : 'Not found';
-  };
-
   const handleClickDetail = (bill) => {
     setSelectedBill(bill);
     setModalShow(true);
@@ -45,7 +40,6 @@ export default function BillList() {
     setExportModalShow(true);
   };
   console.log();
-  
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
@@ -105,25 +99,33 @@ export default function BillList() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {billList.slice().sort((a,b)=> new Date(b.created_time)-new Date(a.created_time)).map((bill, index) => (
+              {billList.map((bill, index) => (
                 <tr key={bill._id} className="hover:bg-gray-50 transition duration-150 ease-in-out">
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     {(currentPage - 1) * billPerPage + index + 1}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(bill.created_time).toLocaleTimeString()}
+                    {new Date(bill.created_time).toLocaleString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(bill.updated_time).toLocaleTimeString()}
+                    {new Date(bill.updated_time).toLocaleString()}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{getTableNumber(bill.table_id)}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{bill.table_id.table_name}</td>
                   <td className="px-6 py-4 text-sm text-gray-500 max-w-md truncate">
                     {bill.product_list.map((product) => product.nameP).join(', ')}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{bill.discount}%</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {bill.payment === 'cash' ? 'Tiền mặt' : 'Chuyển khoản'}
+                    {bill.discount !== undefined && bill.discount !== null
+                      ? bill.discount > 0
+                        ? `${bill.discount}%`
+                        : 'Không có mã giảm giá'
+                      : 'Chưa áp mã'}
                   </td>
+
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {bill.payment ? (bill.payment === 'cash' ? 'Tiền mặt' : 'Chuyển khoản') : 'Chưa thanh toán'}
+                  </td>
+
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     {bill.total_cost.toLocaleString('vi-VN')}VND
                   </td>

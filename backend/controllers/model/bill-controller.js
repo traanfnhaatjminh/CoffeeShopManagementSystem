@@ -151,6 +151,54 @@ const getBillFromTable = async (req, res, next) => {
     next(error);
   }
 };
+const addProductsToBill = async (req, res, next) => {
+  try {
+    const { products } = req.body; // Nhận danh sách sản phẩm từ request body
+    const { id } = req.params; // Lấy billId từ URL params
+    
+    // Tìm bill theo ID
+    const bill = await Bill.findById(id);
+    if (!bill) {
+      return res.status(404).json({ message: "Không tìm thấy hóa đơn" });
+    }
+    
+    // Kiểm tra xem product_list đã được khởi tạo chưa
+    if (!bill.product_list) {
+      bill.product_list = []; // Khởi tạo nếu chưa có
+    }
+    
+    // Duyệt từng sản phẩm trong danh sách gửi lên
+    products.forEach((product) => {
+      const existingProductIndex = bill.product_list.findIndex(
+        (p) => p.productId.toString() === product.productId.toString()
+      );
+      
+      if (existingProductIndex !== -1) {
+        // Nếu sản phẩm đã có, tăng số lượng và tổng tiền
+        bill.product_list[existingProductIndex].quantityP += product.quantityP;
+        bill.product_list[existingProductIndex].total += product.total;
+      } else {
+        // Nếu chưa có, thêm mới
+        bill.product_list.push(product);
+      }
+    });
+    
+    // Tính lại tổng tiền của hóa đơn
+    // Theo schema, trường này tên là total_cost chứ không phải totalAmount
+    bill.total_cost = bill.product_list.reduce((sum, p) => sum + p.total, 0);
+    
+    // Cập nhật thời gian cập nhật
+    bill.updated_time = new Date();
+    
+    // Lưu lại hóa đơn sau khi cập nhật
+    await bill.save();
+    
+    res.status(200).json({ message: "Thêm sản phẩm vào hóa đơn thành công", bill });
+  } catch (error) {
+    console.error(error); // Thêm log chi tiết lỗi
+    next(error);
+  }
+};
 
 
 const postBillUpdate = async (req, res, next) => {
@@ -165,26 +213,29 @@ const postBillUpdate = async (req, res, next) => {
     }
 
     // Tính lại tổng tiền nếu chưa được cung cấp
-    const calculatedTotalCost = totalCost || bill.product_list.reduce(
-      (total, item) => total + (item.priceP * item.quantityP),
-      0
-    ) * ((100 - (discount || 0)) / 100);
+    const calculatedTotalCost = totalCost || (
+      bill.product_list.reduce(
+        (total, item) => total + (item.priceP * item.quantityP),
+        0
+      ) * ((100 - discount) / 100)
+    );
 
     const updatedBill = {
-      status: 1, // Luôn đặt trạng thái là 1 khi đã thanh toán
+      status: 1, // Đánh dấu hóa đơn đã thanh toán
       payment,
-      discount: discount || 0,
+      discount,
       total_cost: calculatedTotalCost,
-      updated_time: Date.now()
+      // Nếu schema dùng timestamps thì có thể không cần trường updated_time
+      updated_time: Date.now()  
     };
 
     const updatedBillDoc = await Bill.findByIdAndUpdate(
-      id, 
-      updatedBill, 
+      id,
+      updatedBill,
       { new: true }
     );
 
-    // Cập nhật trạng thái bàn thành trống
+    // Cập nhật trạng thái bàn thành trống (giả sử status: true là trống)
     await Table.findByIdAndUpdate(bill.table_id, { status: true });
     
     res.status(200).json({ 
@@ -196,6 +247,7 @@ const postBillUpdate = async (req, res, next) => {
   }
 };
 
+
 const getAllBill = async (req, res) => {
   try {
     const billlist = await Bill.find();
@@ -205,36 +257,37 @@ const getAllBill = async (req, res) => {
   }
 };
 
-////tétttt
+
 const getBill = async (req, res, next) => {
   try {
     // Lấy các tham số search và phân trang từ query params
     const { search = "", page = 1, limit = 10 } = req.query;
-
+    
     // Chuyển đổi tìm kiếm sang chữ thường
     const searchLower = search.toLowerCase();
-
+    
     // Lọc hóa đơn theo tên sản phẩm hoặc ngày tạo/cập nhật
     const filteredBills = await Bill.find({
       $or: [
         {
           "product_list.nameP": { $regex: searchLower, $options: "i" },
         },
-
-
       ],
-    });
-
+    }).populate("table_id", "table_name");;
+    
+    // Sắp xếp hóa đơn theo ngày tạo gần nhất (giảm dần)
+    filteredBills.sort((a, b) => new Date(b.created_time) - new Date(a.created_time));
+    
     // Tính toán phân trang
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
-
+    
     // Lấy danh sách hóa đơn sau khi phân trang
     const currentBills = filteredBills.slice(startIndex, endIndex);
-
+    
     // Tổng số lượng hóa đơn sau khi lọc
     const totalBills = filteredBills.length;
-
+    
     // Trả về dữ liệu JSON gồm hóa đơn, số lượng tổng, trang hiện tại và giới hạn
     res.status(200).json({
       bills: currentBills,
@@ -246,8 +299,6 @@ const getBill = async (req, res, next) => {
     next(error);
   }
 };
-
-
 ////
 const createNewBill = async (req, res, next) => {
   try {
@@ -284,5 +335,6 @@ module.exports = {
   getAllBill,
   createNewBill,
   getStatistics,
-  getProductsSoldByCategory
+  getProductsSoldByCategory,
+  addProductsToBill
 };
