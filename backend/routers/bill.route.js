@@ -21,5 +21,6 @@ billRouter.get("/sold-by-category", getProductsSoldByCategory);
 billRouter.get("/table/:id", getBillFromTable);
 billRouter.put("/update/:id",postBillUpdate);
 billRouter.put("/add-products/:id",addProductsToBill);
+billRouter.get("/filter",addProductsToBill);
 
 module.exports = billRouter;

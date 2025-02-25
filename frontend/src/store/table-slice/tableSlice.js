@@ -4,7 +4,7 @@ import APITABLE from '../../services/api-table';
 
 // Thunk lấy danh sách bàn
 export const fetchTables = createAsyncThunk(
-  'tables/listAll',
+  'tables/list',
   async (_, { rejectWithValue }) => {
     try {
       const response = await APITABLE.ApiGetAll();

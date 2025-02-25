@@ -24,8 +24,8 @@ export default function TableList() {
   const loadData = async () => {
     try {
       dispatch(fetchTables());
-      const responseBill = await axios.get('/bills');
-      setBillList(responseBill.data);
+      // const responseBill = await axios.get('/bills');
+      // setBillList(responseBill.data);
     } catch (error) {
       console.error('Error loading:', error);
     }
@@ -34,7 +34,7 @@ export default function TableList() {
   useEffect(() => {
     loadData();
   }, []);
-
+/////////code lại đoạn naỳ 
   useEffect(() => {
     if (selectedTable) {
       // Tính tổng tiền ban đầu
@@ -45,7 +45,7 @@ export default function TableList() {
       setTotalCost(discountedTotal);
     }
   }, [selectedTable, discount]);
-
+////// cho vào redux 
   const handleTableClick = async (table) => {
     try {
       if (!table.status) {
@@ -90,7 +90,7 @@ export default function TableList() {
       setDiscount(parsedValue); // Đặt giảm giá nếu hợp lệ
     }
   };
-
+//////cho vào redux 
   const handleUpdateBill = async () => {
     try {
       if (selectedTable && paymentMethod && selectBill) {
@@ -146,7 +146,7 @@ console.log(selectedTable);
     setIsModalOpen(false);
   };
   
-  // Xử lý khi thêm sản phẩm từ modal
+  // Xử lý khi thêm sản phẩm từ modal cho vapof redux 
   const handleAddProducts = async (products) => {
     try {
       if (selectBill && products.length > 0) {
