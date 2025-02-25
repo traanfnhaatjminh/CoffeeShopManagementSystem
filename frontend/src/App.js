@@ -89,6 +89,8 @@ function App() {
         >
           <Route path="categories" element={<WarehouseCategory />} />
           <Route path="products" element={<WarehouseProduct />} />
+          <Route path="profile" element={<UserProfile />}></Route>
+          <Route path="change-password" element={<ChangePassword />}></Route>
         </Route>
 
         <Route path="*" element={<NotFound />} />

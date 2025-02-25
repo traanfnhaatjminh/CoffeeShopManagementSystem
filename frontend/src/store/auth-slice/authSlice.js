@@ -47,6 +47,14 @@ export const resetPassword = createAsyncThunk('auth/changePassword', async ({ em
   );
   return response.data;
 });
+export const updatePassword = createAsyncThunk('auth/updatePassword', async (data) => {
+  const response = await axios.post(`${environment.apiUrl}/auth/updatePassword`, { data }, { withCredentials: true });
+  return response.data;
+});
+export const updateInfoUser = createAsyncThunk('auth/updateInfoUser', async (data) => {
+  const response = await axios.post(`${environment.apiUrl}/auth/updateInfoUser`, { data }, { withCredentials: true });
+  return response.data;
+});
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -67,6 +75,7 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.user = action.payload.success ? action.payload.user : null;
         state.isAuthenticated = action.payload.success;
+        console.log('user login: ', state.user);
       })
       .addCase(logout.pending, (state) => {
         state.isLoading = true;
@@ -98,6 +107,12 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.isAuthenticated = false;
         state.user = null;
+      })
+      .addCase(updateInfoUser.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.user = action.payload.success ? action.payload.user : null;
+        state.isAuthenticated = true;
+        console.log(state.user);
       });
   },
 });

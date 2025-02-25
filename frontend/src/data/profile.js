@@ -27,3 +27,30 @@ export const sloganChangePassword = [
   'Bảo mật tài khoản của bạn để sử dụng hệ thống an toàn hơn!',
   'Thay đổi mật khẩu định kỳ để đảm bảo an toàn dữ liệu.',
 ];
+export const formChangePassword = {
+  oldPassword: '',
+  newPassword: '',
+  confirmPassword: '',
+};
+
+export const editInfoUser = {
+  userName: false,
+  email: false,
+  phone: false,
+};
+export const EEditInfoUser = {
+  userName: 'userName',
+  email: 'email',
+  phone: 'phone',
+};
+
+export const formInfoUser = {
+  userName: '',
+  email: '',
+  phone: '',
+};
+export const ERoleUser = {
+  cashier: 'cashier',
+  warehouse: 'warehouse manager',
+  admin: 'admin',
+};
