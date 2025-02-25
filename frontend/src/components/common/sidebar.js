@@ -17,20 +17,20 @@ function Sidebar() {
             <div className="abc">
               <FaHome className="w-6 h-6 mb-1 text-gray-700" />
               <Link to="/cashier/createbill">
-                <span className="text-sm text-gray-700 font-lauren font-semibold">Home</span>
+                <span className="text-sm text-gray-700 font-lauren font-semibold">Trang chủ</span>
               </Link>
             </div>
             <div className="abc">
               <FaThList className="w-6 h-6 mb-1 text-gray-700" />
               <Link to="/cashier/tablelist">
-                <span className="text-sm text-gray-700 font-lauren font-semibold">Table List</span>
+                <span className="text-sm text-gray-700 font-lauren font-semibold">DS Bàn</span>
               </Link>
             </div>
             <div className="abc">
               <MdListAlt className="w-6 h-6 mb-1 text-gray-700" />
 
               <Link to="/cashier/allbill">
-                <span className="text-sm text-gray-700 font-lauren font-semibold">AllBill</span>
+                <span className="text-sm text-gray-700 font-lauren font-semibold">Hóa đơn</span>
               </Link>
             </div>
             <div className="abc">

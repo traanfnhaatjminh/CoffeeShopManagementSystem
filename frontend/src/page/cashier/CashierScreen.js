@@ -5,7 +5,6 @@ import axios from 'axios';
 import Paging from '../../components/common/paging';
 import 'react-toastify/dist/ReactToastify.css';
 import 'react-confirm-alert/src/react-confirm-alert.css';
-import { MdOutlineTableRestaurant } from 'react-icons/md';
 import { ToastContainer } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
 import { addToCart, updateQuantity } from '../../store/cart-slice/cartSlice';
@@ -14,12 +13,13 @@ import { GrFormNext, GrFormPrevious } from 'react-icons/gr';
 import APISERVICECASHIER from '../../services/api-cashier';
 import { generatePDF } from './printBill';
 import { createBill } from '../../store/bill-slice/billSlice';
+import { fetchTables } from '../../store/table-slice/tableSlice';
 
 export default function CashierScreen() {
   const [search, setSearch] = useState('');
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
-  const [tables, setTables] = useState([]);
+  // const [tables, setTables] = useState([]);
   const [selectCategory, setSelectCategory] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -28,7 +28,7 @@ export default function CashierScreen() {
   const dispatch = useDispatch();
   const cart = useSelector((state) => state.cart.cart);
   const selectedTable = useSelector((state) => state.tables.selectedTable); // Lấy từ tableSlice
-
+  const { tableList } = useSelector((state) => state.tables);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -44,14 +44,15 @@ export default function CashierScreen() {
         setProducts(productsResponse.data.product);
         setTotalPages(productsResponse.data.totalPages);
 
-        const tablesResponse = await axios.get('/tables/list');
-        setTables(tablesResponse.data);
+        // const tablesResponse = await axios.get('/tables/list');
+        // setTables(tablesResponse.data);
+        dispatch(fetchTables());
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
     fetchData();
-  }, [search, selectCategory, currentPage]);
+  }, [search, selectCategory, currentPage,dispatch]);
 
   const handleTableSelect = (table) => {
     if (table.status === true) {
@@ -73,7 +74,7 @@ export default function CashierScreen() {
 
   const handleCreateBill = async () => {
     try {
-      await dispatch(createBill({ cart, selectedTable, tables, calculateTotalPrice })).unwrap();
+      await dispatch(createBill({ cart, selectedTable, tableList, calculateTotalPrice })).unwrap();
       generatePDF(cart, selectedTable);
     } catch (error) {
       console.error('Lỗi khi tạo hóa đơn:', error);
@@ -188,16 +189,16 @@ export default function CashierScreen() {
 
             <h2 className="text-xl font-semibold mb-4">Bàn</h2>
             <div className="grid grid-cols-5 gap-2 mb-4">
-              {tables.map((table, index) => (
-             <div
-             key={table._id}
-             className={`table px-4 py-2 border rounded-lg cursor-pointer text-center 
+              {tableList.map((table, index) => (
+                <div
+                  key={table._id}
+                  className={`table px-4 py-2 border rounded-lg cursor-pointer text-center 
                ${selectedTable === table._id ? 'bg-cyan-500 text-white font-bold' : 'bg-green-400 text-black'}
                ${table.status ? 'hover:bg-teal-200' : ' bg-red-400 cursor-not-allowed'}`}
-             onClick={() => handleTableSelect(table)}
-           >
-             {table.table_name}
-           </div>
+                  onClick={() => handleTableSelect(table)}
+                >
+                  {table.table_name}
+                </div>
               ))}
             </div>
 
