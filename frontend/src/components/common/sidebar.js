@@ -4,7 +4,6 @@ import { MdCategory, MdListAlt, MdLeaderboard } from 'react-icons/md';
 import { IoIosSettings } from 'react-icons/io';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import CheckAuth from '@/page/common/CheckAuth';
 
 function Sidebar() {
   const { user } = useSelector((state) => state.auth);
@@ -56,6 +55,13 @@ function Sidebar() {
 
               <Link to="/warehouse/categories">
                 <span className="text-sm text-gray-700 font-lauren font-semibold">Categories</span>
+              </Link>
+            </div>
+            <div className="abc">
+              <MdListAlt className="w-6 h-6 mb-1 text-gray-700" />
+
+              <Link to="/warehouse/profile">
+                <span className="text-sm text-gray-700 font-lauren font-semibold">Thông tin</span>
               </Link>
             </div>
           </>
