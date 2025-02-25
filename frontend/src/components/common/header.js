@@ -23,8 +23,8 @@ export default function Header() {
     navigate('/cashier/profile');
   };
   return (
-    <div className="h-[10%]">
-      <nav className="bg-brown-900 flex items-center justify-between p-4 shadow-md">
+    <div className="h-[7%] lg:h-[10%]">
+      <nav className="bg-brown-900 flex items-center justify-between p-4 shadow-md h-full">
         <div className="flex items-center">
           <img src={logo} alt="Logo" className="w-16 h-10 mr-2" />
           <span className="text-white font-pacifico text-2xl">Coffe House Management</span>
