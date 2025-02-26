@@ -4,14 +4,16 @@ import Header from '../../components/common/header';
 
 const CashierLayout = () => {
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex bg-gray-100 h-full">
       {/* Sidebar */}
       <Sidebar />
 
       {/* Main Content */}
       <div className="flex-1">
         <Header />
-        <Outlet />;
+        <div className="content h-[94%] lg:h-[90%]">
+          <Outlet />
+        </div>
       </div>
     </div>
   );

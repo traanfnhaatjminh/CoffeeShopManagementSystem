@@ -4,7 +4,8 @@ import cartReducer from './cart-slice/cartSlice';
 import storage from 'redux-persist/lib/storage';
 import { persistReducer, persistStore } from 'redux-persist';
 import { combineReducers } from 'redux';
-
+import billReducer from './bill-slice/billSlice';
+import tableReducer from './table-slice/tableSlice'
 const persistConfig = {
   key: 'root',
   storage,
@@ -14,6 +15,8 @@ const persistConfig = {
 const rootReducer = combineReducers({
   auth: authReducer,
   cart: cartReducer,
+  bill: billReducer,
+  tables: tableReducer
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

@@ -1,26 +1,31 @@
+
 import React, { useEffect, useState } from 'react';
-// import Sidebar from '../../components/common/sidebar';
-// import Header from '../../components/common/header';
-// import { IoSearch } from 'react-icons/io5';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
+import { generatePDF } from './PayBills';
+import { fetchTables } from '../../store/table-slice/tableSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import AddProductModal from './AddProductModal';
+import { updateBill } from '../../store/bill-slice/billSlice';
 
 export default function TableList() {
   const [selectedTable, setSelectedTable] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState('');
-  const [tableList, setTableList] = useState([]);
   const [billList, setBillList] = useState([]);
-  const [selectBill, setSelectBill] = useState('');
+  const [selectBill, setSelectBill] = useState(null);
   const [discount, setDiscount] = useState(0);
   const [totalCost, setTotalCost] = useState(0);
-  console.log(totalCost);
-
+  const [cashReal, setCashReal] = useState('');
+  const dispatch = useDispatch();
+  
+  const { tableList } = useSelector((state) => state.tables); 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
   const loadData = async () => {
     try {
-      const response = await axios.get('/tables/list');
-      setTableList(response.data);
-      const responseBill = await axios.get('/bills');
-      setBillList(responseBill.data);
+      dispatch(fetchTables());
+      // const responseBill = await axios.get('/bills');
+      // setBillList(responseBill.data);
     } catch (error) {
       console.error('Error loading:', error);
     }
@@ -28,35 +33,40 @@ export default function TableList() {
 
   useEffect(() => {
     loadData();
+  }, []);
+/////////code lại đoạn naỳ 
+  useEffect(() => {
     if (selectedTable) {
       // Tính tổng tiền ban đầu
-      const subtotal = selectedTable.bill.reduce(
-        (total, item) => total + item.priceP * item.quantityP, 
-        0
-      );
+      const subtotal = selectedTable.bill.reduce((total, item) => total + item.priceP * item.quantityP, 0);
       const discountValue = discount || 0; // Sử dụng 0 nếu không có giảm giá
       // Tính tổng tiền sau khi giảm giá
       const discountedTotal = subtotal * ((100 - discountValue) / 100);
       setTotalCost(discountedTotal);
     }
-  }, [selectedTable, discount]); // Thêm selectedTable vào dependencies
-
+  }, [selectedTable, discount]);
+////// cho vào redux 
   const handleTableClick = async (table) => {
     try {
       if (!table.status) {
         const response = await axios.get(`/bills/table/${table._id}`);
-        setSelectBill(response.data);
-        setSelectedTable({
-          ...table,
-          bill: response.data ? response.data.product_list : [],
-        });
-
+        if (response.data) {
+          setSelectBill(response.data);
+          setSelectedTable({
+            ...table,
+            bill: response.data.product_list || [], // Đảm bảo sử dụng đúng key từ API
+          });
+        } else {
+          toast.error("Không tìm thấy hóa đơn cho bàn này");
+        }
         setPaymentMethod('');
       } else {
         setSelectedTable(null);
+        setSelectBill(null);
       }
     } catch (error) {
       console.error('Error fetching bill:', error);
+      toast.error("Lỗi khi tải thông tin hóa đơn!");
     }
   };
 
@@ -67,7 +77,6 @@ export default function TableList() {
   const handleDiscountChange = (event) => {
     const value = event.target.value;
 
-    // Nếu input rỗng, đặt discount là rỗng mà không hiển thị lỗi
     if (value === '') {
       setDiscount(0);
       return;
@@ -75,46 +84,99 @@ export default function TableList() {
 
     const parsedValue = parseFloat(value);
 
-    if (isNaN(parsedValue) || parsedValue < 1 || parsedValue > 100) {
-      toast.error('Vui lòng nhập từ 1 - 100');
+    if (isNaN(parsedValue) || parsedValue < 0 || parsedValue > 100) {
+      toast.error('Vui lòng nhập từ 0 - 100');
     } else {
-      setDiscount(parsedValue); // Set discount if valid
+      setDiscount(parsedValue); // Đặt giảm giá nếu hợp lệ
     }
   };
-
+//////cho vào redux 
   const handleUpdateBill = async () => {
     try {
-      if (selectedTable && paymentMethod) {
+      if (selectedTable && paymentMethod && selectBill) {
         const billUpdateData = {
           payment: paymentMethod,
           status: 1,
           table_id: selectedTable._id,
           discount: discount || 0, // Sử dụng 0 nếu không có giảm giá
-          totalCost: totalCost || selectedTable.bill.reduce(
-            (total, item) => total + item.priceP * item.quantityP,
-            0
-          ), // Sử dụng tổng ban đầu nếu totalCost chưa được tính
-        
+          totalCost: totalCost || selectedTable.bill.reduce((total, item) => total + item.priceP * item.quantityP, 0),
         };
-        await axios.put(`/bills/update/${selectBill._id}`, billUpdateData);
+        
+        const { data: updatedBill } = await axios.put(`/bills/update/${selectBill._id}`, billUpdateData);
+        
+        // Xuất hóa đơn PDF sau khi thanh toán
+        generatePDF(selectBill, paymentMethod, selectedTable,discount,totalCost);
+        
         await loadData();
-
+      
         toast.success('Thanh toán thành công!');
         setSelectedTable(null);
+        setSelectBill(null);
         setPaymentMethod('');
         setDiscount(0);
+        setCashReal('');
       } else {
-        alert('Vui lòng chọn phương thức thanh toán!');
+        toast.error('Vui lòng chọn phương thức thanh toán!');
       }
     } catch (error) {
       console.error('Error updating bill:', error);
-      alert('Có lỗi xảy ra khi thanh toán!');
+      toast.error('Có lỗi xảy ra khi thanh toán!');
+    }
+  };
+console.log(selectedTable);
+
+  const handleOpenModal = (tableId) => {
+    // Chỉ mở modal khi đã có bàn được chọn
+    if (selectedTable || tableId) {
+      // Nếu được truyền tableId cụ thể, tìm bàn đó và cập nhật state
+      if (tableId && (!selectedTable || selectedTable._id !== tableId)) {
+        const table = tableList.find(t => t._id === tableId);
+        if (table) {
+          handleTableClick(table);
+        }
+      }
+      setIsModalOpen(true);
+    } else {
+      toast.error("Vui lòng chọn bàn trước khi thêm sản phẩm!");
     }
   };
 
+  // Đóng modal
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+  
+  // Xử lý khi thêm sản phẩm từ modal cho vapof redux 
+  const handleAddProducts = async (products) => {
+    try {
+      if (selectBill && products.length > 0) {
+        // Gọi API để thêm nhiều sản phẩm vào hóa đơn
+        await axios.put(`/bills/add-products/${selectBill._id}`, { products });
+  
+        // Cập nhật lại dữ liệu sau khi thêm
+        toast.success("Đã thêm sản phẩm vào hóa đơn!");
+        
+        // Refresh bill data
+        const response = await axios.get(`/bills/table/${selectedTable._id}`);
+        if (response.data) {
+          setSelectBill(response.data);
+          setSelectedTable({
+            ...selectedTable,
+            bill: response.data.product_list || [], // Đảm bảo sử dụng đúng key từ API
+          });
+        }
+      } else {
+        toast.error("Không thể thêm sản phẩm! Vui lòng chọn bàn trước.");
+      }
+    } catch (error) {
+      console.error("Error adding products:", error);
+      toast.error("Có lỗi xảy ra khi thêm sản phẩm!");
+    }
+  };
+  
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
-      {/* <Header /> */}
       <ToastContainer
         position="top-right"
         autoClose={2000}
@@ -124,74 +186,97 @@ export default function TableList() {
         draggable
         pauseOnFocusLoss
       />
-      {/* Main content */}
+      
       <main className="flex flex-1">
-        {/* <Sidebar /> */}
-
-        {/* Menu and Cart */}
         <div className="flex space-x-6 p-4 w-full">
-          {/* Menu Section */}
+          {/* Phần Menu */}
           <section className="flex-1">
-            <div className="flex">
+            <div className="flex justify-between items-center mb-4">
               <h1 className="text-lg font-bold px-2 font-lauren border bg-brown-900 text-white border-brown-400 rounded-lg">
                 Danh sách bàn
               </h1>
             </div>
 
-            {/* Table List */}
-
+            {/* Danh sách bàn */}
             <div className="grid grid-cols-5 gap-4 p-4">
-              {tableList.map((table, index) => (
+              {tableList.map((table) => (
                 <div
                   key={table._id}
-                  onClick={() => handleTableClick(table)} // Add click event for table selection
-                  className="bg-white rounded-lg shadow p-4 h-40 w-32 flex flex-col items-center justify-center cursor-pointer"
+                  className="bg-white rounded-lg shadow p-4 h-40 w-32 flex flex-col items-center justify-between cursor-pointer"
                   style={{
-                  backgroundColor: table.status === true ? '#dcfce7' : '#fee2e2',
-                }}
+                    backgroundColor: table.status === true ? '#dcfce7' : '#fee2e2',
+                  }}
                 >
-                  <h3 className="text-center font-bold text-xl"> Bàn {index + 1} </h3>
-                  <p className="text-sm">Số ghế: {table.number_of_chair}</p>
-                  <p className={`text-xs font-semibold ${table.status === true ? 'text-green-500' : 'text-red-500'}`}>
-                    {table.status === true ? 'Đang trống' : 'Đang có khách'}
-                  </p>
+                  <div onClick={() => handleTableClick(table)} className="text-center w-full">
+                    <h3 className="font-bold text-xl">{table.table_name}</h3>
+                    <p className="text-sm">Số ghế: {table.number_of_chair}</p>
+                    <p className={`text-xs font-semibold ${table.status === true ? 'text-green-500' : 'text-red-500'}`}>
+                      {table.status === true ? 'Đang trống' : 'Đang có khách'}
+                    </p>
+                  </div>
+                  
+                  {!table.status && (
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleOpenModal(table._id); 
+                      }}
+                      className="mt-2 w-full bg-blue-500 text-white text-xs py-1 px-2 rounded hover:bg-blue-600"
+                    >
+                      Gọi thêm
+                    </button>
+                  )}
                 </div>
               ))}
             </div>
           </section>
 
-          {/* Cart Section */}
+          {/* Phần Giỏ hàng */}
           <section className="w-1/3 bg-white rounded-lg shadow p-6">
             <h2 className="text-xl font-bold mb-6">Hóa đơn thanh toán</h2>
 
             {selectedTable ? (
               <div>
-                {/* <h3 className="text-lg font-semibold mb-4">Hóa đơn bàn {selectedTable._id}</h3> */}
-                <table className="w-full text-left mb-6">
-                  <thead>
-                    <tr>
-                      <th className="border-b py-2">Sản phẩm</th>
-                      <th className="border-b py-2">Hình ảnh</th>
-                      <th className="border-b py-2">Giá</th>
-                      <th className="border-b py-2">Số lượng</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {selectedTable.bill.map((item, index) => (
-                      <tr key={index}>
-                        <td className="py-2">{item.nameP}</td>
-                        <td className="py-2">
-                          {' '}
-                          <img className="w-12 h-12 border-spacing-1" src={item.imageP} alt={item.namP} />
-                        </td>
-                        <td className="py-2">{item.priceP ? item.priceP.toLocaleString() : '0'} VND</td>
-                        <td className="py-2">{item.quantityP}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <div className="mb-4 text-lg font-medium">
+                  Bàn: {selectedTable.table_name}
+                </div>
 
-                {/* input để nhập discount ở đây*/}
+                {selectedTable.bill && selectedTable.bill.length > 0 ? (
+                  <table className="w-full text-left mb-6">
+                    <thead>
+                      <tr>
+                        <th className="border-b py-2">Sản phẩm</th>
+                        <th className="border-b py-2">Hình ảnh</th>
+                        <th className="border-b py-2">Giá</th>
+                        <th className="border-b py-2">Số lượng</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {selectedTable.bill.map((item, index) => (
+                        <tr key={index}>
+                          <td className="py-2">{item.nameP}</td>
+                          <td className="py-2">
+                            <img className="w-12 h-12 border-spacing-1" src={item.imageP} alt={item.nameP} />
+                          </td>
+                          <td className="py-2">{item.priceP ? item.priceP.toLocaleString() : '0'} VND</td>
+                          <td className="py-2">{item.quantityP}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <p className="text-center mb-4">Chưa có sản phẩm trong hóa đơn</p>
+                )}
+
+                {/* Nút thêm đồ uống */}
+                <button
+                  onClick={() => handleOpenModal(selectedTable._id)}
+                  className="w-full mb-4 bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 font-semibold transition duration-200"
+                >
+                  Thêm đồ uống
+                </button>
+
+                {/* Input giảm giá */}
                 <div className="mb-4">
                   <label htmlFor="discount" className="font-semibold">
                     Khuyến mãi (%):
@@ -199,7 +284,7 @@ export default function TableList() {
                   <input
                     type="text"
                     id="discount"
-                    value={discount === '' ? '' : discount}
+                    value={discount === 0 ? '' : discount}
                     onChange={handleDiscountChange}
                     className="w-full mt-2 py-2 px-3 border border-gray-300 rounded"
                     placeholder="Nhập khuyến mãi"
@@ -212,59 +297,101 @@ export default function TableList() {
                     {(
                       selectedTable.bill.reduce((total, item) => total + item.priceP * item.quantityP, 0) *
                       ((100 - discount) / 100)
-                    ).toLocaleString()}
-                    VND
+                    ).toLocaleString()} VND
                   </span>
                 </div>
 
                 {/* Chọn phương thức thanh toán */}
-                <div className="mb-4 ">
-                  <h4 className="font-semibold mb-2 ">Chọn phương thức thanh toán:</h4>
-                  <div className="flex items-center">
-                    <input
-                      type="radio"
-                      id="cash"
-                      value="cash"
-                      checked={paymentMethod === 'cash'}
-                      onChange={handleChange}
-                      className="flex-1  py-2 px-1  rounded"
-                    />
-                    Tiền mặt
-                    <input
-                      type="radio"
-                      id="transfer"
-                      value="transfer"
-                      checked={paymentMethod === 'transfer'}
-                      onChange={handleChange}
-                      className="flex-1  py-2 px-4  rounded "
-                    />
-                    Chuyển khoản
+                <div className="mb-4">
+                  <h4 className="font-semibold mb-2">Chọn phương thức thanh toán:</h4>
+                  <div className="flex items-center space-x-4">
+                    <label className="flex items-center">
+                      <input
+                        type="radio"
+                        id="cash"
+                        value="cash"
+                        checked={paymentMethod === 'cash'}
+                        onChange={handleChange}
+                        className="mr-2"
+                      />
+                      Tiền mặt
+                    </label>
+                    <label className="flex items-center">
+                      <input
+                        type="radio"
+                        id="transfer"
+                        value="transfer"
+                        checked={paymentMethod === 'transfer'}
+                        onChange={handleChange}
+                        className="mr-2"
+                      />
+                      Chuyển khoản
+                    </label>
                   </div>
                 </div>
 
-                {/* Thông báo phương thức thanh toán đã chọn */}
-                {paymentMethod && (
-                  <div className="mb-4">
-                    <p className="text-center font-semibold">
-                      Bạn đã chọn phương thức thanh toán:{' '}
-                      <span className="text-blue-600">{paymentMethod === 'cash' ? 'Tiền mặt' : 'Chuyển khoản'}</span>
-                    </p>
-                  </div>
-                )}
+                {/* Giao diện phương thức thanh toán */}
+                <div className="mt-4">
+                  {paymentMethod === 'cash' && (
+                    <div className="p-4 bg-gray-100 rounded-md shadow-md ">
+                      <input
+                        type="number"
+                        value={cashReal}
+                        id="cashreal"
+                        onChange={(e) => setCashReal(e.target.value)}
+                        className="w-full mt-2 py-2 px-3 border border-gray-300 rounded"
+                        placeholder="Tiền mặt khách đưa"
+                      />
+                      <h5 className="text-lg font-bold">
+                        Số tiền trả lại:{' '}
+                        {isNaN(parseFloat(cashReal) - totalCost)
+                          ? '0'
+                          : (parseFloat(cashReal) - totalCost).toLocaleString()}{' '}
+                        VND
+                      </h5>
+
+                      <h4 className="text-lg font-bold text-center">Thanh toán bằng tiền mặt</h4>
+                      <p className="text-center">Vui lòng thanh toán trực tiếp khi nhận hàng.</p>
+                    </div>
+                  )}
+
+                  {paymentMethod === 'transfer' && (
+                    <div className="p-4 bg-gray-100 rounded-md shadow-md text-center">
+                      <h4 className="text-lg font-bold">Quét mã QR để thanh toán</h4>
+                      <img
+                        src={require('../../assets/images/maqr.jpg')}
+                        alt="QR Code"
+                        className="mx-auto mt-2 w-40 h-100"
+                      />
+                      <p className="mt-2 text-sm text-gray-600">Sử dụng ứng dụng ngân hàng để quét mã.</p>
+                    </div>
+                  )}
+                </div>
 
                 <button
                   onClick={handleUpdateBill}
-                  className="w-full bg-yellow-500 text-black py-2 px-4 rounded hover:bg-orange-400 font-bold"
+                  className="w-full bg-yellow-500 text-black py-2 px-4 rounded hover:bg-orange-400 font-bold mt-4"
+                  disabled={!paymentMethod}
                 >
-                  Xác nhận thanh toán
+                  Xác nhận thanh toán & Xuất hóa đơn
                 </button>
               </div>
             ) : (
-              <p className="text-center">Chưa có bàn thanh toán</p>
+              <p className="text-center text-gray-500">Vui lòng chọn bàn để xem hóa đơn</p>
             )}
           </section>
         </div>
       </main>
+
+      {/* Modal thêm sản phẩm */}
+      {selectedTable && (
+        <AddProductModal 
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          selectTB={selectedTable}
+          onAddProduct={handleAddProducts}
+        />
+      )}
     </div>
   );
 }

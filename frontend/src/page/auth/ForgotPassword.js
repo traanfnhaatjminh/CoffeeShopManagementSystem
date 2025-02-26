@@ -80,11 +80,11 @@ const ForgotPassword = () => {
           />
           <Link className="btn-back flex items-center w-4/12" to="/auth/login">
             <IoIosArrowBack />
-            <p className="ml-2 font-bold">Back to login</p>
+            <p className="ml-2 font-bold">Quay trở lại</p>
           </Link>
-          <h1 className="title-page font-semibold text-4xl mt-10 hover:text-amber-600">Forgot your password?</h1>
+          <h1 className="title-page font-semibold text-4xl mt-10 hover:text-amber-600">Quên mật khẩu?</h1>
           <p className="mt-3 text-base w-11/12">
-            Don't worry , happens to all of us . Enter your email below to recover your password
+            Đừng lo lắng, điều này xảy ra với tất cả chúng ta. Nhập email của bạn bên dưới để khôi phục mật khẩu
           </p>
           <div className="email mt-5 w-11/12">
             <div className="relative mb-2">
@@ -116,7 +116,7 @@ const ForgotPassword = () => {
             className="w-11/12 mt-2 focus:outline-none text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900"
             onClick={handleSubmit}
           >
-            Submit
+            Xác nhận
           </button>
         </div>
         <div className="content-right w-7/12">

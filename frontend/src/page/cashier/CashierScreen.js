@@ -1,161 +1,85 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import './style.css';
 import { IoSearch } from 'react-icons/io5';
 import axios from 'axios';
 import Paging from '../../components/common/paging';
 import 'react-toastify/dist/ReactToastify.css';
 import 'react-confirm-alert/src/react-confirm-alert.css';
-import { toast, ToastContainer } from 'react-toastify';
-import { useDispatch ,useSelector} from 'react-redux';
-import {addToCart,updateQuantity,setSelectedTable,clearCart,clearTable} from '../../store/cart-slice/cartSlice' 
+import { ToastContainer } from 'react-toastify';
+import { useDispatch, useSelector } from 'react-redux';
+import { addToCart, updateQuantity } from '../../store/cart-slice/cartSlice';
+import { setSelectedTable } from '../../store/table-slice/tableSlice'; // Sử dụng từ tableSlice
+import { GrFormNext, GrFormPrevious } from 'react-icons/gr';
+import APISERVICECASHIER from '../../services/api-cashier';
+import { generatePDF } from './printBill';
+import { createBill } from '../../store/bill-slice/billSlice';
+import { fetchTables } from '../../store/table-slice/tableSlice';
 
 export default function CashierScreen() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [selected, setSelected] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
-  const inputRef = useRef(null);
+  const [search, setSearch] = useState('');
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
-  const [tables, setTables] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState([]);
-  const [noResultsMessage, setNoResultsMessage] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  // const [tables, setTables] = useState([]);
+  const [selectCategory, setSelectCategory] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const productPerPage = 10;
-  const dispatch= useDispatch();
+  const [noResultsMessage, setNoResultsMessage] = useState('');
+  const dispatch = useDispatch();
   const cart = useSelector((state) => state.cart.cart);
-  const selectedTable= useSelector((state)=> state.cart.selectedTable)
-
+  const selectedTable = useSelector((state) => state.tables.selectedTable); // Lấy từ tableSlice
+  const { tableList } = useSelector((state) => state.tables);
   useEffect(() => {
-    // Fetch categories, products, and tables when the component mounts
     const fetchData = async () => {
       try {
         const categoriesResponse = await axios.get('/categories/list');
         setCategories(categoriesResponse.data);
 
-        const productsResponse = await axios.get('/products/listInHome');
-        setProducts(productsResponse.data);
+        const productsResponse = await APISERVICECASHIER.ApiProductInHome(
+          search,
+          currentPage,
+          productPerPage,
+          selectCategory
+        );
+        setProducts(productsResponse.data.product);
+        setTotalPages(productsResponse.data.totalPages);
 
-        const tablesResponse = await axios.get('/tables/list');
-        setTables(tablesResponse.data);
-
-        setFilteredProducts(productsResponse.data); // Initialize filteredProducts with all products
+        // const tablesResponse = await axios.get('/tables/list');
+        // setTables(tablesResponse.data);
+        dispatch(fetchTables());
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
     fetchData();
-  }, []);
-console.log(products,"products");
+  }, [search, selectCategory, currentPage,dispatch]);
 
-  useEffect(() => {
-    const results = products.filter((product) => {
-      const categoryMatch = selectedCategory === 'all' || product.category_id === selectedCategory;
-      const nameMatch = product.pname.toLowerCase().includes(searchTerm.toLowerCase());
-      return categoryMatch && nameMatch;
-    });
-
-    setFilteredProducts(results);
-    if (searchTerm === '') {
-      handleCategorySelect(selectedCategory);
-    }
-    if (results.length === 0 && searchTerm !== '') {
-      setNoResultsMessage('Đồ uống không có trong menu hoặc trong phân loại đồ uống!'); // Message when no drinks are found
-    } else {
-      setNoResultsMessage('');
-    }
-
-    if (isOpen && inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [searchTerm, products, isOpen, selectedCategory]); // Include selectedCategory as a dependency
-
-  const handleTableSelect = (table, index) => {
+  const handleTableSelect = (table) => {
     if (table.status === true) {
-     dispatch(setSelectedTable(index))
+      dispatch(setSelectedTable(table._id)); // Lưu `_id` thay vì index
     }
   };
 
   const handleAddToCart = (product) => {
-    dispatch(addToCart(product))
+    dispatch(addToCart(product));
   };
 
   const handleQuantityChange = (_id, change) => {
-    dispatch(updateQuantity({_id,change}))
+    dispatch(updateQuantity({ _id, change }));
   };
 
   const calculateTotalPrice = () => {
     return cart.reduce((sum, item) => sum + item.total, 0);
   };
-/////fix lại đống này 
-  const handleCategorySelect = (categoryId) => {
-    if (categoryId === 'all') {
-      setFilteredProducts(products);
-      setSelectedCategory(categoryId); // Clear selected category
-    } else {
-      setSelectedCategory(categoryId); // Set the selected category
-      axios
-        .get(`/products/getByCategory/${categoryId}`)
-        .then((response) => {
-          console.log('Products by category:', response.data); // Log fetched products
-          setFilteredProducts(response.data); // Reset filtered products
-        })
-        .catch((error) => {
-          console.error('Error fetching products by category:', error);
-        });
-    }
-  };
+
   const handleCreateBill = async () => {
     try {
-      if (selectedTable === null || tables.length === 0) {
-        toast.error("Vui lòng chọn bàn trước khi tạo hóa đơn!");
-        return;
-      }
-  
-      const tableId = tables[selectedTable]._id;
-  
-      const billData = {
-        total_cost: calculateTotalPrice(),
-        table_id: tableId,
-        product_list: cart.map((item) => ({
-          productId: item._id,
-          nameP: item.pname,
-          imageP: item.image,
-          priceP: item.price,
-          quantityP: item.quantity,
-          total: item.total,
-        })),
-        payment: null,
-        status: 0,
-        discount: 0,
-      };
-  
-      console.log(billData, "billData");
-  
-      const response = await axios.post("/bills/createBill", billData);
-      console.log("Bill created successfully:", response.data);
-  
-      // Cập nhật trạng thái bàn trong state ngay lập tức
-      setTables((prevTables) =>
-        prevTables.map((table) =>
-          table._id === tableId ? { ...table, status: false } : table
-        )
-      );
-  
-      // Cập nhật trạng thái bàn trên server
-      await axios.put(`/tables/updateStatus/${tableId}`, { status: false });
-  
-      toast.success("Tạo hóa đơn thành công.");
-      dispatch(clearCart());
-      dispatch(clearTable());
+      await dispatch(createBill({ cart, selectedTable, tableList, calculateTotalPrice })).unwrap();
+      generatePDF(cart, selectedTable);
     } catch (error) {
-      console.error("Error creating bill:", error);
-      toast.error("Lỗi tạo hóa đơn!");
+      console.error('Lỗi khi tạo hóa đơn:', error);
     }
   };
-  
-
-  const currentProducts = filteredProducts.slice((currentPage - 1) * productPerPage, currentPage * productPerPage);
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
@@ -168,27 +92,20 @@ console.log(products,"products");
         draggable
         pauseOnFocusLoss
       />
-      {/* Main content */}
       <main className="flex flex-1">
-
-        {/* Menu and Cart */}
         <div className="flex space-x-6 p-4">
           {/* Menu Section */}
           <section className="flex-1">
             <div className="flex">
-              <h2 className="text-lg font-bold px-2 py-1 font-lauren border bg-brown-900 text-white border-brown-400 rounded-lg">Menu</h2>
+              <h2 className="text-lg font-bold px-2 py-1 font-lauren border bg-brown-900 text-white border-brown-400 rounded-lg">
+                Menu
+              </h2>
               <div className="relative flex flex-1 justify-end">
                 <input
-                  ref={inputRef}
                   type="text"
-                  className="relative w-2/3
-                   bg-white border border-gray-300 rounded-md pl-3 pr-10 py-2 text-left cursor-default focus-within:outline-none focus-within:ring-1 focus-within:ring-indigo-500 focus-within:border-indigo-500 sm:text-sm"
-                  placeholder={selected}
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  onFocus={() => setIsOpen(true)}
-                  onBlur={() => setTimeout(() => setIsOpen(false), 200)}
-                  onClick={() => setIsOpen(true)}
+                  className="relative w-2/3 bg-white border border-gray-300 rounded-md pl-3 pr-10 py-2 text-left cursor-default focus-within:outline-none focus-within:ring-1 focus-within:ring-indigo-500 focus-within:border-indigo-500 sm:text-sm"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
                 />
                 <span className="absolute inset-y-0 right-0 flex items-center pr-2 ">
                   <IoSearch />
@@ -198,28 +115,25 @@ console.log(products,"products");
 
             <div className="grid grid-cols-5 gap-4 mb-6 mt-3">
               <button
-                key={'all'}
-                className={`btn-categories ${selectedCategory === 'all' ? 'bg-dark font-bold' : ''}`}
-                onClick={() => handleCategorySelect('all')}
+                className={`btn-categories ${selectCategory === '' ? 'bg-dark font-bold' : ''}`}
+                onClick={() => setSelectCategory('')}
               >
                 Tất cả
               </button>
-
               {categories.map((category, index) => (
                 <button
                   key={index}
-                  className={`btn-categories ${selectedCategory === category._id ? 'bg-dark font-bold' : ''}`}
-                  onClick={() => handleCategorySelect(category._id)}
+                  className={`btn-categories ${selectCategory === category._id ? 'bg-dark font-bold' : ''}`}
+                  onClick={() => setSelectCategory(category._id)}
                 >
                   {category.category_name}
                 </button>
               ))}
             </div>
 
-            {/* Drinks List */}
             <div className="grid grid-cols-5 gap-4">
-              {currentProducts.length > 0 ? (
-                currentProducts
+              {products.length > 0 ? (
+                products
                   .filter((product) => product.status !== 0)
                   .map((product) => (
                     <div
@@ -236,30 +150,54 @@ console.log(products,"products");
                 <div className="col-span-5 text-center text-red-600">{noResultsMessage}</div>
               )}
             </div>
-            <Paging
-              currentPage={currentPage}
-              totalItems={filteredProducts.length}
-              itemsPerPage={productPerPage}
-              onPageChange={setCurrentPage}
-            />
+            <div className="flex justify-center py-4 border-t border-gray-200">
+              <nav className="flex items-center space-x-2">
+                <button
+                  onClick={() => setCurrentPage(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="relative inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <GrFormPrevious className="h-5 w-5" />
+                </button>
+                {[...Array(totalPages)].map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentPage(index + 1)}
+                    className={`relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg ${
+                      currentPage === index + 1
+                        ? 'bg-brown-500 text-white'
+                        : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
+                    }`}
+                  >
+                    {index + 1}
+                  </button>
+                ))}
+                <button
+                  onClick={() => setCurrentPage(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="relative inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <GrFormNext className="h-5 w-5" />
+                </button>
+              </nav>
+            </div>
           </section>
 
           {/* Cart Section */}
           <section className="w-1/3 bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-bold mb-6">Cart</h2>
-            <h2 className="text-xl font-semibold mb-4">Table</h2>
+            <h2 className="text-xl font-bold mb-6">Giỏ hàng</h2>
 
+            <h2 className="text-xl font-semibold mb-4">Bàn</h2>
             <div className="grid grid-cols-5 gap-2 mb-4">
-              {tables.map((table, index) => (
+              {tableList.map((table, index) => (
                 <div
                   key={table._id}
-                  className={`table ${selectedTable === index ? 'bg-selected' : table.status === true ? 'available' : 'occupied'}`}
-                  onClick={() => handleTableSelect(table, index)}
-                  style={{
-                    cursor: table.status === true ? 'pointer' : 'not-allowed',
-                  }}
+                  className={`table px-4 py-2 border rounded-lg cursor-pointer text-center 
+               ${selectedTable === table._id ? 'bg-cyan-500 text-white font-bold' : 'bg-green-400 text-black'}
+               ${table.status ? 'hover:bg-teal-200' : ' bg-red-400 cursor-not-allowed'}`}
+                  onClick={() => handleTableSelect(table)}
                 >
-                  <span>{index + 1}</span>
+                  {table.table_name}
                 </div>
               ))}
             </div>
@@ -267,10 +205,9 @@ console.log(products,"products");
             <table className="w-full text-left mb-6">
               <thead>
                 <tr>
-                  <th className="border-b py-2">Name</th>
-                  <th className="border-b py-2">Image</th>
-                  <th className="border-b py-2">Quantity</th>
-                  {/* <th className="border-b py-2">Total</th> */}
+                  <th className="border-b py-2">Tên sản phẩm</th>
+                  <th className="border-b py-2">Ảnh</th>
+                  <th className="border-b py-2">Số lượng</th>
                 </tr>
               </thead>
               <tbody>
@@ -278,7 +215,9 @@ console.log(products,"products");
                   cart.map((item, index) => (
                     <tr key={index}>
                       <td className="py-2">{item.pname}</td>
-                      <td className="py-2"><img className='h-10' src={item.image}/></td>
+                      <td className="py-2">
+                        <img className="h-10" alt={item.pname} src={item.image} />
+                      </td>
                       <td className="py-2">
                         <div className="flex items-center space-x-2">
                           <button
@@ -296,22 +235,25 @@ console.log(products,"products");
                           </button>
                         </div>
                       </td>
-                      {/* <td className="py-2">{item.total} VND</td> */}
                     </tr>
                   ))
                 ) : (
                   <tr>
                     <td colSpan="4" className="py-2 text-center">
-                      No items in cart
+                      Chưa có sản phẩm được thêm vào giỏ hàng!
                     </td>
                   </tr>
                 )}
               </tbody>
             </table>
 
-            <div className="flex justify-between font-bold">
-              <span>Total:</span>
-              <span>{calculateTotalPrice()} VND</span>
+            <div className="flex justify-around font-bold">
+              Chú thích:
+              {/* <span>{calculateTotalPrice()} VND</span> */}
+              <input
+                type="text"
+                className="relative w-FULL bg-white border border-gray-300 rounded-md pl-3 pr-10 py-2 text-left cursor-default focus-within:outline-none focus-within:ring-1 focus-within:ring-indigo-500 focus-within:border-indigo-500 sm:text-sm"
+              />
             </div>
             <button
               style={{ marginTop: '5%' }}
@@ -319,7 +261,7 @@ console.log(products,"products");
               disabled={cart.length === 0 || selectedTable === null}
               onClick={handleCreateBill}
             >
-              Create Bill
+              Tạo đơn
             </button>
           </section>
         </div>

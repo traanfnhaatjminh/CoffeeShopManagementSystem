@@ -13,7 +13,6 @@ const loginUser = async (req, res) => {
     const { email, password } = req.body;
     try {
         const checkUser = await db.User.findOne({ email }).populate("role");
-        console.log("checkUser:", checkUser);
 
         if (!checkUser)
             return res.json({
@@ -47,6 +46,7 @@ const loginUser = async (req, res) => {
                 role: checkUser.role,
                 id: checkUser._id,
                 userName: checkUser.fullName,
+                phone: checkUser.phone,
             },
         });
     } catch (err) {
@@ -88,6 +88,85 @@ const updatePassword = async (req, res) => {
         });
     }
 };
+const updatePasswordByOldPassword = async (req, res) => {
+    const { email, newPassword, oldPassword } = req.body.data;
+    try {
+        const checkUser = await db.User.findOne({ email });
+        if (!checkUser)
+            return res.json({
+                success: false,
+                message: "Người dùng không tồn tại",
+            });
+        const isOldPasswordCorrect = await bcrypt.compare(
+            oldPassword,
+            checkUser.password
+        );
+        if (!isOldPasswordCorrect) {
+            return res.json({
+                success: false,
+                message: "Mật khẩu không đúng vui lòng nhập đúng mật khẩu!",
+            });
+        }
+        const changeNewPassword = await bcrypt.hash(newPassword, 12);
+        checkUser.password = changeNewPassword;
+        await checkUser.save();
+        res.status(StatusCodes.OK).json({
+            success: true,
+            message: "Cập nhật mật khẩu thành công",
+        });
+    } catch (err) {
+        console.log(err);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+            success: false,
+            message: "Lỗi hệ thống",
+        });
+    }
+};
+
+const updateInfoUser = async (req, res) => {
+    const {
+        oldEmail,
+        email: newEmail,
+        phone: newPhone,
+        userName: newUserName,
+    } = req.body.data;
+    try {
+        const checkUser = await db.User.findOne({ email: oldEmail }).populate(
+            "role"
+        );
+        if (!checkUser) {
+            return res.status(StatusCodes.NOT_FOUND).json({
+                success: false,
+                message: "Không tìm thấy người dùng !",
+            });
+        }
+
+        const updatedUser = {
+            ...checkUser.toObject(),
+            fullName: newUserName,
+            email: newEmail,
+            phone: newPhone,
+        };
+        Object.assign(checkUser, updatedUser);
+        await checkUser.save();
+        res.status(StatusCodes.OK).json({
+            success: true,
+            message: "Cập nhật thông tin người dùng thành công .",
+            user: {
+                email: checkUser.email,
+                role: checkUser.role,
+                id: checkUser._id,
+                userName: checkUser.fullName,
+                phone: checkUser.phone,
+            },
+        });
+    } catch (error) {
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+            success: false,
+            message: "Lỗi hệ thống",
+        });
+    }
+};
 
 const logoutUser = (req, res) => {
     res.clearCookie("token").json({
@@ -97,11 +176,16 @@ const logoutUser = (req, res) => {
 };
 
 const checkAuthor = (req, res, next) => {
-    const user = req.user;
+    const { fullname, email, phone, role } = req.user;
     res.status(StatusCodes.OK).json({
         success: true,
         message: "Authenticated user!",
-        user,
+        user: {
+            fullname,
+            email,
+            phone,
+            role,
+        },
     });
 };
 
@@ -119,15 +203,13 @@ const register = async (req, res, next) => {
             status,
         } = req.body;
         const role_id = await Role.findOne({ role_name: role });
-        console.log("role_id:", role_id);
 
-        // Hash the password before saving
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const newUser = new User({
             fullName,
             email,
-            password: hashedPassword, // Save hashed password
+            password: hashedPassword,
             dob,
             phone,
             address,
@@ -168,8 +250,8 @@ const transporter = nodemailer.createTransport({
 
 const forgotPassword = async (req, res, next) => {
     try {
-        console.log("req:", req.body);
         const { email } = req.body;
+        console.log("email:", email);
         const user = await db.User.findOne({ email });
         if (!user) {
             return res.json({
@@ -203,6 +285,7 @@ const forgotPassword = async (req, res, next) => {
         });
     } catch (error) {
         console.log(error);
+        next(error);
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             success: false,
             message: "Server Error!",
@@ -254,7 +337,6 @@ const resetPassword = (req, res, next) => {
 
 const verifyOTP = async (req, res, next) => {
     const { code } = req.body;
-    console.log("req.cookie:", req.cookies);
     const token = req.cookies.resetpassword;
     if (!token) {
         return res.status(StatusCodes.UNAUTHORIZED).json({
@@ -279,7 +361,6 @@ const verifyOTP = async (req, res, next) => {
                 email,
             });
         } else {
-            console.log("demo");
             return res.json({
                 success: false,
                 message: "OTP is incorrect. Please try again.",
@@ -297,6 +378,8 @@ const authController = {
     forgotPassword,
     resetPassword,
     verifyOTP,
+    updatePasswordByOldPassword,
+    updateInfoUser,
 };
 
 module.exports = authController;
