@@ -4,13 +4,11 @@ import { toast } from 'react-toastify';
 
 export default function AddProductModal({ closeModal, refreshProducts }) {
   const [productName, setProductName] = useState('');
-  const [quantity, setQuantity] = useState(0);
   const [price, setPrice] = useState(0);
   const [image, setImage] = useState('');
   const [selectedFile, setSelectedFile] = useState(null);
   const [category, setCategory] = useState('');
   const [categories, setCategories] = useState([]);
-  const [quantityError, setQuantityError] = useState('');
   const [priceError, setPriceError] = useState('');
   const [imageError, setImageError] = useState('');
 
@@ -44,14 +42,8 @@ export default function AddProductModal({ closeModal, refreshProducts }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setQuantityError('');
     setPriceError('');
     setImageError('');
-
-    if (quantity <= 0) {
-      setQuantityError('*Số lượng phải lớn hơn 0');
-      return;
-    }
 
     if (price <= 0) {
       setPriceError('*Giá phải lớn hơn 0');
@@ -65,8 +57,7 @@ export default function AddProductModal({ closeModal, refreshProducts }) {
 
     const formData = new FormData();
     formData.append('pname', productName);
-    formData.append('quantity', quantity);
-    formData.append('price', price);
+    formData.append('sale_price', price);
     formData.append('image', selectedFile);
     formData.append('category_id', category);
 
@@ -101,17 +92,7 @@ export default function AddProductModal({ closeModal, refreshProducts }) {
               />
             </div>
             <div>
-              <label>Số lượng</label>
-              <input
-                type="number"
-                className="border rounded-md p-2 w-full"
-                value={quantity}
-                onChange={(e) => setQuantity(e.target.value)}
-              />
-              {quantityError && <p className="text-red-500">{quantityError}</p>}
-            </div>
-            <div>
-              <label>Giá</label>
+              <label>Giá bán</label>
               <input
                 type="number"
                 className="border rounded-md p-2 w-full"
@@ -127,7 +108,7 @@ export default function AddProductModal({ closeModal, refreshProducts }) {
               {image && <img src={image} alt="Product" className="mt-2 w-16 h-16 object-cover rounded-lg" />}
             </div>
             <div>
-              <label>Danh sách danh mục</label>
+              <label>Loại sản phẩm</label>
               <select
                 className="border rounded-md p-2 w-full"
                 value={category}

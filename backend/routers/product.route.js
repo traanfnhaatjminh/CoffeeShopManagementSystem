@@ -12,7 +12,7 @@ productRouter.use(bodyParser.json());
 productRouter.post("/createProduct", upload.single("image"), createNewProduct);
 productRouter.get("/listall", getAllProductInWarehouse);
 
-productRouter.get("/listInHome", getAllProductInHome);
+productRouter.get("/listInHome/", getAllProductInHome);
 
 productRouter.get("/getByCategory/:categoryId", getProductsByCategory);
 

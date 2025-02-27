@@ -65,7 +65,7 @@ function WarehouseProduct() {
     setSearchTerm(value);
     fetchProducts(value);
   };
-  
+
 
   //paging
   const currentProducts = products.slice((currentPage - 1) * productPerPage, currentPage * productPerPage);
@@ -120,9 +120,6 @@ function WarehouseProduct() {
                     Tên đồ uống
                   </th>
                   <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                    Giá vốn
-                  </th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                     Giá bán
                   </th>
                   <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
@@ -145,7 +142,7 @@ function WarehouseProduct() {
                     <tr key={product._id} className="border-b hover:bg-gray-100 transition-colors duration-300">
                       <td className="px-6 py-4 text-lg font-medium text-gray-900"> {index + 1 + (currentPage - 1) * productPerPage}</td>
                       <td className="px-6 py-4 text-md text-gray-500">{product.pname}</td>
-                     {/*  {product.status === 1 && (
+                      {/*  {product.status === 1 && (
                         <span className="text-green-500 ml-2">
                           <FaCheck title="Sản phẩm khả dụng" />
                         </span>
@@ -155,9 +152,8 @@ function WarehouseProduct() {
                           <MdCancel title="Sản phẩm không khả dụng" />
                         </span>
                       )}</td>*/}
-                      <td className="px-6 py-4 text-md text-gray-500">0</td>
                       <td className="px-6 py-4 text-md text-gray-500">
-                      {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(product.price)}
+                        {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(product.sale_price)}
                       </td>
                       <td className="px-6 py-4 text-md text-gray-500">
                         <img src={product.image} alt={product.pname} className="w-16 h-16 object-cover rounded-lg" />

@@ -11,7 +11,9 @@ const CashierLayout = () => {
       {/* Main Content */}
       <div className="flex-1">
         <Header />
-        <Outlet />;
+        <div className="content h-[94%] lg:h-[90%]">
+          <Outlet />
+        </div>
       </div>
     </div>
   );

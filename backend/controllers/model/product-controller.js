@@ -4,11 +4,12 @@ const mongoose = require("mongoose");
 const cloudinary = require("../../utils/cloudinary");
 const createNewProduct = async (req, res, next) => {
     try {
-        const { pname, quantity, price, category_id } = req.body;
+        const { pname, sale_price, category_id } = req.body;
         const pId = new mongoose.Types.ObjectId();
         const discount = 0;
         const status = 1;
-
+        const cost_price = 10000;
+        const ingredients = [{}];
         // Upload ảnh lên Cloudinary (nếu có file)
         let imageUrl = "";
         let cloudinaryId = "";
@@ -24,12 +25,13 @@ const createNewProduct = async (req, res, next) => {
         const newProduct = new Product({
             _id: pId,
             pname,
-            quantity,
-            price,
+            sale_price,
+            cost_price,
             image: imageUrl,
             category_id,
             discount,
             status,
+            ingredients
         });
         const savedProduct = await newProduct.save();
         res.status(201).json({
@@ -53,23 +55,48 @@ const getAllProductInWarehouse = async (req, res, next) => {
 };
 
 const getAllProductInHome = async (req, res, next) => {
-    try {
-        // const { search ="", page =1, limit= 10, selectCategory=""}= req.query;
-        // const searchLower= search.toLowerCase();
+  try {
+    const { search = "", page = "1", limit = "10", selectCategory = "" } = req.query;
+    const searchLower = search.toLowerCase();
+    let filter = {};
 
-        // const filteredProduct = await Product.find({
-        //     $or: [
-        //         {
-        //             "pname": { $regex: searchLower, $options : "i" }
-        //         }
-        //     ]
-        // })
-        const products = await Product.find()
-        res.status(200).json(products);
-    } catch (error) {
-        next(error);
+    // Lọc theo tên sản phẩm nếu có search query
+    if (searchLower) {
+      filter.pname = { $regex: searchLower, $options: "i" };
     }
+
+    // Nếu có truyền selectCategory, kiểm tra và lọc theo category_id
+    if (selectCategory) {
+      if (!mongoose.Types.ObjectId.isValid(selectCategory)) {
+        return res.status(400).json({ message: "Invalid category ID" });
+      }
+      filter.category_id = selectCategory;
+    }
+
+    // Chuyển đổi phân trang từ string sang số
+    const pageNumber = parseInt(page, 10);
+    const limitNumber = parseInt(limit, 10);
+
+    // Tính tổng số sản phẩm thỏa mãn filter
+    const totalProducts = await Product.countDocuments(filter);
+
+    // Lấy danh sách sản phẩm theo phân trang và populate thông tin category
+    const product = await Product.find(filter)
+      .populate('category_id')
+      .skip((pageNumber - 1) * limitNumber)
+      .limit(limitNumber);
+
+    res.status(200).json({
+      product,
+      totalProducts,
+      currentPage: pageNumber,
+      totalPages: Math.ceil(totalProducts / limitNumber)
+    });
+  } catch (error) {
+    next(error);
+  }
 };
+
 
 const getProductsByCategory = async (req, res, next) => {
     try {

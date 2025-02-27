@@ -1,11 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
-import axios from 'axios';
 
 const initialState = {
   cart: [],
-  bills: [],
-  selectedTable: null,
-  error: null,
 };
 
 const cartSlice = createSlice({
@@ -15,12 +11,11 @@ const cartSlice = createSlice({
     addToCart(state, action) {
       const product = action.payload;
       const existingProduct = state.cart.find((item) => item._id === product._id);
-
       if (existingProduct) {
         existingProduct.quantity += 1;
-        existingProduct.total += product.price;
+        existingProduct.total += product.sale_price;
       } else {
-        state.cart.push({ ...product, quantity: 1, total: product.price });
+        state.cart.push({ ...product, quantity: 1, total: product.sale_price });
       }
     },
     removeFromCart(state, action) {
@@ -28,39 +23,21 @@ const cartSlice = createSlice({
       state.cart = state.cart.filter((item) => item._id !== productId);
     },
     updateQuantity(state, action) {
-      const { _id, change } = action.payload; // Sửa lại cấu trúc payload
+      const { _id, change } = action.payload;
       const product = state.cart.find((item) => item._id === _id);
-      
       if (product) {
         product.quantity += change;
-        product.total = product.quantity * product.price;
-        
+        product.total = product.quantity * product.sale_price;
         if (product.quantity <= 0) {
           state.cart = state.cart.filter((item) => item._id !== _id);
         }
       }
     },
-    setSelectedTable(state, action) {
-      state.selectedTable = action.payload;
-    },
     clearCart(state) {
       state.cart = [];
-    },
-    clearTable(state){
-       state.selectedTable=null;
-    },
-    setBills(state, action) {
-      state.bills = action.payload;
-    },
-    setError(state, action) {
-      state.error = action.payload;
     },
   },
 });
 
-export const { addToCart, removeFromCart,clearTable, updateQuantity, setSelectedTable, clearCart, setBills, setError } =
-  cartSlice.actions;
-
-
-
+export const { addToCart, removeFromCart, updateQuantity, clearCart } = cartSlice.actions;
 export default cartSlice.reducer;
