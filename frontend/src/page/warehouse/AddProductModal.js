@@ -4,13 +4,11 @@ import { toast } from 'react-toastify';
 
 export default function AddProductModal({ closeModal, refreshProducts }) {
   const [productName, setProductName] = useState('');
-  const [quantity, setQuantity] = useState(0);
   const [price, setPrice] = useState(0);
   const [image, setImage] = useState('');
   const [selectedFile, setSelectedFile] = useState(null);
   const [category, setCategory] = useState('');
   const [categories, setCategories] = useState([]);
-  const [quantityError, setQuantityError] = useState('');
   const [priceError, setPriceError] = useState('');
   const [imageError, setImageError] = useState('');
 
@@ -44,14 +42,8 @@ export default function AddProductModal({ closeModal, refreshProducts }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setQuantityError('');
     setPriceError('');
     setImageError('');
-
-    if (quantity <= 0) {
-      setQuantityError('*Số lượng phải lớn hơn 0');
-      return;
-    }
 
     if (price <= 0) {
       setPriceError('*Giá phải lớn hơn 0');
@@ -65,7 +57,6 @@ export default function AddProductModal({ closeModal, refreshProducts }) {
 
     const formData = new FormData();
     formData.append('pname', productName);
-    formData.append('quantity', quantity);
     formData.append('price', price);
     formData.append('image', selectedFile);
     formData.append('category_id', category);
@@ -91,7 +82,7 @@ export default function AddProductModal({ closeModal, refreshProducts }) {
         <form onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 gap-2">
             <div>
-              <label>Tên sản phẩm</label>
+              <label>Tên hàng hóa</label>
               <input
                 type="text"
                 className="border rounded-md p-2 w-full"
@@ -100,18 +91,9 @@ export default function AddProductModal({ closeModal, refreshProducts }) {
                 required
               />
             </div>
+      
             <div>
-              <label>Số lượng</label>
-              <input
-                type="number"
-                className="border rounded-md p-2 w-full"
-                value={quantity}
-                onChange={(e) => setQuantity(e.target.value)}
-              />
-              {quantityError && <p className="text-red-500">{quantityError}</p>}
-            </div>
-            <div>
-              <label>Giá</label>
+              <label>Giá bán</label>
               <input
                 type="number"
                 className="border rounded-md p-2 w-full"

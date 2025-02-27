@@ -23,7 +23,8 @@ import Settings from './page/shopowner/Settings';
 import WarehouseProduct from './page/warehouse/warehouseProduct';
 import WarehouseCategory from './page/warehouse/warehouseCategory';
 import WarehouseIngredient from './page/warehouse/warehouseIngredient';
-
+import UserProfile from './components/common/Profile';
+import ChangePassword from '@/page/auth/ChangePassword';
 function App() {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
 
@@ -74,7 +75,6 @@ function App() {
           <Route path="allbill" element={<BillList />}></Route>
           <Route path="createbill" element={<CashierScreen />}></Route>
           <Route path="tablelist" element={<TableList />}></Route>
-          
         </Route>
 
         <Route
@@ -88,7 +88,8 @@ function App() {
           <Route path="categories" element={<WarehouseCategory />} />
           <Route path="products" element={<WarehouseProduct />} />
           <Route path="ingredients" element={<WarehouseIngredient />} />
-
+          <Route path="profile" element={<UserProfile />}></Route>
+          <Route path="change-password" element={<ChangePassword />}></Route>
         </Route>
 
         <Route path="*" element={<NotFound />} />
