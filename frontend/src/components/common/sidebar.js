@@ -47,14 +47,21 @@ function Sidebar() {
             <div className="abc">
               <FaWarehouse className="w-6 h-6 mb-1 text-gray-700" />
               <Link to="/warehouse/products">
-                <span className="text-sm text-gray-700 font-lauren font-semibold">WareHouse</span>
+                <span className="text-sm text-gray-700 font-lauren font-semibold">Hàng hóa</span>
               </Link>
             </div>
             <div className="abc">
               <MdCategory className="w-6 h-6 mb-1 text-gray-700" />
 
               <Link to="/warehouse/categories">
-                <span className="text-sm text-gray-700 font-lauren font-semibold">Categories</span>
+                <span className="text-sm text-gray-700 font-lauren font-semibold">Danh mục</span>
+              </Link>
+            </div>
+            <div className="abc">
+              <MdCategory className="w-6 h-6 mb-1 text-gray-700" />
+
+              <Link to="/warehouse/ingredients">
+                <span className="text-sm text-gray-700 font-lauren font-semibold">Nguyên liệu</span>
               </Link>
             </div>
             <div className="abc">

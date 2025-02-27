@@ -11,7 +11,7 @@ import CashierLayout from '@/page/cashier/CashierLayout';
 
 import React, { useEffect } from 'react';
 import CashierScreen from './page/cashier/CashierScreen';
-import BillList from './page/cashier/BillList';
+import BillList  from './page/cashier/BillList';
 import TableList from './page/cashier/TableList';
 import LandingPage from './components/common/landing';
 import { useDispatch, useSelector } from 'react-redux';
@@ -22,18 +22,17 @@ import Statistic from './page/shopowner/Statistic';
 import Settings from './page/shopowner/Settings';
 import WarehouseProduct from './page/warehouse/warehouseProduct';
 import WarehouseCategory from './page/warehouse/warehouseCategory';
-import UserProfile from './components/common/Profile';
-import ChangePassword from '@/page/auth/ChangePassword';
+import WarehouseIngredient from './page/warehouse/warehouseIngredient';
 
 function App() {
-  const { isAuthenticated, isLoading, user } = useSelector((state) => state.auth);
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
 
   const dispatch = useDispatch();
 
   useEffect(() => {
     dispatch(checkAuth());
   }, [dispatch]);
-
+       
   return (
     <BrowserRouter>
       <Routes>
@@ -75,8 +74,7 @@ function App() {
           <Route path="allbill" element={<BillList />}></Route>
           <Route path="createbill" element={<CashierScreen />}></Route>
           <Route path="tablelist" element={<TableList />}></Route>
-          <Route path="profile" element={<UserProfile />}></Route>
-          <Route path="change-password" element={<ChangePassword />}></Route>
+          
         </Route>
 
         <Route
@@ -89,8 +87,8 @@ function App() {
         >
           <Route path="categories" element={<WarehouseCategory />} />
           <Route path="products" element={<WarehouseProduct />} />
-          <Route path="profile" element={<UserProfile />}></Route>
-          <Route path="change-password" element={<ChangePassword />}></Route>
+          <Route path="ingredients" element={<WarehouseIngredient />} />
+
         </Route>
 
         <Route path="*" element={<NotFound />} />

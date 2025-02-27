@@ -145,12 +145,12 @@ function WarehouseCategory() {
                         >
                           <FaPen />
                         </button>
-                        <button
+                        {/* <button
                           className="bg-brown-900 text-white py-2 px-3 rounded-lg"
                           onClick={() => handleDeleteCategory(category._id)}
                         >
                           <FaTrash />
-                        </button>
+                        </button> */}
                       </td>
                     </tr>
                   ))
