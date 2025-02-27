@@ -122,7 +122,7 @@ export default function BillList() {
           <div key={bill._id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
             <div className="p-4 border-b border-gray-200 flex justify-between items-center">
               <div>
-                <h3 className="text-lg font-semibold">Bàn: {bill.table_id.table_name}</h3>
+                <h3 className="text-lg font-semibold">Bàn: {bill.table_id?.table_name || 'NOT FOUND'}</h3>
                 <p className="text-sm text-gray-500">{new Date(bill.created_time).toLocaleString()}</p>
               </div>
               <div>{renderStatusBadge(bill.status)}</div>
@@ -216,7 +216,7 @@ export default function BillList() {
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {new Date(bill.updated_time).toLocaleString()}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{bill.table_id.table_name}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{bill.table_id?.table_name || 'NOT FOUND'}</td>
                 <td className="px-6 py-4 text-sm text-gray-500 max-w-md truncate">
                   {bill.product_list.map((product) => product.nameP).join(', ')}
                 </td>

@@ -22,6 +22,7 @@ import Statistic from './page/shopowner/Statistic';
 import Settings from './page/shopowner/Settings';
 import WarehouseProduct from './page/warehouse/warehouseProduct';
 import WarehouseCategory from './page/warehouse/warehouseCategory';
+import WarehouseIngredient from './page/warehouse/warehouseIngredient';
 import UserProfile from './components/common/Profile';
 import ChangePassword from '@/page/auth/ChangePassword';
 
@@ -87,6 +88,7 @@ function App() {
             </CheckAuth>
           }
         >
+          <Route path="ingredients" element={<WarehouseIngredient />} />
           <Route path="categories" element={<WarehouseCategory />} />
           <Route path="products" element={<WarehouseProduct />} />
           <Route path="profile" element={<UserProfile />}></Route>

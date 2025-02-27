@@ -22,5 +22,9 @@ const tableList = new Schema({
   //false: hết bàn
   //true: còn bàn
 });
+<<<<<<< HEAD
+=======
+
+>>>>>>> MinhTN
 const Table = mongoose.model("TableList", tableList);
 module.exports = Table;

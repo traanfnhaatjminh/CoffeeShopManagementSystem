@@ -4,7 +4,7 @@ import Header from '../../components/common/header';
 
 const CashierLayout = () => {
   return (
-    <div className="flex bg-gray-100 h-full">
+    <div className="flex min-h-screen bg-gray-100">
       {/* Sidebar */}
       <Sidebar />
 
