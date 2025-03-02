@@ -82,7 +82,7 @@ export default function AddProductModal({ closeModal, refreshProducts }) {
         <form onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 gap-2">
             <div>
-              <label>Tên sản phẩm</label>
+              <label>Tên hàng hóa</label>
               <input
                 type="text"
                 className="border rounded-md p-2 w-full"
@@ -91,6 +91,7 @@ export default function AddProductModal({ closeModal, refreshProducts }) {
                 required
               />
             </div>
+      
             <div>
               <label>Giá bán</label>
               <input

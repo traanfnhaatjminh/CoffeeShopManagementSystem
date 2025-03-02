@@ -1,7 +1,7 @@
 const Product = require("../../models/Product");
 const Category = require('../../models/Category'); // Đường dẫn tới model danh mục
 const mongoose = require("mongoose");
-const cloudinary = require("../../utils/cloudinary");
+const { uploadToCloudinary } = require("../../utils/uploadService");
 const createNewProduct = async (req, res, next) => {
     try {
         const { pname, sale_price, category_id } = req.body;
@@ -15,9 +15,7 @@ const createNewProduct = async (req, res, next) => {
         let cloudinaryId = "";
 
         if (req.file) {
-            const result = await cloudinary.uploader.upload(req.file.path, {
-                folder: "products" // Ảnh sẽ được lưu trong thư mục "products"
-            });
+            const result = await uploadToCloudinary(req.file.buffer);
             imageUrl = result.secure_url;
             cloudinaryId = result.public_id;
         }
@@ -30,7 +28,6 @@ const createNewProduct = async (req, res, next) => {
             image: imageUrl,
             category_id,
             discount,
-            status,
             ingredients
         });
         const savedProduct = await newProduct.save();
@@ -55,48 +52,47 @@ const getAllProductInWarehouse = async (req, res, next) => {
 };
 
 const getAllProductInHome = async (req, res, next) => {
-  try {
-    const { search = "", page = "1", limit = "10", selectCategory = "" } = req.query;
-    const searchLower = search.toLowerCase();
-    let filter = {};
+    try {
+        const { search = "", page = "1", limit = "10", selectCategory = "" } = req.query;
+        const searchLower = search.toLowerCase();
+        let filter = {};
 
-    // Lọc theo tên sản phẩm nếu có search query
-    if (searchLower) {
-      filter.pname = { $regex: searchLower, $options: "i" };
+        // Lọc theo tên sản phẩm nếu có search query
+        if (searchLower) {
+            filter.pname = { $regex: searchLower, $options: "i" };
+        }
+
+        // Nếu có truyền selectCategory, kiểm tra và lọc theo category_id
+        if (selectCategory) {
+            if (!mongoose.Types.ObjectId.isValid(selectCategory)) {
+                return res.status(400).json({ message: "Invalid category ID" });
+            }
+            filter.category_id = selectCategory;
+        }
+
+        // Chuyển đổi phân trang từ string sang số
+        const pageNumber = parseInt(page, 10);
+        const limitNumber = parseInt(limit, 10);
+
+        // Tính tổng số sản phẩm thỏa mãn filter
+        const totalProducts = await Product.countDocuments(filter);
+
+        // Lấy danh sách sản phẩm theo phân trang và populate thông tin category
+        const product = await Product.find(filter)
+            .populate('category_id')
+            .skip((pageNumber - 1) * limitNumber)
+            .limit(limitNumber);
+
+        res.status(200).json({
+            product,
+            totalProducts,
+            currentPage: pageNumber,
+            totalPages: Math.ceil(totalProducts / limitNumber)
+        });
+    } catch (error) {
+        next(error);
     }
-
-    // Nếu có truyền selectCategory, kiểm tra và lọc theo category_id
-    if (selectCategory) {
-      if (!mongoose.Types.ObjectId.isValid(selectCategory)) {
-        return res.status(400).json({ message: "Invalid category ID" });
-      }
-      filter.category_id = selectCategory;
-    }
-
-    // Chuyển đổi phân trang từ string sang số
-    const pageNumber = parseInt(page, 10);
-    const limitNumber = parseInt(limit, 10);
-
-    // Tính tổng số sản phẩm thỏa mãn filter
-    const totalProducts = await Product.countDocuments(filter);
-
-    // Lấy danh sách sản phẩm theo phân trang và populate thông tin category
-    const product = await Product.find(filter)
-      .populate('category_id')
-      .skip((pageNumber - 1) * limitNumber)
-      .limit(limitNumber);
-
-    res.status(200).json({
-      product,
-      totalProducts,
-      currentPage: pageNumber,
-      totalPages: Math.ceil(totalProducts / limitNumber)
-    });
-  } catch (error) {
-    next(error);
-  }
 };
-
 
 const getProductsByCategory = async (req, res, next) => {
     try {
@@ -149,26 +145,27 @@ const getProductsByCategory = async (req, res, next) => {
 // };
 const updateProduct = async (req, res, next) => {
     const { productId } = req.params;
-    const { pname, price, category_id, status } = req.body;
+    const { pname, price, category_id } = req.body;
 
     try {
         // Kiểm tra sản phẩm có tồn tại không
         const existingProduct = await Product.findById(productId);
+
         if (!existingProduct) {
             return res.status(404).json({ message: "Product not found" });
         }
 
-        const updatedProduct = { pname, price, category_id, status };
+        const updatedProduct = { pname, price, category_id };
 
         if (req.file) {
-            const result = await cloudinary.uploader.upload(req.file.path, { folder: "products" });
-
-            updatedProduct.image = result.secure_url;
-
             if (existingProduct.cloudinary_id) {
                 await cloudinary.uploader.destroy(existingProduct.cloudinary_id);
             }
+
+            const result = await uploadToCloudinary(req.file.buffer);
+            updatedProduct.image = result.secure_url;
         }
+
         // Cập nhật sản phẩm
         const product = await Product.findByIdAndUpdate(productId, updatedProduct, { new: true, fields: '-cloudinary_id' });
 

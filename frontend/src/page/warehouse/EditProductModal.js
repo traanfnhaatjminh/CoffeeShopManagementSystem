@@ -9,7 +9,6 @@ export default function EditProductModal({ product, closeModal, refreshProducts 
     const [imagePreview, setImagePreview] = useState('');
     const [category, setCategory] = useState('');
     const [categories, setCategories] = useState([]);
-    const [status, setStatus] = useState('');
     const [priceError, setPriceError] = useState('');
     const [imageError, setImageError] = useState('');
 
@@ -29,9 +28,7 @@ export default function EditProductModal({ product, closeModal, refreshProducts 
             setProductName(product.pname);
             setPrice(product.price);
             setImage(product.image);
-            setCategory(product.category_id ? product.category_id._id : '');
-            setStatus(product.status);
-            setImagePreview(product.image); //xem trc ảnh
+            setCategory(product.category_id ? product.category_id._id : '');            setImagePreview(product.image); //xem trc ảnh
         }
     }, [product]);
 
@@ -66,7 +63,6 @@ export default function EditProductModal({ product, closeModal, refreshProducts 
         formData.append('pname', productName);
         formData.append('price', price);
         formData.append('category_id', category);
-        formData.append('status', status);
         if (image) {
             formData.append('image', image);  // thêm file ảnh vào FormData
         }
@@ -140,18 +136,6 @@ export default function EditProductModal({ product, closeModal, refreshProducts 
                                         {cat.category_name}
                                     </option>
                                 ))}
-                            </select>
-                        </div>
-                        <div>
-                            <label>Trạng thái</label>
-                            <select
-                                name="status"
-                                value={status}
-                                onChange={(e) => setStatus(e.target.value)}
-                                className="border rounded-md p-2 w-full"
-                            >
-                                <option value="1">Active</option>
-                                <option value="0">Inactive</option>
                             </select>
                         </div>
                     </div>
