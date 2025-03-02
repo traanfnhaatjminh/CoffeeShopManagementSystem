@@ -71,13 +71,6 @@ function Sidebar() {
                 <span className="text-sm text-gray-700 font-lauren font-semibold">Thông tin</span>
               </Link>
             </div>
-            <div className="abc">
-              <MdListAlt className="w-6 h-6 mb-1 text-gray-700" />
-
-              <Link to="/warehouse/profile">
-                <span className="text-sm text-gray-700 font-lauren font-semibold">Thông tin</span>
-              </Link>
-            </div>
           </>
         )}
 
