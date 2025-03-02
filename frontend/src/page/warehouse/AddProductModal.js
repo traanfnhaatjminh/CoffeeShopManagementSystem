@@ -57,7 +57,7 @@ export default function AddProductModal({ closeModal, refreshProducts }) {
 
     const formData = new FormData();
     formData.append('pname', productName);
-    formData.append('price', price);
+    formData.append('sale_price', price);
     formData.append('image', selectedFile);
     formData.append('category_id', category);
 
@@ -109,7 +109,7 @@ export default function AddProductModal({ closeModal, refreshProducts }) {
               {image && <img src={image} alt="Product" className="mt-2 w-16 h-16 object-cover rounded-lg" />}
             </div>
             <div>
-              <label>Danh sách danh mục</label>
+              <label>Loại sản phẩm</label>
               <select
                 className="border rounded-md p-2 w-full"
                 value={category}

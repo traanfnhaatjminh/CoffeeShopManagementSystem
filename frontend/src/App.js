@@ -85,6 +85,7 @@ function App() {
             </CheckAuth>
           }
         >
+          <Route path="ingredients" element={<WarehouseIngredient />} />
           <Route path="categories" element={<WarehouseCategory />} />
           <Route path="products" element={<WarehouseProduct />} />
           <Route path="ingredients" element={<WarehouseIngredient />} />

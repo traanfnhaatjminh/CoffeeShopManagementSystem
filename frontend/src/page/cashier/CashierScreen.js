@@ -143,7 +143,7 @@ export default function CashierScreen() {
                     >
                       <img src={product.image} alt={product.pname} className="mb-4 rounded" />
                       <h3 className="text-items">{product.pname}</h3>
-                      <p className="text-price">{product.price} VND</p>
+                      <p className="text-price">{product.sale_price} VND</p>
                     </div>
                   ))
               ) : (

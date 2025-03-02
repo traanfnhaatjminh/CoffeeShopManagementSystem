@@ -139,7 +139,7 @@ const getBillFromTable = async (req, res, next) => {
     const { id } = req.params;
 
     const bill = await Bill.findOne({ table_id: id, status: 0 }).populate(
-      "product_list.productId"
+      "product_list.productId" 
     );
 
     if (!bill) {

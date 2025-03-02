@@ -56,6 +56,7 @@ function Sidebar() {
               <Link to="/warehouse/categories">
                 <span className="text-sm text-gray-700 font-lauren font-semibold">Danh mục</span>
               </Link>
+          
             </div>
             <div className="abc">
               <MdCategory className="w-6 h-6 mb-1 text-gray-700" />
@@ -63,6 +64,7 @@ function Sidebar() {
               <Link to="/warehouse/ingredients">
                 <span className="text-sm text-gray-700 font-lauren font-semibold">Nguyên liệu</span>
               </Link>
+          
             </div>
             <div className="abc">
               <MdListAlt className="w-6 h-6 mb-1 text-gray-700" />
