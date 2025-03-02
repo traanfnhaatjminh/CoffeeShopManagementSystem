@@ -3,6 +3,7 @@ const User = require("../models/User");
 const Role = require("../models/Role");
 const Ingredient = require("../models/Ingredient");
 const WarehouseCard = require("../models/WarehouseCard");
+
 const TableList = require("./TableList");
 const Product = require("./Product");
 //Khởi tạo đối tượng CSDL
@@ -13,6 +14,7 @@ db.User = User;
 db.Role = Role;
 db.Ingredient = Ingredient;
 db.WarehouseCard = WarehouseCard;
+
 db.TableList = TableList;
 db.Product = Product;
 

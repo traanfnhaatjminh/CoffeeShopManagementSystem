@@ -153,7 +153,8 @@ function WarehouseProduct() {
                         </span>
                       )}</td>*/}
                       <td className="px-6 py-4 text-md text-gray-500">
-                        {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(product.sale_price)}
+                      {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(product.sale_price)}
+      
                       </td>
                       <td className="px-6 py-4 text-md text-gray-500">
                         <img src={product.image} alt={product.pname} className="w-16 h-16 object-cover rounded-lg" />
