@@ -8,17 +8,18 @@ const productSchema = new Schema(
             required: true,
             unique: true,
         },
-        quantity: {
-            type: Number,
-        },
-        price: {
+        cost_price: {
             type: Number,
             required: true,
         },
-        image:{
+        sale_price: {
+            type: Number,
+            required: true,
+        },
+        image: {
             type: String
         },
-        cloudinary_id:{
+        cloudinary_id: {
             type: String
         },
         category_id: {
@@ -27,6 +28,20 @@ const productSchema = new Schema(
         },
         discount: Number,
         status: Number,
+        ingredients: [
+            {
+                ingredient_id: {
+                    type: Schema.Types.ObjectId,
+                    ref: "Ingredient",
+                },
+                quantitative: {
+                    type: Number,
+                },
+                TotalPerIngredient: {
+                    type: Number,
+                },
+            },
+        ],
     },
     { timestamps: true }
 );

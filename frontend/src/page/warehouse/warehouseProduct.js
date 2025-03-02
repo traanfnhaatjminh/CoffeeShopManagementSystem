@@ -119,9 +119,7 @@ function WarehouseProduct() {
                   <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                     Tên đồ uống
                   </th>
-                  <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                    Giá vốn
-                  </th>
+                
                   <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                     Giá bán
                   </th>
@@ -155,9 +153,8 @@ function WarehouseProduct() {
                           <MdCancel title="Sản phẩm không khả dụng" />
                         </span>
                       )}</td>*/}
-                      <td className="px-6 py-4 text-md text-gray-500">0</td>
                       <td className="px-6 py-4 text-md text-gray-500">
-                      {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(product.price)}
+                      {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(product.sale_price)}
                       </td>
                       <td className="px-6 py-4 text-md text-gray-500">
                         <img src={product.image} alt={product.pname} className="w-16 h-16 object-cover rounded-lg" />
