@@ -75,6 +75,8 @@ function App() {
           <Route path="allbill" element={<BillList />}></Route>
           <Route path="createbill" element={<CashierScreen />}></Route>
           <Route path="tablelist" element={<TableList />}></Route>
+          <Route path="profile" element={<UserProfile />}></Route>
+          <Route path="change-password" element={<ChangePassword />}></Route>
         </Route>
 
         <Route
