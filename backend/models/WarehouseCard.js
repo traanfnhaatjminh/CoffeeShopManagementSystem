@@ -1,6 +1,10 @@
 const mongoose = require('mongoose');
 
 const warehouseCardSchema = new mongoose.Schema({
+    ingredient_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Ingredient",
+    },
     method: {
         type: String,
         required: true,
