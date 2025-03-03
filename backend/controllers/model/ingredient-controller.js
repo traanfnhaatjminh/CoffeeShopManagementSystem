@@ -4,24 +4,44 @@ const mongoose = require('mongoose');  // To create an ObjectId
 
 const createNewIngredient = async (req, res, next) => {
     try {
-        const {name, cost_price, unit, quantity, capacity} = req.body;
-        const Id = new mongoose.Types.ObjectId();
-        const current_quantity = quantity;
-        const newIngredient = new Ingredient({ _id: Id, name, cost_price, unit, current_quantity, quantity, capacity});
-        await newIngredient.save();
+        const { ingredients } = req.body;
 
-        const wcID = new mongoose.Types.ObjectId();
-        const method = "Nhập hàng";
-        const newWarehouseCard = new WarehouseCard({wcID, method, current_quantity, cost_price, quantity});
-        await newWarehouseCard.save();
+        if (!Array.isArray(ingredients) || ingredients.length === 0) {
+            return res.status(400).json({ message: "Dữ liệu không hợp lệ!" });
+        }
+
+        const insertedIngredients = [];
+
+        for (const ingredient of ingredients) {
+            const { name, cost_price, unit, quantity, capacity } = ingredient;
+            const Id = new mongoose.Types.ObjectId();
+            const current_quantity = quantity; // Gán current_quantity bằng quantity
+
+            if (!name || !cost_price || !unit || !quantity || !capacity) {
+                return res.status(400).json({ message: "Thiếu thông tin nguyên liệu!" });
+            }
+
+            // Tạo ingredient mới
+            const newIngredient = new Ingredient({ _id: Id, name, cost_price, unit, current_quantity, quantity, capacity });
+            await newIngredient.save();
+            insertedIngredients.push(newIngredient);
+
+            // Lưu vào WarehouseCard
+            const wcID = new mongoose.Types.ObjectId();
+            const method = "Nhập hàng";
+            const newWarehouseCard = new WarehouseCard({ wcID, method, current_quantity, cost_price, quantity });
+            await newWarehouseCard.save();
+        }
+
         res.status(201).json({
             message: "Insert successfully.",
-            result: newIngredient
+            result: insertedIngredients,
         });
     } catch (error) {
         next(error);
     }
 };
+
 
 const updateIngredient = async (req, res, next) => {
     const { ingredientId } = req.params;

@@ -5,9 +5,12 @@ import EditingredientModal from './EditIngredientModal';
 import AddingredientModal from './AddIngredientModal';
 import Paging from '../../components/common/paging';
 import axios from 'axios'; // Import axios
-import {ToastContainer } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import 'react-confirm-alert/src/react-confirm-alert.css';
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+import * as XLSX from "xlsx";
 
 
 function WarehouseIngredient() {
@@ -32,6 +35,94 @@ function WarehouseIngredient() {
         } catch (error) {
             console.error('Error fetching ingredients:', error);
         }
+    };
+
+    // 📌 Xử lý Import File Excel
+    const handleImportExcel = (event) => {
+        const file = event.target.files[0];
+
+        if (!file) {
+            toast.error("Vui lòng chọn một file Excel!");
+            return;
+        }
+
+        // Kiểm tra định dạng file (chỉ cho phép .xlsx)
+        if (!file.name.endsWith(".xlsx")) {
+            toast.error("Chỉ chấp nhận file Excel (.xlsx)");
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: "array" });
+
+            const sheetName = workbook.SheetNames[0]; // Lấy sheet đầu tiên
+            const sheet = workbook.Sheets[sheetName];
+            const jsonData = XLSX.utils.sheet_to_json(sheet);
+
+            if (jsonData.length === 0) {
+                toast.error("File Excel không có dữ liệu!");
+                return;
+            }
+
+            // Chuyển dữ liệu Excel thành mảng ingredient
+            const importedIngredients = jsonData.map((row, index) => ({
+                name: row["Tên nguyên liệu"] || `Nguyên liệu ${index + 1}`,
+                unit: row["Đơn vị tính"],
+                cost_price: row["Giá vốn"],
+                quantity: row["Số lượng nhập"],
+                capacity: row["Dung tích nguyên liệu"],
+            }));
+
+            console.log("Dữ liệu import gửi lên server:", importedIngredients);
+
+            try {
+                await axios.post('/ingredients/createIngredient', { ingredients: importedIngredients });
+                toast.success("Import nguyên liệu thành công!");
+                fetchIngredients();
+            } catch (error) {
+                console.error("Lỗi khi import nguyên liệu:", error.response?.data || error);
+                toast.error("Lỗi khi import nguyên liệu");
+            }
+        };
+
+        reader.readAsArrayBuffer(file);
+    };
+
+    const exportToPDF = () => {
+        const doc = new jsPDF();
+        doc.text("Danh sách nguyên liệu", 14, 10);
+
+        const tableColumn = [
+            "ID",
+            "Tên nguyên liệu",
+            "Đơn vị",
+            "Giá vốn",
+            "Số lượng nhập",
+            "Dung tích",
+            "Tồn kho",
+            "Thời gian nhập",
+        ];
+
+        const tableRows = ingredients.map((ingredient, index) => [
+            index + 1, // ID
+            ingredient.name,
+            ingredient.unit,
+            new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(ingredient.cost_price),
+            ingredient.quantity,
+            ingredient.capacity,
+            ingredient.current_quantity,
+            ingredient.createdAt,
+        ]);
+
+        doc.autoTable({
+            head: [tableColumn],
+            body: tableRows,
+            startY: 20,
+        });
+        toast.success('Xuất file pdf thành công');
+        doc.save("WarehouseIngredients.pdf");
     };
 
     useEffect(() => {
@@ -101,10 +192,12 @@ function WarehouseIngredient() {
                         >
                             <FaFileImport className="mr-1" />
                             Import
+                            <input type="file" accept=".xlsx" onChange={handleImportExcel} className="hidden" />
                         </label>
                         <label
 
                             className="bg-teal-400 text-white p-2 rounded-lg flex items-center cursor-pointer"
+                            onClick={exportToPDF}
                         >
                             <FaFileExport className="mr-1" />
                             Export
