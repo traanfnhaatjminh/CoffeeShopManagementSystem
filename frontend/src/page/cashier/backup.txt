@@ -1,3 +1,274 @@
+// import React, { useState, useEffect } from 'react';
+// import './style.css';
+// import { IoSearch } from 'react-icons/io5';
+// import axios from 'axios';
+// import Paging from '../../components/common/paging';
+// import 'react-toastify/dist/ReactToastify.css';
+// import 'react-confirm-alert/src/react-confirm-alert.css';
+// import { ToastContainer } from 'react-toastify';
+// import { useDispatch, useSelector } from 'react-redux';
+// import { addToCart, updateQuantity } from '../../store/cart-slice/cartSlice';
+// import { setSelectedTable } from '../../store/table-slice/tableSlice'; // Sử dụng từ tableSlice
+// import { GrFormNext, GrFormPrevious } from 'react-icons/gr';
+// import APISERVICECASHIER from '../../services/api-cashier';
+// import { generatePDF } from './printBill';
+// import { createBill } from '../../store/bill-slice/billSlice';
+// import { fetchTables } from '../../store/table-slice/tableSlice';
+
+// export default function CashierScreen() {
+//   const [search, setSearch] = useState('');
+//   const [categories, setCategories] = useState([]);
+//   const [products, setProducts] = useState([]);
+//   // const [tables, setTables] = useState([]);
+//   const [selectCategory, setSelectCategory] = useState('');
+//   const [currentPage, setCurrentPage] = useState(1);
+//   const [totalPages, setTotalPages] = useState(1);
+//   const productPerPage = 10;
+//   const [noResultsMessage, setNoResultsMessage] = useState('');
+//   const dispatch = useDispatch();
+//   const cart = useSelector((state) => state.cart.cart);
+//   const selectedTable = useSelector((state) => state.tables.selectedTable); // Lấy từ tableSlice
+//   const { tableList } = useSelector((state) => state.tables);
+//   useEffect(() => {
+//     const fetchData = async () => {
+//       try {
+//         const categoriesResponse = await axios.get('/categories/list');
+//         setCategories(categoriesResponse.data);
+
+//         const productsResponse = await APISERVICECASHIER.ApiProductInHome(
+//           search,
+//           currentPage,
+//           productPerPage,
+//           selectCategory
+//         );
+//         setProducts(productsResponse.data.product);
+//         setTotalPages(productsResponse.data.totalPages);
+
+//         // const tablesResponse = await axios.get('/tables/list');
+//         // setTables(tablesResponse.data);
+//         dispatch(fetchTables());
+//       } catch (error) {
+//         console.error('Error fetching data:', error);
+//       }
+//     };
+//     fetchData();
+//   }, [search, selectCategory, currentPage, dispatch]);
+
+//   const handleTableSelect = (table) => {
+//     if (table.status === true) {
+//       dispatch(setSelectedTable(table._id)); // Lưu `_id` thay vì index
+//     }
+//   };
+
+//   const handleAddToCart = (product) => {
+//     dispatch(addToCart(product));
+//   };
+
+//   const handleQuantityChange = (_id, change) => {
+//     dispatch(updateQuantity({ _id, change }));
+//   };
+
+//   const calculateTotalPrice = () => {
+//     return cart.reduce((sum, item) => sum + item.total, 0);
+//   };
+
+//   const handleCreateBill = async () => {
+//     try {
+//       await dispatch(createBill({ cart, selectedTable, tableList, calculateTotalPrice })).unwrap();
+//       generatePDF(cart, selectedTable);
+//     } catch (error) {
+//       console.error('Lỗi khi tạo hóa đơn:', error);
+//     }
+//   };
+
+//   return (
+//     <div className="flex flex-col min-h-screen bg-gray-100">
+//       <ToastContainer
+//         position="top-right"
+//         autoClose={2000}
+//         hideProgressBar={false}
+//         closeOnClick
+//         pauseOnHover
+//         draggable
+//         pauseOnFocusLoss
+//       />
+//       <main className="flex flex-1">
+//         <div className="flex space-x-6 p-4">
+//           {/* Menu Section */}
+//           <section className="flex-1">
+//             <div className="flex">
+//               <h2 className="text-lg font-bold px-2 py-1 font-lauren border bg-brown-900 text-white border-brown-400 rounded-lg">
+//                 Menu
+//               </h2>
+//               <div className="relative flex flex-1 justify-end">
+//                 <input
+//                   type="text"
+//                   className="relative w-2/3 bg-white border border-gray-300 rounded-md pl-3 pr-10 py-2 text-left cursor-default focus-within:outline-none focus-within:ring-1 focus-within:ring-indigo-500 focus-within:border-indigo-500 sm:text-sm"
+//                   value={search}
+//                   onChange={(e) => setSearch(e.target.value)}
+//                 />
+//                 <span className="absolute inset-y-0 right-0 flex items-center pr-2 ">
+//                   <IoSearch />
+//                 </span>
+//               </div>
+//             </div>
+
+//             <div className="grid grid-cols-5 gap-4 mb-6 mt-3">
+//               <button
+//                 className={`btn-categories ${selectCategory === '' ? 'bg-dark font-bold' : ''}`}
+//                 onClick={() => setSelectCategory('')}
+//               >
+//                 Tất cả
+//               </button>
+//               {categories.map((category, index) => (
+//                 <button
+//                   key={index}
+//                   className={`btn-categories ${selectCategory === category._id ? 'bg-dark font-bold' : ''}`}
+//                   onClick={() => setSelectCategory(category._id)}
+//                 >
+//                   {category.category_name}
+//                 </button>
+//               ))}
+//             </div>
+
+//             <div className="grid grid-cols-5 gap-4">
+//               {products.length > 0 ? (
+//                 products
+//                   .filter((product) => product.status !== 0)
+//                   .map((product) => (
+//                     <div
+//                       key={product._id}
+//                       className="bg-white rounded-lg shadow p-4 cursor-pointer"
+//                       onClick={() => handleAddToCart(product)}
+//                     >
+//                       <img src={product.image} alt={product.pname} className="mb-4 rounded" />
+//                       <h3 className="text-items">{product.pname}</h3>
+//                       <p className="text-price">{product.price} VND</p>
+//                     </div>
+//                   ))
+//               ) : (
+//                 <div className="col-span-5 text-center text-red-600">{noResultsMessage}</div>
+//               )}
+//             </div>
+//             <div className="flex justify-center py-4 border-t border-gray-200">
+//               <nav className="flex items-center space-x-2">
+//                 <button
+//                   onClick={() => setCurrentPage(currentPage - 1)}
+//                   disabled={currentPage === 1}
+//                   className="relative inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+//                 >
+//                   <GrFormPrevious className="h-5 w-5" />
+//                 </button>
+//                 {[...Array(totalPages)].map((_, index) => (
+//                   <button
+//                     key={index}
+//                     onClick={() => setCurrentPage(index + 1)}
+//                     className={`relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg ${
+//                       currentPage === index + 1
+//                         ? 'bg-brown-500 text-white'
+//                         : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
+//                     }`}
+//                   >
+//                     {index + 1}
+//                   </button>
+//                 ))}
+//                 <button
+//                   onClick={() => setCurrentPage(currentPage + 1)}
+//                   disabled={currentPage === totalPages}
+//                   className="relative inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+//                 >
+//                   <GrFormNext className="h-5 w-5" />
+//                 </button>
+//               </nav>
+//             </div>
+//           </section>
+
+//           {/* Cart Section */}
+//           <section className="w-1/3 bg-white rounded-lg shadow p-6">
+//             <h2 className="text-xl font-bold mb-6">Giỏ hàng</h2>
+
+//             <h2 className="text-xl font-semibold mb-4">Bàn</h2>
+//             <div className="grid grid-cols-5 gap-2 mb-4">
+//               {tableList.map((table, index) => (
+//                 <div
+//                   key={table._id}
+//                   className={`table px-4 py-2 border rounded-lg cursor-pointer text-center
+//                ${selectedTable === table._id ? 'bg-cyan-500 text-white font-bold' : 'bg-green-400 text-black'}
+//                ${table.status ? 'hover:bg-teal-200' : ' bg-red-400 cursor-not-allowed'}`}
+//                   onClick={() => handleTableSelect(table)}
+//                 >
+//                   {table.table_name}
+//                 </div>
+//               ))}
+//             </div>
+
+//             <table className="w-full text-left mb-6">
+//               <thead>
+//                 <tr>
+//                   <th className="border-b py-2">Tên sản phẩm</th>
+//                   <th className="border-b py-2">Ảnh</th>
+//                   <th className="border-b py-2">Số lượng</th>
+//                 </tr>
+//               </thead>
+//               <tbody>
+//                 {cart.length > 0 ? (
+//                   cart.map((item, index) => (
+//                     <tr key={index}>
+//                       <td className="py-2">{item.pname}</td>
+//                       <td className="py-2">
+//                         <img className="h-10" alt={item.pname} src={item.image} />
+//                       </td>
+//                       <td className="py-2">
+//                         <div className="flex items-center space-x-2">
+//                           <button
+//                             onClick={() => handleQuantityChange(item._id, -1)}
+//                             className="px-2 py-1 bg-gray-300 rounded"
+//                           >
+//                             -
+//                           </button>
+//                           <span>{item.quantity}</span>
+//                           <button
+//                             onClick={() => handleQuantityChange(item._id, 1)}
+//                             className="px-2 py-1 bg-gray-300 rounded"
+//                           >
+//                             +
+//                           </button>
+//                         </div>
+//                       </td>
+//                     </tr>
+//                   ))
+//                 ) : (
+//                   <tr>
+//                     <td colSpan="4" className="py-2 text-center">
+//                       Chưa có sản phẩm được thêm vào giỏ hàng!
+//                     </td>
+//                   </tr>
+//                 )}
+//               </tbody>
+//             </table>
+
+//             <div className="flex justify-around font-bold">
+//               Chú thích:
+//               {/* <span>{calculateTotalPrice()} VND</span> */}
+//               <input
+//                 type="text"
+//                 className="relative w-FULL bg-white border border-gray-300 rounded-md pl-3 pr-10 py-2 text-left cursor-default focus-within:outline-none focus-within:ring-1 focus-within:ring-indigo-500 focus-within:border-indigo-500 sm:text-sm"
+//               />
+//             </div>
+//             <button
+//               style={{ marginTop: '5%' }}
+//               className="w-full bg-blue-500 text-white py-2 rounded disabled:bg-gray-300"
+//               disabled={cart.length === 0 || selectedTable === null}
+//               onClick={handleCreateBill}
+//             >
+//               Tạo đơn
+//             </button>
+//           </section>
+//         </div>
+//       </main>
+//     </div>
+//   );
+// }
 import React, { useState, useEffect } from 'react';
 import './style.css';
 import { IoSearch, IoReceipt, IoSave, IoCart, IoRestaurant, IoTime } from 'react-icons/io5';
@@ -59,8 +330,19 @@ export default function CashierScreen() {
 
         // Fetch tables
         dispatch(fetchTables());
-        const responeBill = await axios.get('/bills/all');
-        setRecentOrders(responeBill.data.slice(0, 3));
+
+        // Fetch popular items (Mocked for now)
+        const mockPopularItems = productsResponse.data.product.slice(0, 5);
+        setPopularItems(mockPopularItems);
+
+        // Fetch recent orders (Mocked for now)
+        setRecentOrders([
+          { id: 'ORD-001', table: 'Bàn 1', total: 450000, time: '10:23 AM' },
+          { id: 'ORD-002', table: 'Bàn 3', total: 275000, time: '11:05 AM' },
+          { id: 'ORD-003', table: 'Bàn 2', total: 320000, time: '11:45 AM' },
+        ]);
+
+        setOrderLoading(false);
       } catch (error) {
         console.error('Error fetching data:', error);
         setOrderLoading(false);
@@ -69,7 +351,6 @@ export default function CashierScreen() {
     };
     fetchData();
   }, [search, selectCategory, currentPage, dispatch]);
-  console.log(recentOrders);
 
   const handleTableSelect = (table) => {
     if (table.status === true) {
@@ -117,9 +398,9 @@ export default function CashierScreen() {
 
       // Clear cart after successful order
 
-      setNote('');
-      setDiscountAmount(0);
-      setOrderLoading(false);
+      // setNote('');
+      // setDiscountAmount(0);
+      // setOrderLoading(false);
     } catch (error) {
       console.error('Lỗi khi tạo hóa đơn:', error);
     }
@@ -127,34 +408,34 @@ export default function CashierScreen() {
 
   console.log(cart);
 
-  // const handleSaveOrder = () => {
-  //   if (cart.length === 0) {
-  //     toast.warning('Giỏ hàng trống. Vui lòng thêm sản phẩm!');
-  //     return;
-  //   }
+  const handleSaveOrder = () => {
+    if (cart.length === 0) {
+      toast.warning('Giỏ hàng trống. Vui lòng thêm sản phẩm!');
+      return;
+    }
 
-  //   if (!selectedTable) {
-  //     toast.error('Vui lòng chọn bàn trước khi lưu đơn');
-  //     return;
-  //   }
+    if (!selectedTable) {
+      toast.error('Vui lòng chọn bàn trước khi lưu đơn');
+      return;
+    }
 
-  //   toast.success('Đã lưu đơn hàng tạm thời!');
-  // };
+    toast.success('Đã lưu đơn hàng tạm thời!');
+  };
 
-  // const toggleCartView = () => {
-  //   setIsCartExpanded(!isCartExpanded);
-  // };
+  const toggleCartView = () => {
+    setIsCartExpanded(!isCartExpanded);
+  };
 
   return (
-    <div className="h-min bg-gray-100 flex flex-col">
-      {/* <ToastContainer
+    <div className="flex flex-col min-h-screen bg-gray-100">
+      <ToastContainer
         position="top-right"
         autoClose={2000}
         hideProgressBar={false}
         closeOnClick
         pauseOnHover
         draggable
-      /> */}
+      />
 
       {/* Header - Fixed height and responsive padding */}
       {/* <header className="bg-brown-900 text-white py-2 px-3 md:p-4 shadow-md">
@@ -177,17 +458,14 @@ export default function CashierScreen() {
       </header> */}
 
       {/* Main content - Responsive layout with overflow handling */}
-      <main className="flex  md:flex-row flex-1 p-1 md:p-2 overflow-hidden">
+      <main className="flex flex-col md:flex-row flex-1 p-2 md:p-4 overflow-hidden">
         {/* Menu Section - Adaptive width based on screen size */}
         <section
           className={`flex-1 transition-all duration-300 mb-4 md:mb-0 overflow-auto ${
-            isCartExpanded ? 'md:w-3/3 lg:w-3/4' : 'md:w-5/6'
+            isCartExpanded ? 'md:w-2/3 lg:w-3/4' : 'md:w-5/6'
           }`}
         >
-          <div
-            className="bg-white rounded-lg shadow p-3 md:p-4 mb-4 overflow-hidden"
-            style={{ maxHeight: '700px', display: 'flex', flexDirection: 'column' }}
-          >
+          <div className="bg-white rounded-lg shadow p-3 md:p-4 mb-4 overflow-hidden">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 space-y-3 sm:space-y-0">
               <h2 className="text-base md:text-lg font-bold px-3 py-1 md:px-4 md:py-2 bg-brown-900 text-white rounded-lg flex items-center">
                 <IoRestaurant className="mr-2" /> Menu
@@ -248,7 +526,7 @@ export default function CashierScreen() {
             </div>
 
             {/* Categories - Scrollable horizontally on small screens */}
-            <div className=" pb-2 mb-3 -mx-1 px-1">
+            <div className="overflow-x-auto pb-2 mb-3 -mx-1 px-1">
               <div className="flex space-x-2 min-w-max">
                 <button
                   className={`btn-categories flex items-center px-3 py-1 md:px-4 md:py-2 rounded-lg transition-colors text-xs md:text-sm ${
@@ -284,7 +562,7 @@ export default function CashierScreen() {
             </div>
 
             {/* Popular Items - Responsive grid/flex layout with smaller images */}
-            {/* {popularItems.length > 0 && (
+            {popularItems.length > 0 && (
               <div className="mb-4">
                 <h3 className="text-sm md:text-md font-semibold mb-2 text-gray-700 flex items-center">
                   <FaClipboardList className="mr-2 h-3 w-3 md:h-4 md:w-4" /> Sản phẩm phổ biến
@@ -311,133 +589,131 @@ export default function CashierScreen() {
                   ))}
                 </div>
               </div>
-            )} */}
+            )}
 
             {/* Products Display - Grid View - Responsive grid with smaller items */}
-            <div className="flex-1 overflow-y-auto">
-              {selectedView === 'grid' && (
-                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2 md:gap-4">
-                  {products.length > 0 ? (
-                    products
-                      .filter((product) => product.status !== 0)
-                      .map((product) => (
-                        <div
-                          key={product._id}
-                          className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
-                          onClick={() => handleAddToCart(product)}
-                        >
-                          <div className="h-24 md:h-32 overflow-hidden">
-                            <img src={product.image} alt={product.pname} className="w-full h-full object-cover" />
-                          </div>
-                          <div className="p-2 md:p-3">
-                            <h3 className="font-medium text-xs md:text-sm text-gray-800 truncate">{product.pname}</h3>
-                            <div className="flex justify-between items-center mt-1 md:mt-2">
-                              <p className="text-blue-600 font-bold text-xs md:text-sm">
-                                {product.price.toLocaleString()} VND
-                              </p>
-                              <button
-                                className="bg-brown-500 text-white p-1 rounded-full hover:bg-brown-600"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleAddToCart(product);
-                                }}
+            {selectedView === 'grid' && (
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 md:gap-4">
+                {products.length > 0 ? (
+                  products
+                    .filter((product) => product.status !== 0)
+                    .map((product) => (
+                      <div
+                        key={product._id}
+                        className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+                        onClick={() => handleAddToCart(product)}
+                      >
+                        <div className="h-24 md:h-32 overflow-hidden">
+                          <img src={product.image} alt={product.pname} className="w-full h-full object-cover" />
+                        </div>
+                        <div className="p-2 md:p-3">
+                          <h3 className="font-medium text-xs md:text-sm text-gray-800 truncate">{product.pname}</h3>
+                          <div className="flex justify-between items-center mt-1 md:mt-2">
+                            <p className="text-blue-600 font-bold text-xs md:text-sm">
+                              {product.price.toLocaleString()} VND
+                            </p>
+                            <button
+                              className="bg-brown-500 text-white p-1 rounded-full hover:bg-brown-600"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleAddToCart(product);
+                              }}
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-3 w-3 md:h-4 md:w-4"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
                               >
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  className="h-3 w-3 md:h-4 md:w-4"
-                                  fill="none"
-                                  viewBox="0 0 24 24"
-                                  stroke="currentColor"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                                  />
-                                </svg>
-                              </button>
-                            </div>
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                                />
+                              </svg>
+                            </button>
                           </div>
                         </div>
-                      ))
-                  ) : (
-                    <div className="col-span-full text-center py-10 text-red-600 text-sm">
-                      {noResultsMessage || 'Không tìm thấy sản phẩm nào'}
-                    </div>
-                  )}
-                </div>
-              )}
+                      </div>
+                    ))
+                ) : (
+                  <div className="col-span-full text-center py-10 text-red-600 text-sm">
+                    {noResultsMessage || 'Không tìm thấy sản phẩm nào'}
+                  </div>
+                )}
+              </div>
+            )}
 
-              {/* Products Display - List View - Responsive table with smaller text */}
-              {selectedView === 'list' && (
-                <div className="bg-white rounded-lg overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+            {/* Products Display - List View - Responsive table with smaller text */}
+            {selectedView === 'list' && (
+              <div className="bg-white rounded-lg overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-3 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Sản phẩm
+                      </th>
+                      <th className="px-3 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Giá
+                      </th>
+                      <th className="px-3 md:px-6 py-2 md:py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Thao tác
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {products.length > 0 ? (
+                      products
+                        .filter((product) => product.status !== 0)
+                        .map((product) => (
+                          <tr key={product._id} className="hover:bg-gray-50">
+                            <td className="px-3 md:px-6 py-2 md:py-4 whitespace-nowrap">
+                              <div className="flex items-center">
+                                <div className="flex-shrink-0 h-8 w-8 md:h-10 md:w-10">
+                                  <img
+                                    className="h-8 w-8 md:h-10 md:w-10 rounded-md object-cover"
+                                    src={product.image}
+                                    alt={product.pname}
+                                  />
+                                </div>
+                                <div className="ml-2 md:ml-4">
+                                  <div className="text-xs md:text-sm font-medium text-gray-900 truncate max-w-[120px] md:max-w-full">
+                                    {product.pname}
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-3 md:px-6 py-2 md:py-4 whitespace-nowrap">
+                              <div className="text-xs md:text-sm text-blue-600 font-semibold">
+                                {product.price.toLocaleString()} VND
+                              </div>
+                            </td>
+                            <td className="px-3 md:px-6 py-2 md:py-4 whitespace-nowrap text-right text-xs md:text-sm font-medium">
+                              <button
+                                onClick={() => handleAddToCart(product)}
+                                className="text-brown-600 hover:text-brown-900 bg-brown-100 hover:bg-brown-200 px-2 py-1 md:px-3 md:py-1 rounded-md text-xs"
+                              >
+                                Thêm vào giỏ
+                              </button>
+                            </td>
+                          </tr>
+                        ))
+                    ) : (
                       <tr>
-                        <th className="px-2 md:px-6 py-2 md:py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                          Sản phẩm
-                        </th>
-                        <th className="px-2 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Giá
-                        </th>
-                        <th className="px-2 md:px-6 py-2 md:py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Thao tác
-                        </th>
+                        <td
+                          colSpan="3"
+                          className="px-3 md:px-6 py-2 md:py-4 text-center text-red-600 text-xs md:text-sm"
+                        >
+                          {noResultsMessage || 'Không tìm thấy sản phẩm nào'}
+                        </td>
                       </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {products.length > 0 ? (
-                        products
-                          .filter((product) => product.status !== 0)
-                          .map((product) => (
-                            <tr key={product._id} className="hover:bg-gray-50">
-                              <td className="px-3 md:px-6 py-2 md:py-4 whitespace-nowrap">
-                                <div className="flex items-center">
-                                  <div className="flex-shrink-0 h-8 w-8 md:h-10 md:w-10">
-                                    <img
-                                      className="h-8 w-8 md:h-10 md:w-10 rounded-md object-cover"
-                                      src={product.image}
-                                      alt={product.pname}
-                                    />
-                                  </div>
-                                  <div className="ml-2 md:ml-4">
-                                    <div className="text-xs md:text-sm font-medium text-gray-900 truncate max-w-[120px] md:max-w-full">
-                                      {product.pname}
-                                    </div>
-                                  </div>
-                                </div>
-                              </td>
-                              <td className="px-3 md:px-6 py-2 md:py-4 whitespace-nowrap">
-                                <div className="text-xs md:text-sm text-blue-600 font-semibold">
-                                  {product.price.toLocaleString()} VND
-                                </div>
-                              </td>
-                              <td className="px-3 md:px-6 py-2 md:py-4 whitespace-nowrap text-right text-xs md:text-sm font-medium">
-                                <button
-                                  onClick={() => handleAddToCart(product)}
-                                  className="text-brown-600 hover:text-brown-900 bg-brown-100 hover:bg-brown-200 px-2 py-1 md:px-3 md:py-1 rounded-md text-xs"
-                                >
-                                  Thêm vào giỏ
-                                </button>
-                              </td>
-                            </tr>
-                          ))
-                      ) : (
-                        <tr>
-                          <td
-                            colSpan="3"
-                            className="px-3 md:px-6 py-2 md:py-4 text-center text-red-600 text-xs md:text-sm"
-                          >
-                            {noResultsMessage || 'Không tìm thấy sản phẩm nào'}
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
 
             {/* Pagination - Smaller and more compact on small screens */}
             {totalPages > 1 && (
@@ -498,7 +774,7 @@ export default function CashierScreen() {
           </div>
 
           {/* Recent Orders Section - Responsive table with scroll */}
-          <div className="bg-white rounded-lg shadow p-3 md:p-4 min-h-min">
+          <div className="bg-white rounded-lg shadow p-3 md:p-4 overflow-x-auto">
             <h3 className="text-sm md:text-md font-semibold mb-2 md:mb-3 text-gray-700 flex items-center">
               <IoTime className="mr-1 md:mr-2 h-3 w-3 md:h-4 md:w-4" /> Đơn hàng gần đây
             </h3>
@@ -524,17 +800,17 @@ export default function CashierScreen() {
                   {recentOrders.map((order) => (
                     <tr key={order.id} className="hover:bg-gray-50 cursor-pointer">
                       <td className="px-3 md:px-6 py-2 md:py-4 whitespace-nowrap">
-                        <div className="text-xs md:text-sm font-medium text-blue-600">{order._id}</div>
+                        <div className="text-xs md:text-sm font-medium text-blue-600">{order.id}</div>
                       </td>
                       <td className="px-3 md:px-6 py-2 md:py-4 whitespace-nowrap">
-                        <div className="text-xs md:text-sm text-gray-900">{order.table_id}</div>
+                        <div className="text-xs md:text-sm text-gray-900">{order.table}</div>
                       </td>
                       <td className="px-3 md:px-6 py-2 md:py-4 whitespace-nowrap">
-                        <div className="text-xs md:text-sm text-gray-500">{order.updated_time.toLocaleString()}</div>
+                        <div className="text-xs md:text-sm text-gray-500">{order.time}</div>
                       </td>
                       <td className="px-3 md:px-6 py-2 md:py-4 whitespace-nowrap text-right">
                         <div className="text-xs md:text-sm font-semibold text-gray-900">
-                          {order.total_cost.toLocaleString()} VND
+                          {order.total.toLocaleString()} VND
                         </div>
                       </td>
                     </tr>

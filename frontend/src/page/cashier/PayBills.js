@@ -1,46 +1,43 @@
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-import Roboto from "../../fonts/Roboto_Regular.json"
+import Roboto from '../../fonts/Roboto_Regular.json';
 
 export const generatePDF = (selectBill, paymentMethod, selectedTable, discount, totalCost) => {
   // Tạo tài liệu PDF với kích thước phù hợp với hóa đơn nhỏ
   const doc = new jsPDF({
     orientation: 'portrait',
     unit: 'mm',
-    format: [80, 150] // Kích thước phù hợp với hóa đơn nhỏ
+    format: [80, 150], // Kích thước phù hợp với hóa đơn nhỏ
   });
 
   // Thiết lập font
   doc.addFileToVFS('Roboto.ttf', Roboto);
-    doc.addFont('Roboto.ttf', 'Roboto', 'normal');
-    doc.setFont('Roboto'); 
-  
+  doc.addFont('Roboto.ttf', 'Roboto', 'normal');
+  doc.setFont('Roboto');
+
   // Hàm căn giữa text
   const centerText = (text, y, size = 10) => {
     doc.setFontSize(size);
-    const textWidth = doc.getStringUnitWidth(text) * size / doc.internal.scaleFactor;
+    const textWidth = (doc.getStringUnitWidth(text) * size) / doc.internal.scaleFactor;
     const x = (doc.internal.pageSize.width - textWidth) / 2;
     doc.text(text, x, y);
   };
 
-  // Tạo số hóa đơn 
+  // Tạo số hóa đơn
   const currentDate = new Date();
-  
 
   // Tạo ngày và thời gian
   const formattedDate = `${currentDate.getDate()}/${currentDate.getMonth() + 1}/${currentDate.getFullYear()}`;
- 
-  
 
   // Header - Tiêu đề in đậm
   doc.setFontSize(12);
   doc.setFont('helvetica', 'bold');
   centerText('HOÁ ĐƠN THANH TOÁN', 10);
-  
+
   // Số hóa đơn
   doc.setFontSize(10);
   centerText(`Số: ${selectBill._id}`, 15);
-  
+
   // Thông tin ngày/giờ
   doc.setFont('helvetica', 'normal');
   centerText(`Ngày: ${formattedDate}`, 20);
@@ -49,7 +46,7 @@ export const generatePDF = (selectBill, paymentMethod, selectedTable, discount, 
   centerText(timeText, 24, 9);
 
   // Thông tin bàn và khách hàng
-  doc.text(`Bàn:${selectedTable.table_name }`, 10, 30);
+  doc.text(`Bàn:${selectedTable.table_name}`, 10, 30);
   doc.text('Khách hàng: Khách lẻ', 10, 35);
   doc.text('Thu ngân:', 10, 40);
 
@@ -70,14 +67,14 @@ export const generatePDF = (selectBill, paymentMethod, selectedTable, discount, 
   // Danh sách sản phẩm
   let y = 54;
   let total = selectBill.total_cost || 0;
-  
+
   if (selectBill && selectBill.product_list && Array.isArray(selectBill.product_list)) {
     selectBill.product_list.forEach((item) => {
       doc.text(item.nameP, 10, y);
       doc.text(item.priceP.toLocaleString(), 45, y);
       doc.text(item.quantityP.toString(), 55, y);
       doc.text(item.total.toLocaleString(), 65, y);
-      
+
       y += 5;
     });
   } else {
@@ -105,7 +102,7 @@ export const generatePDF = (selectBill, paymentMethod, selectedTable, discount, 
     const discountAmount = (total * discount) / 100;
     doc.text(discountAmount.toLocaleString(), 65, y);
     y += 5;
-    
+
     // Tổng sau chiết khấu
     total = total - discountAmount;
   }
@@ -113,7 +110,7 @@ export const generatePDF = (selectBill, paymentMethod, selectedTable, discount, 
   doc.text('Tổng cộng', 10, y);
   doc.text(total.toLocaleString(), 65, y);
   y += 5;
-  
+
   // Tiền khách trả
   const amountPaid = 100000;
   doc.text('Tiền khách trả', 10, y);
@@ -141,6 +138,6 @@ export const generatePDF = (selectBill, paymentMethod, selectedTable, discount, 
 
   // Lưu file PDF
   doc.save(`hoadon_${selectedTable.table_name || '1'}.pdf`);
-  
+
   return doc;
 };

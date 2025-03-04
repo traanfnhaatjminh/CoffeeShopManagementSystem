@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
@@ -17,10 +16,10 @@ export default function TableList() {
   const [totalCost, setTotalCost] = useState(0);
   const [cashReal, setCashReal] = useState('');
   const dispatch = useDispatch();
-  
-  const { tableList } = useSelector((state) => state.tables); 
+
+  const { tableList } = useSelector((state) => state.tables);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
+
   const loadData = async () => {
     try {
       dispatch(fetchTables());
@@ -34,7 +33,7 @@ export default function TableList() {
   useEffect(() => {
     loadData();
   }, []);
-/////////code lại đoạn naỳ 
+  /////////code lại đoạn naỳ
   useEffect(() => {
     if (selectedTable) {
       // Tính tổng tiền ban đầu
@@ -45,7 +44,7 @@ export default function TableList() {
       setTotalCost(discountedTotal);
     }
   }, [selectedTable, discount]);
-////// cho vào redux 
+  ////// cho vào redux
   const handleTableClick = async (table) => {
     try {
       if (!table.status) {
@@ -57,7 +56,7 @@ export default function TableList() {
             bill: response.data.product_list || [], // Đảm bảo sử dụng đúng key từ API
           });
         } else {
-          toast.error("Không tìm thấy hóa đơn cho bàn này");
+          toast.error('Không tìm thấy hóa đơn cho bàn này');
         }
         setPaymentMethod('');
       } else {
@@ -66,7 +65,7 @@ export default function TableList() {
       }
     } catch (error) {
       console.error('Error fetching bill:', error);
-      toast.error("Lỗi khi tải thông tin hóa đơn!");
+      toast.error('Lỗi khi tải thông tin hóa đơn!');
     }
   };
 
@@ -90,7 +89,7 @@ export default function TableList() {
       setDiscount(parsedValue); // Đặt giảm giá nếu hợp lệ
     }
   };
-//////cho vào redux 
+  //////cho vào redux
   const handleUpdateBill = async () => {
     try {
       if (selectedTable && paymentMethod && selectBill) {
@@ -101,14 +100,14 @@ export default function TableList() {
           discount: discount || 0, // Sử dụng 0 nếu không có giảm giá
           totalCost: totalCost || selectedTable.bill.reduce((total, item) => total + item.priceP * item.quantityP, 0),
         };
-        
+
         const { data: updatedBill } = await axios.put(`/bills/update/${selectBill._id}`, billUpdateData);
-        
+
         // Xuất hóa đơn PDF sau khi thanh toán
-        generatePDF(selectBill, paymentMethod, selectedTable,discount,totalCost);
-        
+        generatePDF(selectBill, paymentMethod, selectedTable, discount, totalCost);
+
         await loadData();
-      
+
         toast.success('Thanh toán thành công!');
         setSelectedTable(null);
         setSelectBill(null);
@@ -123,21 +122,21 @@ export default function TableList() {
       toast.error('Có lỗi xảy ra khi thanh toán!');
     }
   };
-console.log(selectedTable);
+  console.log(selectedTable);
 
   const handleOpenModal = (tableId) => {
     // Chỉ mở modal khi đã có bàn được chọn
     if (selectedTable || tableId) {
       // Nếu được truyền tableId cụ thể, tìm bàn đó và cập nhật state
       if (tableId && (!selectedTable || selectedTable._id !== tableId)) {
-        const table = tableList.find(t => t._id === tableId);
+        const table = tableList.find((t) => t._id === tableId);
         if (table) {
           handleTableClick(table);
         }
       }
       setIsModalOpen(true);
     } else {
-      toast.error("Vui lòng chọn bàn trước khi thêm sản phẩm!");
+      toast.error('Vui lòng chọn bàn trước khi thêm sản phẩm!');
     }
   };
 
@@ -145,17 +144,17 @@ console.log(selectedTable);
   const handleCloseModal = () => {
     setIsModalOpen(false);
   };
-  
-  // Xử lý khi thêm sản phẩm từ modal cho vapof redux 
+
+  // Xử lý khi thêm sản phẩm từ modal cho vapof redux
   const handleAddProducts = async (products) => {
     try {
       if (selectBill && products.length > 0) {
         // Gọi API để thêm nhiều sản phẩm vào hóa đơn
         await axios.put(`/bills/add-products/${selectBill._id}`, { products });
-  
+
         // Cập nhật lại dữ liệu sau khi thêm
-        toast.success("Đã thêm sản phẩm vào hóa đơn!");
-        
+        toast.success('Đã thêm sản phẩm vào hóa đơn!');
+
         // Refresh bill data
         const response = await axios.get(`/bills/table/${selectedTable._id}`);
         if (response.data) {
@@ -166,17 +165,16 @@ console.log(selectedTable);
           });
         }
       } else {
-        toast.error("Không thể thêm sản phẩm! Vui lòng chọn bàn trước.");
+        toast.error('Không thể thêm sản phẩm! Vui lòng chọn bàn trước.');
       }
     } catch (error) {
-      console.error("Error adding products:", error);
-      toast.error("Có lỗi xảy ra khi thêm sản phẩm!");
+      console.error('Error adding products:', error);
+      toast.error('Có lỗi xảy ra khi thêm sản phẩm!');
     }
   };
-  
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-100">
+    <div className="flex flex-col h-min bg-gray-100">
       <ToastContainer
         position="top-right"
         autoClose={2000}
@@ -186,7 +184,7 @@ console.log(selectedTable);
         draggable
         pauseOnFocusLoss
       />
-      
+
       <main className="flex flex-1">
         <div className="flex space-x-6 p-4 w-full">
           {/* Phần Menu */}
@@ -214,12 +212,12 @@ console.log(selectedTable);
                       {table.status === true ? 'Đang trống' : 'Đang có khách'}
                     </p>
                   </div>
-                  
+
                   {!table.status && (
-                    <button 
+                    <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleOpenModal(table._id); 
+                        handleOpenModal(table._id);
                       }}
                       className="mt-2 w-full bg-blue-500 text-white text-xs py-1 px-2 rounded hover:bg-blue-600"
                     >
@@ -237,9 +235,7 @@ console.log(selectedTable);
 
             {selectedTable ? (
               <div>
-                <div className="mb-4 text-lg font-medium">
-                  Bàn: {selectedTable.table_name}
-                </div>
+                <div className="mb-4 text-lg font-medium">Bàn: {selectedTable.table_name}</div>
 
                 {selectedTable.bill && selectedTable.bill.length > 0 ? (
                   <table className="w-full text-left mb-6">
@@ -297,7 +293,8 @@ console.log(selectedTable);
                     {(
                       selectedTable.bill.reduce((total, item) => total + item.priceP * item.quantityP, 0) *
                       ((100 - discount) / 100)
-                    ).toLocaleString()} VND
+                    ).toLocaleString()}{' '}
+                    VND
                   </span>
                 </div>
 
@@ -385,7 +382,7 @@ console.log(selectedTable);
 
       {/* Modal thêm sản phẩm */}
       {selectedTable && (
-        <AddProductModal 
+        <AddProductModal
           isOpen={isModalOpen}
           onClose={handleCloseModal}
           selectTB={selectedTable}

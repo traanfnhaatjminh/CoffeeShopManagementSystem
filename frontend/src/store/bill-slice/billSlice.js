@@ -28,6 +28,7 @@ export const createBill = createAsyncThunk(
         payment: null,
         status: 0,
         discount: 0,
+        hidden: 0,
       };
 
       const response = await APISERVICEBILL.ApiCreateNewBill(billData);
@@ -49,19 +50,16 @@ export const createBill = createAsyncThunk(
 );
 
 // **Lấy hóa đơn theo bàn**
-export const fetchBillByTable = createAsyncThunk(
-  'bills/fetchBillByTable',
-  async (tableId, { rejectWithValue }) => {
-    try {
-      const response = await APISERVICEBILL.ApiGetBillFromTable(tableId);
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching bill:', error);
-      toast.error('Không thể lấy thông tin hóa đơn!');
-      return rejectWithValue(error.response?.data || error.message);
-    }
+export const fetchBillByTable = createAsyncThunk('bills/fetchBillByTable', async (tableId, { rejectWithValue }) => {
+  try {
+    const response = await APISERVICEBILL.ApiGetBillFromTable(tableId);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching bill:', error);
+    toast.error('Không thể lấy thông tin hóa đơn!');
+    return rejectWithValue(error.response?.data || error.message);
   }
-);
+});
 
 // **Cập nhật hóa đơn (Thanh toán)**
 export const updateBill = createAsyncThunk(
@@ -136,7 +134,7 @@ const billSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-      
+
       // **Lấy hóa đơn theo bàn**
       .addCase(fetchBillByTable.pending, (state) => {
         state.loading = true;
@@ -157,9 +155,7 @@ const billSlice = createSlice({
       .addCase(updateBill.fulfilled, (state, action) => {
         state.loading = false;
         state.selectedBill = null;
-        state.bills = state.bills.map((bill) =>
-          bill._id === action.payload._id ? action.payload : bill
-        );
+        state.bills = state.bills.map((bill) => (bill._id === action.payload._id ? action.payload : bill));
       })
       .addCase(updateBill.rejected, (state, action) => {
         state.loading = false;
