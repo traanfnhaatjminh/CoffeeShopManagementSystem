@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaPen, FaPlus, FaFileImport, FaFileExport } from 'react-icons/fa';
+import { FaPen, FaPlus, FaFileImport, FaFileExport, FaEye } from 'react-icons/fa';
 import { IoSearch } from 'react-icons/io5';
 import EditingredientModal from './EditIngredientModal';
 import AddingredientModal from './AddIngredientModal';
@@ -11,13 +11,14 @@ import 'react-confirm-alert/src/react-confirm-alert.css';
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import * as XLSX from "xlsx";
+import PurchaseHistoryModal from './PurchaseHistoryModal';
 
 
 function WarehouseIngredient() {
     const [ingredients, setIngredients] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedIngredient, setselectedIngredient] = useState(null);
-    const [showEditModal, setShowEditModal] = useState(false);
+    const [showPurchaseHistoryModal, setShowPurchaseHistoryModal] = useState(false);
     const [showAddModal, setShowAddModal] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const ingredientPerPage = 7;
@@ -129,9 +130,9 @@ function WarehouseIngredient() {
         fetchIngredients();
     }, []);
 
-    const handleEditingredient = (ingredient) => {
+    const handlePurchaseHistory = (ingredient) => {
         setselectedIngredient(ingredient);
-        setShowEditModal(true);
+        setShowPurchaseHistoryModal(true);
     };
 
     const handleAddIngredient = () => {
@@ -216,12 +217,6 @@ function WarehouseIngredient() {
                                         Đơn vị
                                     </th>
                                     <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                                        Giá vốn
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                                        Số lượng nhập
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                                         Dung tích
                                     </th>
                                     <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
@@ -257,12 +252,6 @@ function WarehouseIngredient() {
                                             </td>
                                             <td className="px-6 py-4 text-md text-gray-500">{ingredient.unit}</td>
                                             <td className="px-6 py-4 text-md text-gray-500">
-                                                {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(ingredient.cost_price)}
-                                            </td>
-                                            <td className="px-6 py-4 text-md text-gray-500">
-                                                {ingredient.quantity}
-                                            </td>
-                                            <td className="px-6 py-4 text-md text-gray-500">
                                                 {ingredient.capacity}
                                             </td>
                                             <td className="px-6 py-4 text-md text-gray-500">
@@ -271,9 +260,14 @@ function WarehouseIngredient() {
                                             <td className="px-6 py-4 text-md font-medium flex">
                                                 <button
                                                     className="bg-brown-500 text-white py-1 px-3 rounded-lg mr-2"
-                                                    onClick={() => handleEditingredient(ingredient)}
+                                                    onClick={() => handlePurchaseHistory(ingredient)}
                                                 >
-                                                    <FaPen className="inline-block" />
+                                                    <FaEye className="inline-block" />
+                                                </button>
+                                                <button
+                                                    className="bg-brown-500 text-white py-1 px-3 rounded-lg mr-2"
+                                                >
+                                                    <FaPlus className="inline-block" />
                                                 </button>
                                             </td>
                                         </tr>
@@ -287,10 +281,10 @@ function WarehouseIngredient() {
                             itemsPerPage={ingredientPerPage}
                             onPageChange={setCurrentPage}
                         />
-                        {showEditModal && (
-                            <EditingredientModal
+                        {showPurchaseHistoryModal && (
+                            <PurchaseHistoryModal
                                 ingredient={selectedIngredient}
-                                closeModal={() => setShowEditModal(false)}
+                                closeModal={() => setShowPurchaseHistoryModal(false)}
                                 refreshingredients={fetchIngredients}
                             />
                         )}
