@@ -27,7 +27,12 @@ const productSchema = new Schema(
             ref: "Category",
         },
         discount: Number,
-        status: Number,
+        status: { //Trang thái
+            type: String,
+            required: true,
+            enum: ['active', 'not continued', 'out of stock'],
+            default: 'active',
+        },
         ingredients: [
             {
                 ingredient_id: {
