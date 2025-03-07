@@ -7,8 +7,6 @@ import axios from 'axios'; // Import axios
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import 'react-confirm-alert/src/react-confirm-alert.css';
-import jsPDF from "jspdf";
-import "jspdf-autotable";
 import * as XLSX from "xlsx";
 import PurchaseHistoryModal from './PurchaseHistoryModal';
 import ImportIngredientModal from './ImportIngredientModal';
@@ -92,40 +90,33 @@ function WarehouseIngredient() {
         reader.readAsArrayBuffer(file);
     };
 
-    const exportToPDF = () => {
-        const doc = new jsPDF();
-        doc.text("Danh sách nguyên liệu", 14, 10);
+    const handleExportExcel = () => {
+        if (ingredients.length === 0) {
+            toast.error("Không có dữ liệu để xuất!");
+            return;
+        }
 
-        const tableColumn = [
-            "ID",
-            "Tên nguyên liệu",
-            "Đơn vị",
-            "Giá vốn",
-            "Số lượng nhập",
-            "Dung tích",
-            "Tồn kho",
-            "Thời gian nhập",
-        ];
+        // Chuyển đổi dữ liệu thành mảng các đối tượng phù hợp với Excel
+        const exportData = ingredients.map((ingredient, index) => ({
+            "STT": index + 1,
+            "Tên nguyên liệu": ingredient.name,
+            "Đơn vị tính": ingredient.unit,
+            "Dung tích nguyên liệu": ingredient.capacity,
+            "Tồn kho": ingredient.current_quantity,
+        }));
 
-        const tableRows = ingredients.map((ingredient, index) => [
-            index + 1, // ID
-            ingredient.name,
-            ingredient.unit,
-            new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(ingredient.cost_price),
-            ingredient.quantity,
-            ingredient.capacity,
-            ingredient.current_quantity,
-            ingredient.createdAt,
-        ]);
+        // Tạo một worksheet
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
 
-        doc.autoTable({
-            head: [tableColumn],
-            body: tableRows,
-            startY: 20,
-        });
-        toast.success('Xuất file pdf thành công');
-        doc.save("WarehouseIngredients.pdf");
+        // Tạo một workbook
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Ingredients");
+
+        // Xuất file Excel
+        XLSX.writeFile(workbook, "DanhSachNguyenLieu.xlsx");
+        toast.success("Xuất file Excel thành công!");
     };
+
 
     useEffect(() => {
         fetchIngredients();
@@ -202,9 +193,8 @@ function WarehouseIngredient() {
                             <input type="file" accept=".xlsx" onChange={handleImportExcel} className="hidden" />
                         </label>
                         <label
-
                             className="bg-teal-400 text-white p-2 rounded-lg flex items-center cursor-pointer"
-                            onClick={exportToPDF}
+                            onClick={handleExportExcel}
                         >
                             <FaFileExport className="mr-1" />
                             Export

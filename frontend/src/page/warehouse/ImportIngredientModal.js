@@ -6,7 +6,7 @@ export default function ImportIngredientModal({ ingredient, closeModal, refreshi
 
     const [quantity, setQuantity] = useState(0);
     const [costPrice, setCostPrice] = useState(0);
-    const [supplier, setSupplier] = useState(0);
+    const [supplier, setSupplier] = useState('');
 
     const [quantityError, setQuantityError] = useState('');
     const [costPriceError, setCostPriceError] = useState('');
@@ -31,11 +31,13 @@ export default function ImportIngredientModal({ ingredient, closeModal, refreshi
         if (hasError) return; // Nếu có lỗi thì dừng lại
 
         const formData = new FormData();
-        formData.append('quantity', quantity);
-        formData.append('cost_price', costPrice);
+        formData.append('quantity', Number(quantity));
+        formData.append('cost_price', Number(costPrice));
+        formData.append('supplier', supplier);
+        console.log("Dữ liệu gửi đi:", { quantity, costPrice, supplier });
 
         try {
-            await axios.put(`/ingredients/updateIngredient/${ingredient._id}`, formData);
+            await axios.post(`/ingredients/importIngredient/${ingredient._id}`, formData);
             toast.success('Nhập thêm nguyên liệu thành công');
             refreshingredients();
             closeModal();
@@ -61,7 +63,7 @@ export default function ImportIngredientModal({ ingredient, closeModal, refreshi
                             {quantityError && <p className="text-red-500">{quantityError}</p>}
                         </div>
                         <div>
-                            <label>Giá vốn</label>
+                            <label>Giá nhập</label>
                             <input
                                 type="number"
                                 className="border rounded-md p-2 w-full"
@@ -73,10 +75,11 @@ export default function ImportIngredientModal({ ingredient, closeModal, refreshi
                         <div>
                             <label>Nhà cung cấp</label>
                             <input
-                                type="number"
+                                type="text"
                                 className="border rounded-md p-2 w-full"
                                 value={supplier}
                                 onChange={(e) => setSupplier(e.target.value)}
+                                placeholder='Nhập tên nhà cung cấp'
                                 required
                             />
                         </div>
