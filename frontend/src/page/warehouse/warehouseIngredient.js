@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FaPen, FaPlus, FaFileImport, FaFileExport, FaEye } from 'react-icons/fa';
 import { IoSearch } from 'react-icons/io5';
-import EditingredientModal from './EditIngredientModal';
 import AddingredientModal from './AddIngredientModal';
 import Paging from '../../components/common/paging';
 import axios from 'axios'; // Import axios
@@ -12,14 +11,16 @@ import jsPDF from "jspdf";
 import "jspdf-autotable";
 import * as XLSX from "xlsx";
 import PurchaseHistoryModal from './PurchaseHistoryModal';
+import ImportIngredientModal from './ImportIngredientModal';
 
 
 function WarehouseIngredient() {
     const [ingredients, setIngredients] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [selectedIngredient, setselectedIngredient] = useState(null);
+    const [selectedIngredient, setSelectedIngredient] = useState(null);
     const [showPurchaseHistoryModal, setShowPurchaseHistoryModal] = useState(false);
     const [showAddModal, setShowAddModal] = useState(false);
+    const [showImportModal, setShowImportModal] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const ingredientPerPage = 7;
 
@@ -131,9 +132,14 @@ function WarehouseIngredient() {
     }, []);
 
     const handlePurchaseHistory = (ingredient) => {
-        setselectedIngredient(ingredient);
+        setSelectedIngredient(ingredient);
         setShowPurchaseHistoryModal(true);
     };
+
+    const handleImport = (ingredient) => {
+        setSelectedIngredient(ingredient);
+        setShowImportModal(true);
+    }
 
     const handleAddIngredient = () => {
         setShowAddModal(true);
@@ -239,16 +245,6 @@ function WarehouseIngredient() {
                                         <tr key={ingredient._id} className="border-b hover:bg-gray-100 transition-colors duration-300">
                                             <td className="px-6 py-4 text-lg font-medium text-gray-900"> {index + 1 + (currentPage - 1) * ingredientPerPage}</td>
                                             <td className="px-6 py-4 text-md text-gray-500">{ingredient.name}
-                                                {/* {ingredient.status === 1 && (
-                                                    <span className="text-green-500 ml-2">
-                                                        <FaCheck title="Sản phẩm khả dụng" />
-                                                    </span>
-                                                )}
-                                                {ingredient.status === 0 && (
-                                                    <span className="text-red-500 ml-2">không khả dụng
-                                                        <MdCancel title="Sản phẩm không khả dụng" />
-                                                    </span>
-                                                )} */}
                                             </td>
                                             <td className="px-6 py-4 text-md text-gray-500">{ingredient.unit}</td>
                                             <td className="px-6 py-4 text-md text-gray-500">
@@ -266,6 +262,7 @@ function WarehouseIngredient() {
                                                 </button>
                                                 <button
                                                     className="bg-brown-500 text-white py-1 px-3 rounded-lg mr-2"
+                                                    onClick={() => handleImport(ingredient)}
                                                 >
                                                     <FaPlus className="inline-block" />
                                                 </button>
@@ -285,6 +282,13 @@ function WarehouseIngredient() {
                             <PurchaseHistoryModal
                                 ingredient={selectedIngredient}
                                 closeModal={() => setShowPurchaseHistoryModal(false)}
+                                refreshingredients={fetchIngredients}
+                            />
+                        )}
+                        {showImportModal && (
+                            <ImportIngredientModal
+                                ingredient={selectedIngredient}
+                                closeModal={() => setShowImportModal(false)}
                                 refreshingredients={fetchIngredients}
                             />
                         )}

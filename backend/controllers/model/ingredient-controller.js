@@ -21,11 +21,6 @@ const createNewIngredient = async (req, res, next) => {
             }]
         });
         await newIngredient.save();
-
-        // const wcID = new mongoose.Types.ObjectId();
-        // const method = "Nhập hàng";
-        // const newWarehouseCard = new WarehouseCard({ wcID, method, current_quantity, cost_price, quantity });
-        // await newWarehouseCard.save();
         res.status(201).json({
             message: "Insert successfully.",
             result: newIngredient

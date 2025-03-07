@@ -14,6 +14,7 @@ const PurchaseHistoryModal = ({ ingredient, closeModal }) => {
                             <th className="border px-4 py-2">Ngày Nhập</th>
                             <th className="border px-4 py-2">Số Lượng</th>
                             <th className="border px-4 py-2">Giá Nhập</th>
+                            <th className="border px-4 py-2">Nhà cung cấp</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -26,6 +27,7 @@ const PurchaseHistoryModal = ({ ingredient, closeModal }) => {
                                 <td className="border px-4 py-2">
                                     {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(history.cost_price)}
                                 </td>
+                                <td className="border px-4 py-2">{history.supplier}</td>
                             </tr>
                         ))}
                     </tbody>
