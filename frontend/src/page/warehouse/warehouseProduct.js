@@ -138,39 +138,44 @@ function WarehouseProduct() {
                     </td>
                   </tr>
                 ) : (
-                  currentProducts.map((product, index) => (
-                    <tr key={product._id} className="border-b hover:bg-gray-100 transition-colors duration-300">
-                      <td className="px-6 py-4 text-lg font-medium text-gray-900"> {index + 1 + (currentPage - 1) * productPerPage}</td>
-                      <td className="px-6 py-4 text-md text-gray-500">{product.pname}</td>
-                      {/*  {product.status === 1 && (
-                        <span className="text-green-500 ml-2">
-                          <FaCheck title="Sản phẩm khả dụng" />
-                        </span>
-                      )}
-                      {product.status === 0 && (
-                        <span className="text-red-500 ml-2">không khả dụng
-                          <MdCancel title="Sản phẩm không khả dụng" />
-                        </span>
-                      )}</td>*/}
-                      <td className="px-6 py-4 text-md text-gray-500">
-                      {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(product.sale_price)}
-      
-                      </td>
-                      <td className="px-6 py-4 text-md text-gray-500">
-                        <img src={product.image} alt={product.pname} className="w-16 h-16 object-cover rounded-lg" />
-                      </td>
-                      <td className="px-6 py-4 text-md font-medium flex">
-                        <button
-                          className="bg-brown-500 text-white py-1 px-3 rounded-lg mr-2"
-                          onClick={() => handleEditProduct(product)}
-                        >
-                          <FaPen className="inline-block" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))
+                  currentProducts.map((product, index) => {
+                    const isInactiveCategory = product.category_id && product.category_id.status === "inactive";
+
+                    return (
+                      <tr
+                        key={product._id}
+                        className={`border-b hover:bg-gray-100 transition-colors duration-300 ${isInactiveCategory ? "opacity-50" : ""}`}
+                      >
+                        <td className="px-6 py-4 text-lg font-medium text-gray-900">
+                          {index + 1 + (currentPage - 1) * productPerPage}
+                        </td>
+                        <td className="px-6 py-4 text-md text-gray-500">
+                          {product.pname}
+                          {isInactiveCategory && (
+                            <p className="text-red-500 text-sm mt-1 italic">Sản phẩm này hiện đang ngừng bán</p>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 text-md text-gray-500">
+                          {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(product.sale_price)}
+                        </td>
+                        <td className="px-6 py-4 text-md text-gray-500">
+                          <img src={product.image} alt={product.pname} className="w-16 h-16 object-cover rounded-lg" />
+                        </td>
+                        <td className="px-6 py-4 text-md font-medium flex">
+                          <button
+                            className="bg-brown-500 text-white py-1 px-3 rounded-lg mr-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                            onClick={() => handleEditProduct(product)}
+                            disabled={isInactiveCategory} // Vô hiệu hóa nút nếu danh mục bị inactive
+                          >
+                            <FaPen className="inline-block" />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })
                 )}
               </tbody>
+
             </table>
             <Paging
               currentPage={currentPage}

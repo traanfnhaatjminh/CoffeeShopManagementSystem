@@ -30,7 +30,7 @@ const productSchema = new Schema(
         status: { //Trang thái
             type: String,
             required: true,
-            enum: ['active', 'not continued', 'out of stock'],
+            enum: ['active', 'inactive', 'out of stock'],
             default: 'active',
         },
         ingredients: [
