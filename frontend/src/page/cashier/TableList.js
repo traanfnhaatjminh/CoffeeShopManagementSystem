@@ -50,8 +50,6 @@ export default function TableList() {
     try {
       if (!table.status) {
         const response = await axios.get(`/bills/table/${table._id}`);
-        console.log(table._id);
-        
         if (response.data) {
           setSelectBill(response.data);
           setSelectedTable({

@@ -11,7 +11,7 @@ import CashierLayout from '@/page/cashier/CashierLayout';
 
 import React, { useEffect } from 'react';
 import CashierScreen from './page/cashier/CashierScreen';
-import BillList from './page/cashier/BillList';
+import BillList  from './page/cashier/BillList';
 import TableList from './page/cashier/TableList';
 import LandingPage from './components/common/landing';
 import { useDispatch, useSelector } from 'react-redux';
@@ -25,16 +25,15 @@ import WarehouseCategory from './page/warehouse/warehouseCategory';
 import WarehouseIngredient from './page/warehouse/warehouseIngredient';
 import UserProfile from './components/common/Profile';
 import ChangePassword from '@/page/auth/ChangePassword';
-
 function App() {
-  const { isAuthenticated, isLoading, user } = useSelector((state) => state.auth);
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
 
   const dispatch = useDispatch();
 
   useEffect(() => {
     dispatch(checkAuth());
   }, [dispatch]);
-
+       
   return (
     <BrowserRouter>
       <Routes>
@@ -91,6 +90,7 @@ function App() {
           <Route path="ingredients" element={<WarehouseIngredient />} />
           <Route path="categories" element={<WarehouseCategory />} />
           <Route path="products" element={<WarehouseProduct />} />
+          <Route path="ingredients" element={<WarehouseIngredient />} />
           <Route path="profile" element={<UserProfile />}></Route>
           <Route path="change-password" element={<ChangePassword />}></Route>
         </Route>

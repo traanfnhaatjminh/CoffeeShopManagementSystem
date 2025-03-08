@@ -26,6 +26,7 @@
     "coffeeshop": "file:",
     "file-saver": "^2.0.5",
     "formik": "^2.4.6",
+    "frontend": "file:",
     "jspdf": "^2.5.2",
     "jspdf-autotable": "^3.8.4",
     "jwt-decode": "^4.0.0",

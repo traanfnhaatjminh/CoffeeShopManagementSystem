@@ -151,7 +151,6 @@ const getBillFromTable = async (req, res, next) => {
     next(error);
   }
 };
-
 const addProductsToBill = async (req, res, next) => {
   try {
     const { products } = req.body; // Nhận danh sách sản phẩm từ request body

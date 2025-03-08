@@ -59,6 +59,7 @@ export default function EditProductModal({ category, closeModal, updateCategory,
                 value={formData.group_name}
                 onChange={handleChange}
                 className="border rounded-md p-2 w-full"
+                required
               />
             </div>
             <div>
@@ -69,6 +70,7 @@ export default function EditProductModal({ category, closeModal, updateCategory,
                 value={formData.category_name}
                 onChange={handleChange}
                 className="border rounded-md p-2 w-full"
+                required
               />
             </div>
           </div>
