@@ -1,7 +1,7 @@
 const express = require("express");
 const multer = require("multer");
 const upload = multer(); // Nếu không gửi file, sử dụng upload.none() là đủ
-const { createNewIngredient, getAllIngredients, updateIngredient } = require("../controllers/model/ingredient-controller");
+const { createNewIngredient, getAllIngredients, updateIngredient, importIngredient } = require("../controllers/model/ingredient-controller");
 
 const ingredientRoute = express.Router();
 
@@ -11,5 +11,7 @@ ingredientRoute.post("/createIngredient", upload.none(), createNewIngredient);
 ingredientRoute.get("/getAll", getAllIngredients);
 
 ingredientRoute.put("/updateIngredient/:ingredientId", upload.none(), updateIngredient);
+
+ingredientRoute.post("/importIngredient/:ingredientId", upload.none(), importIngredient);
 
 module.exports = ingredientRoute;

@@ -1,21 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { FaPen, FaPlus, FaFileImport, FaFileExport } from 'react-icons/fa';
+import { FaPen, FaPlus, FaFileImport, FaFileExport, FaEye } from 'react-icons/fa';
 import { IoSearch } from 'react-icons/io5';
-import EditingredientModal from './EditIngredientModal';
 import AddingredientModal from './AddIngredientModal';
 import Paging from '../../components/common/paging';
 import axios from 'axios'; // Import axios
-import {ToastContainer } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import 'react-confirm-alert/src/react-confirm-alert.css';
+import * as XLSX from "xlsx";
+import PurchaseHistoryModal from './PurchaseHistoryModal';
+import ImportIngredientModal from './ImportIngredientModal';
 
 
 function WarehouseIngredient() {
     const [ingredients, setIngredients] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [selectedIngredient, setselectedIngredient] = useState(null);
-    const [showEditModal, setShowEditModal] = useState(false);
+    const [selectedIngredient, setSelectedIngredient] = useState(null);
+    const [showPurchaseHistoryModal, setShowPurchaseHistoryModal] = useState(false);
     const [showAddModal, setShowAddModal] = useState(false);
+    const [showImportModal, setShowImportModal] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const ingredientPerPage = 7;
 
@@ -34,14 +37,100 @@ function WarehouseIngredient() {
         }
     };
 
+    // 📌 Xử lý Import File Excel
+    const handleImportExcel = (event) => {
+        const file = event.target.files[0];
+
+        if (!file) {
+            toast.error("Vui lòng chọn một file Excel!");
+            return;
+        }
+
+        // Kiểm tra định dạng file (chỉ cho phép .xlsx)
+        if (!file.name.endsWith(".xlsx")) {
+            toast.error("Chỉ chấp nhận file Excel (.xlsx)");
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: "array" });
+
+            const sheetName = workbook.SheetNames[0]; // Lấy sheet đầu tiên
+            const sheet = workbook.Sheets[sheetName];
+            const jsonData = XLSX.utils.sheet_to_json(sheet);
+
+            if (jsonData.length === 0) {
+                toast.error("File Excel không có dữ liệu!");
+                return;
+            }
+
+            // Chuyển dữ liệu Excel thành mảng ingredient
+            const importedIngredients = jsonData.map((row, index) => ({
+                name: row["Tên nguyên liệu"] || `Nguyên liệu ${index + 1}`,
+                unit: row["Đơn vị tính"],
+                cost_price: row["Giá vốn"],
+                quantity: row["Số lượng nhập"],
+                capacity: row["Dung tích nguyên liệu"],
+            }));
+
+            console.log("Dữ liệu import gửi lên server:", importedIngredients);
+
+            try {
+                await axios.post('/ingredients/createIngredient', { ingredients: importedIngredients });
+                toast.success("Import nguyên liệu thành công!");
+                fetchIngredients();
+            } catch (error) {
+                console.error("Lỗi khi import nguyên liệu:", error.response?.data || error);
+                toast.error("Lỗi khi import nguyên liệu");
+            }
+        };
+
+        reader.readAsArrayBuffer(file);
+    };
+
+    const handleExportExcel = () => {
+        if (ingredients.length === 0) {
+            toast.error("Không có dữ liệu để xuất!");
+            return;
+        }
+
+        // Chuyển đổi dữ liệu thành mảng các đối tượng phù hợp với Excel
+        const exportData = ingredients.map((ingredient, index) => ({
+            "STT": index + 1,
+            "Tên nguyên liệu": ingredient.name,
+            "Đơn vị tính": ingredient.unit,
+            "Dung tích nguyên liệu": ingredient.capacity,
+            "Tồn kho": ingredient.current_quantity,
+        }));
+
+        // Tạo một worksheet
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+
+        // Tạo một workbook
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Ingredients");
+
+        // Xuất file Excel
+        XLSX.writeFile(workbook, "DanhSachNguyenLieu.xlsx");
+        toast.success("Xuất file Excel thành công!");
+    };
+
+
     useEffect(() => {
         fetchIngredients();
     }, []);
 
-    const handleEditingredient = (ingredient) => {
-        setselectedIngredient(ingredient);
-        setShowEditModal(true);
+    const handlePurchaseHistory = (ingredient) => {
+        setSelectedIngredient(ingredient);
+        setShowPurchaseHistoryModal(true);
     };
+
+    const handleImport = (ingredient) => {
+        setSelectedIngredient(ingredient);
+        setShowImportModal(true);
+    }
 
     const handleAddIngredient = () => {
         setShowAddModal(true);
@@ -101,10 +190,11 @@ function WarehouseIngredient() {
                         >
                             <FaFileImport className="mr-1" />
                             Import
+                            <input type="file" accept=".xlsx" onChange={handleImportExcel} className="hidden" />
                         </label>
                         <label
-
                             className="bg-teal-400 text-white p-2 rounded-lg flex items-center cursor-pointer"
+                            onClick={handleExportExcel}
                         >
                             <FaFileExport className="mr-1" />
                             Export
@@ -121,12 +211,6 @@ function WarehouseIngredient() {
                                     </th>
                                     <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                                         Đơn vị
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                                        Giá vốn
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                                        Số lượng nhập
                                     </th>
                                     <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                                         Dung tích
@@ -151,24 +235,8 @@ function WarehouseIngredient() {
                                         <tr key={ingredient._id} className="border-b hover:bg-gray-100 transition-colors duration-300">
                                             <td className="px-6 py-4 text-lg font-medium text-gray-900"> {index + 1 + (currentPage - 1) * ingredientPerPage}</td>
                                             <td className="px-6 py-4 text-md text-gray-500">{ingredient.name}
-                                                {/* {ingredient.status === 1 && (
-                                                    <span className="text-green-500 ml-2">
-                                                        <FaCheck title="Sản phẩm khả dụng" />
-                                                    </span>
-                                                )}
-                                                {ingredient.status === 0 && (
-                                                    <span className="text-red-500 ml-2">không khả dụng
-                                                        <MdCancel title="Sản phẩm không khả dụng" />
-                                                    </span>
-                                                )} */}
                                             </td>
                                             <td className="px-6 py-4 text-md text-gray-500">{ingredient.unit}</td>
-                                            <td className="px-6 py-4 text-md text-gray-500">
-                                                {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(ingredient.cost_price)}
-                                            </td>
-                                            <td className="px-6 py-4 text-md text-gray-500">
-                                                {ingredient.quantity}
-                                            </td>
                                             <td className="px-6 py-4 text-md text-gray-500">
                                                 {ingredient.capacity}
                                             </td>
@@ -178,9 +246,15 @@ function WarehouseIngredient() {
                                             <td className="px-6 py-4 text-md font-medium flex">
                                                 <button
                                                     className="bg-brown-500 text-white py-1 px-3 rounded-lg mr-2"
-                                                    onClick={() => handleEditingredient(ingredient)}
+                                                    onClick={() => handlePurchaseHistory(ingredient)}
                                                 >
-                                                    <FaPen className="inline-block" />
+                                                    <FaEye className="inline-block" />
+                                                </button>
+                                                <button
+                                                    className="bg-brown-500 text-white py-1 px-3 rounded-lg mr-2"
+                                                    onClick={() => handleImport(ingredient)}
+                                                >
+                                                    <FaPlus className="inline-block" />
                                                 </button>
                                             </td>
                                         </tr>
@@ -194,10 +268,17 @@ function WarehouseIngredient() {
                             itemsPerPage={ingredientPerPage}
                             onPageChange={setCurrentPage}
                         />
-                        {showEditModal && (
-                            <EditingredientModal
+                        {showPurchaseHistoryModal && (
+                            <PurchaseHistoryModal
                                 ingredient={selectedIngredient}
-                                closeModal={() => setShowEditModal(false)}
+                                closeModal={() => setShowPurchaseHistoryModal(false)}
+                                refreshingredients={fetchIngredients}
+                            />
+                        )}
+                        {showImportModal && (
+                            <ImportIngredientModal
+                                ingredient={selectedIngredient}
+                                closeModal={() => setShowImportModal(false)}
                                 refreshingredients={fetchIngredients}
                             />
                         )}
