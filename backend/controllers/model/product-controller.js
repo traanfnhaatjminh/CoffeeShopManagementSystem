@@ -2,6 +2,7 @@ const Product = require("../../models/Product");
 const Category = require('../../models/Category'); // Đường dẫn tới model danh mục
 const mongoose = require("mongoose");
 const { uploadToCloudinary } = require("../../utils/uploadService");
+
 const createNewProduct = async (req, res, next) => {
     try {
         const { pname, sale_price, category_id } = req.body;
@@ -42,14 +43,25 @@ const createNewProduct = async (req, res, next) => {
 
 const getAllProductInWarehouse = async (req, res, next) => {
     try {
-        const products = await Product.find()
-            .populate('category_id',  'category_name status')
+        const { status } = req.query;
+        let filter = {};
+
+        if (status) {
+            const statusArray = status.split(",");
+            filter.status = { $in: statusArray };
+        }
+
+        // Lấy tất cả sản phẩm + thông tin danh mục
+        const products = await Product.find(filter)
+            .populate("category_id", "category_name status")
             .exec();
+
         res.status(200).json(products);
     } catch (error) {
         next(error);
     }
 };
+
 
 const getAllProductInHome = async (req, res, next) => {
     try {
@@ -175,20 +187,30 @@ const updateProduct = async (req, res, next) => {
     }
 };
 
-const deleteProduct = async (req, res, next) => {
+const updateProductStatus = async (req, res, next) => {
     try {
         const { productId } = req.params;
-        const updatedProduct = await Product.findByIdAndUpdate(productId, { status: 0 }, { new: true });
-        if (!updatedProduct) {
-            return res.status(404).json({ message: " Product not found" });
+        const { status } = req.body;
+        // kiểm tra sản phẩm có tồn tại không
+        const existingProduct = await Product.findById(productId);
+        if (!existingProduct) {
+            return res.status(404).json({ message: "Product not found" });
         }
+        // kiểm tra giá trị hợp lệ của status
+        const validStatuses = ["active", "inactive","discontinued", "out of stock"];
+        if (!validStatuses.includes(status)) {
+            return res.status(400).json({ message: "Invalid status value" });
+        }
+        // cập nhật trạng thái sản phẩm
+        existingProduct.status = status;
+        await existingProduct.save();
         res.status(200).json({
             message: "Product status updated successfully",
-            result: updatedProduct
+            product: existingProduct
         });
     } catch (error) {
         next(error);
     }
-}
-module.exports = { createNewProduct, getAllProductInHome, getAllProductInWarehouse, getProductsByCategory, updateProduct, deleteProduct };
+};
+module.exports = { createNewProduct, getAllProductInHome, getAllProductInWarehouse, getProductsByCategory, updateProduct,updateProductStatus};
 

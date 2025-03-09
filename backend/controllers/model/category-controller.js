@@ -87,28 +87,30 @@ const inactiveCategory = async (req, res, next) => {
         const { id } = req.params;
         const { status } = req.body;
 
-        // Kiểm tra ID có hợp lệ không
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(400).json({ message: "ID không hợp lệ" });
         }
 
-        // Cập nhật trạng thái danh mục
         const updatedCategory = await Category.findByIdAndUpdate(id, { status }, { new: true });
 
         if (!updatedCategory) {
             return res.status(404).json({ message: "Danh mục không tồn tại" });
         }
 
-        // Cập nhật trạng thái của tất cả sản phẩm liên quan
-        await Product.updateMany({ category_id: id }, { status });
+        // Nếu danh mục bị ngừng hoạt động, tất cả sản phẩm trong danh mục đó phải ngừng bán
+        const newProductStatus = status === "discontinued" ? "discontinued" : "active";
+        await Product.updateMany({ category_id: id }, { $set: { status: newProductStatus } });
 
-        res.status(200).json({ message: "Trạng thái danh mục đã được cập nhật", updatedCategory });
+
+        res.status(200).json({
+            message: "Trạng thái danh mục đã được cập nhật",
+            updatedCategory
+        });
+
     } catch (error) {
         console.error("Lỗi khi cập nhật trạng thái danh mục:", error);
         res.status(500).json({ message: "Lỗi server" });
     }
 };
-
-
 
 module.exports = { createNewCategory, getAllCategory, getCategoryById, updateCategory, inactiveCategory };

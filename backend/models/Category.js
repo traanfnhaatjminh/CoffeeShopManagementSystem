@@ -13,7 +13,7 @@ const categorySchema = new Schema({
     status: { //Trang thái
         type: String,
         required: true,
-        enum: ['active', 'inactive'],
+        enum: ['active', 'discontinued'],
         default: 'active',
     },
 });

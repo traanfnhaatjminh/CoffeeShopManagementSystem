@@ -122,7 +122,7 @@ function WarehouseCategory() {
                   <tr><td colSpan="4" className="text-center py-4 font-bold text-lg italic text-gray-400">Không tìm thấy danh mục nào...</td></tr>
                 ) : (
                   currentCategories.map((category, index) => {
-                    const isInactiveCategory = category.status === "inactive";
+                    const isInactiveCategory = category.status === "discontinued";
 
                     return (
                       <tr key={category._id} className="border-b hover:bg-gray-100">
@@ -146,7 +146,7 @@ function WarehouseCategory() {
                           </button>
                           <button
                             className={`text-white py-1 px-3 rounded-lg ${isInactiveCategory ? "bg-green-500" : "bg-red-500"}`}
-                            onClick={() => handleUpdateStatus(category._id, isInactiveCategory ? "active" : "inactive")}
+                            onClick={() => handleUpdateStatus(category._id, isInactiveCategory ? "active" : "discontinued")}
                           >
                             {isInactiveCategory ? "Kích hoạt trở lại" : "Ngừng kích hoạt"}
                           </button>
