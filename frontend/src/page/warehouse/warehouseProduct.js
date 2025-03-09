@@ -182,6 +182,9 @@ function WarehouseProduct() {
                     Tên đồ uống
                   </th>
                   <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
+                    Giá vốn 
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                     Giá bán
                   </th>
                   <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
@@ -202,7 +205,6 @@ function WarehouseProduct() {
                 ) : (
                   currentProducts.map((product, index) => {
                     const isInactiveCategory = product.category_id?.status === "discontinued";
-
                     return (
                       <tr
                         key={product._id}
@@ -224,7 +226,9 @@ function WarehouseProduct() {
                             <p className="text-red-500 text-sm mt-1 italic">Sản phẩm này tạm ngừng bán</p>
                           )}
                         </td>
-
+                        <td className="px-6 py-4 text-md text-gray-500">
+                          {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(product.cost_price)}
+                        </td>
                         <td className="px-6 py-4 text-md text-gray-500">
                           {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(product.sale_price)}
                         </td>
