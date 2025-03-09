@@ -133,7 +133,7 @@ function WarehouseCategory() {
                         <td className="px-6 py-4 text-md text-gray-500">
                           {category.category_name}
                           <p className={`text-sm mt-1 italic ${isInactiveCategory ? "text-red-500" : "text-green-500"}`}>
-                            Hiện danh mục này đang {isInactiveCategory ? "không hoạt động" : "hoạt động"}
+                            Hiện danh mục này đang {isInactiveCategory ? "ngừng cung cấp" : "được cung cấp"}
                           </p>
                         </td>
                         <td className="px-6 py-4 text-md font-medium flex">
@@ -148,7 +148,7 @@ function WarehouseCategory() {
                             className={`text-white py-1 px-3 rounded-lg ${isInactiveCategory ? "bg-green-500" : "bg-red-500"}`}
                             onClick={() => handleUpdateStatus(category._id, isInactiveCategory ? "active" : "discontinued")}
                           >
-                            {isInactiveCategory ? "Kích hoạt trở lại" : "Ngừng kích hoạt"}
+                            {isInactiveCategory ? "Cung cấp" : "Ngừng cung cấp"}
                           </button>
                         </td>
                       </tr>

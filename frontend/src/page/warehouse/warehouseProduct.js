@@ -154,7 +154,7 @@ function WarehouseProduct() {
               {[
                 { value: "active", label: "Đang bán" },
                 { value: "inactive", label: "Tạm ngừng bán" },
-                { value: "discontinued", label: "Ngừng bán hẳn" },
+                { value: "discontinued", label: "Ngừng cung cấp" },
                 { value: "out of stock", label: "Hết hàng" }
               ].map(({ value, label }) => (
                 <label key={value} className="flex items-center space-x-1 cursor-pointer">
@@ -216,7 +216,7 @@ function WarehouseProduct() {
 
                           {/* Nếu danh mục của sản phẩm bị inactive */}
                           {isInactiveCategory && (
-                            <p className="text-red-500 text-sm mt-1 italic">Sản phẩm này hiện đang ngừng bán</p>
+                            <p className="text-red-500 text-sm mt-1 italic">Sản phẩm này hiện đang ngừng cung cấp</p>
                           )}
 
                           {/* Nếu chính sản phẩm bị inactive */}
