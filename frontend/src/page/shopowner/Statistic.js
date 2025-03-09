@@ -15,7 +15,7 @@ export default function Statistic() {
     bestSellingDrink: '',
     totalDrinksSold: 0,
     categories: [],
-    soldQuantities: []
+    soldQuantities: [],
   });
 
   const fetchStatistics = async () => {
@@ -31,7 +31,7 @@ export default function Statistic() {
         bestSellingDrink: data.bestSellingDrink,
         totalDrinksSold: data.totalDrinksSold,
         categories: categoriesData,
-        soldQuantities: soldQuantitiesResponse.data
+        soldQuantities: soldQuantitiesResponse.data,
       });
     } catch (error) {
       console.error('Failed to fetch statistics:', error);
@@ -46,7 +46,6 @@ export default function Statistic() {
     }
     return color;
   };
-
 
   useEffect(() => {
     fetchStatistics();
@@ -107,7 +106,7 @@ export default function Statistic() {
         labels: statistics.soldQuantities.map((q) => q.category),
         datasets: [
           {
-            data: statistics.soldQuantities.map(q => q.totalSold),
+            data: statistics.soldQuantities.map((q) => q.totalSold),
             backgroundColor: statistics.soldQuantities.map(() => getRandomColor()),
           },
         ],
@@ -141,7 +140,9 @@ export default function Statistic() {
                 >
                   Doanh thu
                 </div>
-                <div className="h5 mb-0 font-weight-bold text-gray-800">{statistics.totalRevenue.toLocaleString()} VND</div>
+                <div className="h5 mb-0 font-weight-bold text-gray-800">
+                  {statistics.totalRevenue.toLocaleString()} VND
+                </div>
               </div>
             </div>
           </div>

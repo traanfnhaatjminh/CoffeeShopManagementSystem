@@ -9,8 +9,8 @@ function Sidebar() {
   const { user } = useSelector((state) => state.auth);
 
   return (
-    <div className="flex min-h-screen">
-      <aside className="w-28 bg-brown-800 p-4 flex flex-col items-center space-y-4 justify-self-center">
+    <div className="flex h-screen">
+      <aside className="w-32 bg-brown-800 p-4 flex flex-col items-center space-y-4 justify-self-center">
         {user.role.role_name === 'cashier' && (
           <>
             <div className="abc">
@@ -56,7 +56,6 @@ function Sidebar() {
               <Link to="/warehouse/categories">
                 <span className="text-sm text-gray-700 font-lauren font-semibold">Danh mục</span>
               </Link>
-          
             </div>
             <div className="abc">
               <MdCategory className="w-6 h-6 mb-1 text-gray-700" />
@@ -64,7 +63,6 @@ function Sidebar() {
               <Link to="/warehouse/ingredients">
                 <span className="text-sm text-gray-700 font-lauren font-semibold">Nguyên liệu</span>
               </Link>
-          
             </div>
           </>
         )}
@@ -74,13 +72,19 @@ function Sidebar() {
             <div className="abc">
               <MdLeaderboard className="w-6 h-6 mb-1 text-gray-700" />
               <Link to="/admin/statistic">
-                <span className="text-sm text-gray-700 font-lauren font-semibold">Statistic</span>
+                <span className="text-sm text-gray-700 font-lauren font-semibold">Tổng quan</span>
+              </Link>
+            </div>
+            <div className="abc">
+              <IoIosSettings className="w-6 h-6 mb-1 text-gray-700" />
+              <Link to="/admin/dashboard">
+                <span className="text-sm text-gray-700 font-lauren font-semibold">Báo cáo</span>
               </Link>
             </div>
             <div className="abc">
               <IoIosSettings className="w-6 h-6 mb-1 text-gray-700" />
               <Link to="/admin/setting">
-                <span className="text-sm text-gray-700 font-lauren font-semibold">Setting</span>
+                <span className="text-sm text-gray-700 font-lauren font-semibold">Thông tin</span>
               </Link>
             </div>
           </>
