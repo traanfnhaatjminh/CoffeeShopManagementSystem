@@ -16,6 +16,7 @@ const tableList = new Schema({
     enum: [
       "indoor",
       "outdoor",
+      "takeaway",
       ...Array.from({ length: 10 }, (_, i) => `floor_${i + 1}`),
     ],
   },
@@ -27,8 +28,14 @@ const tableList = new Schema({
     type: String,
     required: true,
   },
-  // false: hết bàn
-  // true: còn bàn
+  x: {
+    type: Number,
+    default: 0, // Vị trí x trên sơ đồ
+  },
+  y: {
+    type: Number,
+    default: 0, // Vị trí y trên sơ đồ
+  },
 });
 
 const Table = mongoose.model("TableList", tableList);
