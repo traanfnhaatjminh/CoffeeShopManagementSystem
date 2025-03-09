@@ -1,7 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 
-const { createNewCategory, getAllCategory, getCategoryById, updateCategory, deleteCategory } = require("../controllers/model/category-controller");
+const { createNewCategory, getAllCategory, getCategoryById, updateCategory, inactiveCategory } = require("../controllers/model/category-controller");
 
 const categoryRouter = express.Router();
 categoryRouter.use(bodyParser.json());
@@ -18,7 +18,7 @@ categoryRouter.get("/:id", getCategoryById);
 // Update a category by ID
 categoryRouter.put("/:id", updateCategory);
 
-// Delete a category by ID
-categoryRouter.delete("/:id", deleteCategory);
+// Inactive a category by id
+categoryRouter.put("/inactive/:id", inactiveCategory);
 
 module.exports = categoryRouter;
