@@ -67,7 +67,7 @@ export default function BillDetailModal({ show, onClose, bill, tableInfo }) {
         )}
 
         <p className="mb-2 text-gray-700">
-          <span className="font-semibold">Giảm giá:</span> {bill.discount}%
+          <span className="font-semibold">Giảm giá:</span> {bill.discount ? bill.discount : '0'}%
         </p>
         <p className="mb-2 text-gray-700">
           <span className="font-semibold">Phương thức thanh toán:</span>{' '}

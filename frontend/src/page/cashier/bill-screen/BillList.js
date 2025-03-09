@@ -69,7 +69,6 @@ export default function BillList() {
   };
 
   const handlePrint = (bill) => {
-    // Implement print functionality
     console.log('Printing bill:', bill._id);
   };
 

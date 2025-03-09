@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './style.css';
+import '../style.css';
 import { IoSearch, IoReceipt, IoSave, IoCart, IoRestaurant, IoTime } from 'react-icons/io5';
 import { FaUtensils, FaCoffee, FaWineGlassAlt, FaClipboardList } from 'react-icons/fa';
 import { GrFormNext, GrFormPrevious } from 'react-icons/gr';
@@ -8,12 +8,12 @@ import 'react-toastify/dist/ReactToastify.css';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 import { ToastContainer, toast } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
-import { addToCart, updateQuantity, removeFromCart, clearCart } from '../../store/cart-slice/cartSlice';
-import { setSelectedTable } from '../../store/table-slice/tableSlice';
-import APISERVICECASHIER from '../../services/api-cashier';
+import { addToCart, updateQuantity, removeFromCart, clearCart } from '../../../store/cart-slice/cartSlice';
+import { setSelectedTable } from '../../../store/table-slice/tableSlice';
+import APISERVICECASHIER from '../../../services/api-cashier';
 import { generatePDF } from './printBill';
-import { createBill } from '../../store/bill-slice/billSlice';
-import { fetchTables } from '../../store/table-slice/tableSlice';
+import { createBill } from '../../../store/bill-slice/billSlice';
+import { fetchTables } from '../../../store/table-slice/tableSlice';
 
 export default function CashierScreen() {
   const [search, setSearch] = useState('');
@@ -113,7 +113,7 @@ export default function CashierScreen() {
 
       await dispatch(createBill({ cart, selectedTable, tableList, calculateTotalPrice })).unwrap();
 
-      generatePDF(cart, selectedTable, note, calculateTotal(), paymentMethod);
+      generatePDF(cart, selectedTable, note);
 
       // Clear cart after successful order
 
@@ -521,24 +521,41 @@ export default function CashierScreen() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {recentOrders.map((order) => (
-                    <tr key={order.id} className="hover:bg-gray-50 cursor-pointer">
-                      <td className="px-3 md:px-6 py-2 md:py-4 whitespace-nowrap">
-                        <div className="text-xs md:text-sm font-medium text-blue-600">{order._id}</div>
-                      </td>
-                      <td className="px-3 md:px-6 py-2 md:py-4 whitespace-nowrap">
-                        <div className="text-xs md:text-sm text-gray-900">{order.table_id}</div>
-                      </td>
-                      <td className="px-3 md:px-6 py-2 md:py-4 whitespace-nowrap">
-                        <div className="text-xs md:text-sm text-gray-500">{order.updated_time.toLocaleString()}</div>
-                      </td>
-                      <td className="px-3 md:px-6 py-2 md:py-4 whitespace-nowrap text-right">
-                        <div className="text-xs md:text-sm font-semibold text-gray-900">
-                          {order.total_cost.toLocaleString()} VND
-                        </div>
+                  {recentOrders.filter((order) => order.hidden === 0 && order.status === 1).length === 0 ? (
+                    <tr>
+                      <td colSpan={10} className=" text-center px-3 md:px-6 py-2 md:py-4 whitespace-nowrap">
+                        Không có dữ liệu hóa đơn
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    recentOrders
+                      .filter((order) => order.hidden === 0 && order.status === 1)
+                      .map((order) => (
+                        <tr key={order.id} className="hover:bg-gray-50 cursor-pointer">
+                          <td className="px-3 md:px-6 py-2 md:py-4 whitespace-nowrap">
+                            <div className="text-xs md:text-sm font-medium text-blue-600">{order._id}</div>
+                          </td>
+                          <td className="px-3 md:px-6 py-2 md:py-4 whitespace-nowrap">
+                            <div className="text-xs md:text-sm text-gray-900">{order.table_id?.table_name}</div>
+                          </td>
+                          <td className="px-3 md:px-6 py-2 md:py-4 whitespace-nowrap">
+                            <div className="text-xs md:text-sm text-gray-900">
+                              {order.product_list.map((product) => product.nameP).join(', ')}
+                            </div>
+                          </td>
+                          <td className="px-3 md:px-6 py-2 md:py-4 whitespace-nowrap">
+                            <div className="text-xs md:text-sm text-gray-500">
+                              {order.updated_time.toLocaleString()}
+                            </div>
+                          </td>
+                          <td className="px-3 md:px-6 py-2 md:py-4 whitespace-nowrap text-right">
+                            <div className="text-xs md:text-sm font-semibold text-gray-900">
+                              {order.total_cost.toLocaleString()} VND
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                  )}
                 </tbody>
               </table>
             </div>
@@ -654,6 +671,8 @@ export default function CashierScreen() {
                   <div className="text-xs md:text-sm font-bold mb-1">Chú thích:</div>
                   <input
                     type="text"
+                    value={note} // Hiển thị giá trị của note
+                    onChange={(e) => setNote(e.target.value)}
                     className="w-full bg-white border border-gray-300 rounded-md px-2 py-1 md:px-3 md:py-2 text-xs md:text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
                   />
                 </div>

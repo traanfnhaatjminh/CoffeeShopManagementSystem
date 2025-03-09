@@ -12,9 +12,9 @@ const BillActions = ({ bill, actions }) => {
       <button onClick={() => handlePrint(bill)} className="text-gray-600 hover:text-gray-800">
         <IoPrint size={16} />
       </button>
-      <button onClick={() => handleSendEmail(bill)} className="text-green-600 hover:text-green-800">
+      {/* <button onClick={() => handleSendEmail(bill)} className="text-green-600 hover:text-green-800">
         <IoMailOutline size={16} />
-      </button>
+      </button> */}
       {bill.status === 0 && (
         <button onClick={() => handleCancelBill(bill)} className="text-red-600 hover:text-red-800">
           <IoTrashOutline size={16} />

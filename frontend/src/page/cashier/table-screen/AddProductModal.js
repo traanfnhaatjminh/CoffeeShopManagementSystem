@@ -5,7 +5,7 @@ import { IoClose } from 'react-icons/io5';
 import { FiSearch, FiShoppingCart } from 'react-icons/fi';
 import { GrFormNext, GrFormPrevious } from 'react-icons/gr';
 import axios from 'axios';
-import APISERVICECASHIER from '../../services/api-cashier';
+import APISERVICECASHIER from '../../../services/api-cashier';
 
 export default function AddProductModal({ isOpen, onClose, selectTB, onAddProduct }) {
   const [selectedProducts, setSelectedProducts] = useState([]); // Chọn nhiều sản phẩm
