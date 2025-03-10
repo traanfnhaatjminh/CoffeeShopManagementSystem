@@ -22,12 +22,14 @@ import Statistic from './page/shopowner/Statistic';
 import Settings from './page/shopowner/Settings';
 import WarehouseProduct from './page/warehouse/warehouseProduct';
 import WarehouseCategory from './page/warehouse/warehouseCategory';
+import WarehouseIngredient from './page/warehouse/warehouseIngredient';
 import UserProfile from './components/common/Profile';
 import ChangePassword from '@/page/auth/ChangePassword';
 import EnhancedTableManager from './page/cashier/table-screen/ManagerTableModal';
 
+import Dashboard from './page/shopowner/dashboard/Dashboard';
 function App() {
-  const { isAuthenticated, isLoading, user } = useSelector((state) => state.auth);
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
 
   const dispatch = useDispatch();
 
@@ -62,6 +64,7 @@ function App() {
           }
         >
           <Route path="statistic" element={<Statistic />}></Route>
+          <Route path="dashboard" element={<Dashboard />}></Route>
           <Route path="setting" element={<Settings />}></Route>
         </Route>
 
@@ -89,8 +92,10 @@ function App() {
             </CheckAuth>
           }
         >
+          <Route path="ingredients" element={<WarehouseIngredient />} />
           <Route path="categories" element={<WarehouseCategory />} />
           <Route path="products" element={<WarehouseProduct />} />
+          <Route path="ingredients" element={<WarehouseIngredient />} />
           <Route path="profile" element={<UserProfile />}></Route>
           <Route path="change-password" element={<ChangePassword />}></Route>
         </Route>

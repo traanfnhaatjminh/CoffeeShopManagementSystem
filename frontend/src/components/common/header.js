@@ -3,11 +3,11 @@ import { MdLogout } from 'react-icons/md';
 import { CgProfile } from 'react-icons/cg';
 import logo from '../../assets/img/z5872646337869_8529aff6a7d5eb21b.png';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate to redirect
+import { useNavigate } from 'react-router-dom';
 import { logout } from '@/store/auth-slice/authSlice';
 
 export default function Header() {
-  const user = useSelector((state) => state.auth.user); // Get the user from Redux
+  const user = useSelector((state) => state.auth.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const handleLogout = async () => {
@@ -23,7 +23,7 @@ export default function Header() {
     navigate('/cashier/profile');
   };
   return (
-    <div className="h-[7%] lg:h-[10%]">
+    <div className="sticky top-0 z-10">
       <nav className="bg-brown-900 flex items-center justify-between p-4 shadow-md h-full">
         <div className="flex items-center">
           <img src={logo} alt="Logo" className="w-16 h-10 mr-2" />
@@ -32,7 +32,10 @@ export default function Header() {
 
         <div className="flex items-center gap-2 justify-center pr-5">
           <span className="text-white w-[130px] inline-block">{user?.userName || 'Guest'}</span>
-          <button className="bg-brown-700 text-white p-2 rounded-lg hover:bg-blue-400" onClick={() => handleProfile()}>
+          <button
+            className={`bg-brown-700 text-white p-2 rounded-lg hover:bg-blue-400 ${user.role.role_name === 'admin' ? 'hidden' : ''}`}
+            onClick={() => handleProfile()}
+          >
             <CgProfile className="w-5 h-5" />
           </button>
           <button className="bg-brown-800 text-white p-2 rounded-lg hover:bg-red-500 " onClick={handleLogout}>

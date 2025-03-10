@@ -15,8 +15,10 @@ const TableRouter = require("./routers/table.route");
 const authRouter = require("./routers/auth/auth.routers");
 const UserRouter = require("./routers/user.route");
 const BillRouter = require("./routers/bill.route");
-const InfoRouter= require("./routers/infor.route");
+const InfoRouter = require("./routers/infor.route");
 const RoleRouter = require("./routers/role.route");
+const ingredientRoute = require("./routers/ingredient.route");
+const AdminRouter = require("./routers/admin/admin.routers");
 
 const HOST = process.env.HOSTNAME;
 const POST = process.env.POST;
@@ -56,7 +58,9 @@ app.use("/tables", TableRouter);
 app.use("/users", UserRouter);
 app.use("/roles", RoleRouter);
 app.use("/uploads", express.static("uploads"));
-app.use("/info", InfoRouter)
+app.use("/info", InfoRouter);
+app.use("/ingredients", ingredientRoute);
+app.use("/api/admin", AdminRouter);
 
 app.use("/", async (req, res, next) => {
     next(httpErrors.BadRequest("Bad Request"));

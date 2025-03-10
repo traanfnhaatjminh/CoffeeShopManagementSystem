@@ -21,7 +21,7 @@ export const createBill = createAsyncThunk(
           productId: item._id,
           nameP: item.pname,
           imageP: item.image,
-          priceP: item.price,
+          priceP: item.sale_price,
           quantityP: item.quantity,
           total: item.total,
         })),

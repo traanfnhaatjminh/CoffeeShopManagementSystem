@@ -10,6 +10,12 @@ const categorySchema = new Schema({
         type: String,
         required: true,
     },
+    status: { //Trang thái
+        type: String,
+        required: true,
+        enum: ['active', 'discontinued'],
+        default: 'active',
+    },
 });
 
 module.exports = mongoose.model("Category", categorySchema);

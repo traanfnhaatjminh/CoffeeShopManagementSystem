@@ -54,8 +54,8 @@ export default function AddProductModal({ isOpen, onClose, selectTB, onAddProduc
           nameP: product.pname,
           imageP: product.image,
           quantityP: 1,
-          priceP: product.price,
-          total: product.price,
+          priceP: product.sale_price,
+          total: product.sale_price,
         },
       ];
     });
@@ -171,7 +171,7 @@ export default function AddProductModal({ isOpen, onClose, selectTB, onAddProduc
                           <img src={product.image} alt={product.pname} className="w-12 h-12 rounded-md object-cover" />
                           <div className="flex-1 min-w-0">
                             <p className="font-medium truncate">{product.pname}</p>
-                            <p className="text-sm text-gray-600">{product.price.toLocaleString()} VND</p>
+                            <p className="text-sm text-gray-600">{product.sale_price.toLocaleString()} VND</p>
                           </div>
                         </div>
                       </div>
@@ -229,7 +229,7 @@ export default function AddProductModal({ isOpen, onClose, selectTB, onAddProduc
                             />
                             <div>
                               <p className="font-medium">{product.nameP}</p>
-                              <p className="text-sm text-gray-600">{product.priceP.toLocaleString()} VND</p>
+                              <p className="text-sm text-gray-600">{product.priceP} VND</p>
                             </div>
                           </div>
                           <div className="flex items-center space-x-2">

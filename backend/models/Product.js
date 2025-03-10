@@ -8,18 +8,18 @@ const productSchema = new Schema(
             required: true,
             unique: true,
         },
-        quantity: {
+        cost_price: {
             type: Number,
             required: true,
         },
-        price: {
+        sale_price: {
             type: Number,
             required: true,
         },
-        image:{
+        image: {
             type: String
         },
-        cloudinary_id:{
+        cloudinary_id: {
             type: String
         },
         category_id: {
@@ -27,7 +27,26 @@ const productSchema = new Schema(
             ref: "Category",
         },
         discount: Number,
-        status: Number,
+        status: { //Trang thái
+            type: String,
+            required: true,
+            enum: ['active', 'inactive', 'discontinued','out of stock'],
+            default: 'active',
+        },
+        ingredients: [
+            {
+                ingredient_id: {
+                    type: Schema.Types.ObjectId,
+                    ref: "Ingredient",
+                },
+                quantitative: {
+                    type: Number,
+                },
+                TotalPerIngredient: {
+                    type: Number,
+                },
+            },
+        ],
     },
     { timestamps: true }
 );
