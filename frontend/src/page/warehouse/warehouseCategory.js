@@ -105,7 +105,7 @@ function WarehouseCategory() {
                 placeholder="Tìm kiếm danh mục..."
                 value={searchTerm}
                 onChange={handleSearchChange}
-                className="bg-white border rounded-md pl-3 pr-10 py-2 text-left cursor-default sm:text-sm w-full"
+                className="bg-white border rounded-md pl-3 pr-10 py-2 cursor-default w-full"
               />
               <span className="absolute inset-y-0 right-0 flex items-center pr-3">
                 <IoSearch />

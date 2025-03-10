@@ -83,7 +83,7 @@ function WarehouseProduct() {
     try {
       await APISERVICECASHIER.updateProductStatus(productId, newStatus);
       toast.success("Cập nhật trạng thái thành công!");
-      fetchProducts(); 
+      fetchProducts();
     } catch (error) {
       toast.error("Lỗi khi cập nhật trạng thái sản phẩm");
       console.error("Lỗi cập nhật trạng thái:", error);
@@ -113,7 +113,7 @@ function WarehouseProduct() {
           <div className="flex mb-4 items-center space-x-4">
             <div className="relative w-72">
               <input
-                className="bg-white border rounded-md pl-3 pr-10 py-2 text-left cursor-default sm:text-sm w-full"
+                className="bg-white border rounded-md pl-3 pr-10 py-2 cursor-default w-full"
                 type="text"
                 placeholder="Tìm kiếm sản phẩm..."
                 value={search}
@@ -129,7 +129,7 @@ function WarehouseProduct() {
               <FaPlus className="mr-1" />
               Thêm
             </button>
-            
+
             <div className="bg-white p-2 shadow-md rounded-lg flex space-x-4 border">
               <label className="flex items-center space-x-1 cursor-pointer">
                 <input
