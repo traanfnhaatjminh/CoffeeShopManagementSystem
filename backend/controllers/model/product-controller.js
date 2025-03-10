@@ -43,20 +43,39 @@ const createNewProduct = async (req, res, next) => {
 
 const getAllProductInWarehouse = async (req, res, next) => {
     try {
-        const { status } = req.query;
+        const { search = "", page = "1", limit = "10", status = "" } = req.query;
+
+        const searchQuery = search.trim();
+        const pageNumber = Math.max(parseInt(page, 10) || 1, 1);
+        const limitNumber = Math.max(parseInt(limit, 10) || 10, 1);
+
         let filter = {};
 
-        if (status) {
-            const statusArray = status.split(",");
-            filter.status = { $in: statusArray };
+        if (searchQuery) {
+            filter.pname = { $regex: searchQuery, $options: "i" };
         }
 
-        // Lấy tất cả sản phẩm + thông tin danh mục
+        if (status) {
+            const statusLower = status.trim().toLowerCase();
+            const validStatuses = ["active", "inactive", "discontinued", "out of stock"];
+            if (!validStatuses.includes(statusLower)) {
+                return res.status(400).json({ message: "Invalid status value" });
+            }
+            filter.status = statusLower;
+        }
+
+        const totalProducts = await Product.countDocuments(filter);
         const products = await Product.find(filter)
             .populate("category_id", "category_name status")
-            .exec();
+            .skip((pageNumber - 1) * limitNumber)
+            .limit(limitNumber);
 
-        res.status(200).json(products);
+        res.status(200).json({
+            products,
+            totalProducts,
+            currentPage: pageNumber,
+            totalPages: Math.ceil(totalProducts / limitNumber),
+        });
     } catch (error) {
         next(error);
     }
@@ -197,7 +216,7 @@ const updateProductStatus = async (req, res, next) => {
             return res.status(404).json({ message: "Product not found" });
         }
         // kiểm tra giá trị hợp lệ của status
-        const validStatuses = ["active", "inactive","discontinued", "out of stock"];
+        const validStatuses = ["active", "inactive", "discontinued", "out of stock"];
         if (!validStatuses.includes(status)) {
             return res.status(400).json({ message: "Invalid status value" });
         }
@@ -212,5 +231,5 @@ const updateProductStatus = async (req, res, next) => {
         next(error);
     }
 };
-module.exports = { createNewProduct, getAllProductInHome, getAllProductInWarehouse, getProductsByCategory, updateProduct,updateProductStatus};
+module.exports = { createNewProduct, getAllProductInHome, getAllProductInWarehouse, getProductsByCategory, updateProduct, updateProductStatus };
 
