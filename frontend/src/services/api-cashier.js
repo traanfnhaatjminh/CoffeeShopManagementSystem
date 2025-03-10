@@ -13,7 +13,17 @@ const APISERVICECASHIER = {
     },
     updateProductStatus: async (productId, status) => {
         return axios.put(`/products/updateStatus/${productId}`, { status });
+    },
+    ApiCategoryList: async (search = "", page = 1, limit = 10, status = '') => {
+        return axios.get(`/categories/list`, {
+            params: { search, page, limit, status }
+        });
+    },
+
+    updateCategoryStatus: async (categoryId, status) => {
+        return axios.put(`/categories/inactive/${categoryId}`, { status });
     }
 }
+
 
 export default APISERVICECASHIER;

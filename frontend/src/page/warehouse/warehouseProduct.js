@@ -115,7 +115,7 @@ function WarehouseProduct() {
               <input
                 className="bg-white border rounded-md pl-3 pr-10 py-2 text-left cursor-default sm:text-sm w-full"
                 type="text"
-                placeholder="Tìm kiếm..."
+                placeholder="Tìm kiếm sản phẩm..."
                 value={search}
                 onChange={handleSearchChange}
               />
@@ -129,6 +129,7 @@ function WarehouseProduct() {
               <FaPlus className="mr-1" />
               Thêm
             </button>
+            
             <div className="bg-white p-2 shadow-md rounded-lg flex space-x-4 border">
               <label className="flex items-center space-x-1 cursor-pointer">
                 <input
@@ -141,21 +142,26 @@ function WarehouseProduct() {
                 />
                 <span className="text-gray-700">Tất cả</span>
               </label>
-              {['active', 'inactive', 'discontinued', 'out of stock'].map((status) => (
-                <label key={status} className="flex items-center space-x-1 cursor-pointer">
+
+              {[
+                { value: "active", label: "Đang bán" },
+                { value: "inactive", label: "Tạm ngừng bán" },
+                { value: "discontinued", label: "Nghỉ bán" },
+                { value: "out of stock", label: "Tạm hết hàng" }
+              ].map((status) => (
+                <label key={status.value} className="flex items-center space-x-1 cursor-pointer">
                   <input
                     type="radio"
                     name="status"
-                    value={status}
-                    checked={selectedStatus === status}
-                    onChange={() => handleStatusFilterChange(status)}
+                    value={status.value}
+                    checked={selectedStatus === status.value}
+                    onChange={() => handleStatusFilterChange(status.value)}
                     className="mr-1"
                   />
-                  <span className="text-gray-700 capitalize">{status}</span>
+                  <span className="text-gray-700">{status.label}</span>
                 </label>
               ))}
             </div>
-
           </div>
 
           <div className="overflow-x-auto">
@@ -205,19 +211,16 @@ function WarehouseProduct() {
                         <td className="px-6 py-4 text-md text-gray-500">
                           {product.pname}
 
-
                           {isInactive && !isInactiveCategory && (
                             <p className="text-orange-500 text-sm mt-1 italic">
                               Sản phẩm này tạm ngừng bán.
                             </p>
                           )}
-
                           {isOutOfStock && (
                             <p className="text-blue-500 text-sm mt-1 italic">
                               Sản phẩm này đã hết hàng.
                             </p>
                           )}
-
                           {isDiscontinued && (
                             <p className="text-red-600 text-sm mt-1 italic">
                               Sản phẩm này đã ngừng bán do danh mục đã ngừng cung cấp.
