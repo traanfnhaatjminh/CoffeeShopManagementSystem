@@ -16,6 +16,11 @@ const APITABLE = {
   ApiDelete: async (idTables) => {
     return axios.delete(`/delete/${idTables}`); // DELETE thay vì GET
   },
+  ApiUpdateTableView: async (tableId, position) => {
+    return axios.put(`/tables/${tableId}`, position, {
+      headers: { 'Content-Type': 'application/json' },
+    });
+  },
 };
 
 export default APITABLE;

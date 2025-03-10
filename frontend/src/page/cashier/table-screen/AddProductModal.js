@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
-import { Dialog, Transition } from "@headlessui/react";
-import { Fragment } from "react";
-import { IoClose } from "react-icons/io5";
-import { FiSearch, FiShoppingCart } from "react-icons/fi";
-import { GrFormNext, GrFormPrevious } from "react-icons/gr";
-import axios from "axios";
-import APISERVICECASHIER from "../../services/api-cashier";
+import { useState, useEffect } from 'react';
+import { Dialog, Transition } from '@headlessui/react';
+import { Fragment } from 'react';
+import { IoClose } from 'react-icons/io5';
+import { FiSearch, FiShoppingCart } from 'react-icons/fi';
+import { GrFormNext, GrFormPrevious } from 'react-icons/gr';
+import axios from 'axios';
+import APISERVICECASHIER from '../../../services/api-cashier';
 
 export default function AddProductModal({ isOpen, onClose, selectTB, onAddProduct }) {
   const [selectedProducts, setSelectedProducts] = useState([]); // Chọn nhiều sản phẩm
@@ -16,7 +16,7 @@ export default function AddProductModal({ isOpen, onClose, selectTB, onAddProduc
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const productPerPage = 10;
-  
+
   // Filter products based on search term and category
   useEffect(() => {
     const fetchData = async () => {
@@ -44,19 +44,20 @@ export default function AddProductModal({ isOpen, onClose, selectTB, onAddProduc
       const existingProduct = prev.find((p) => p.productId === product._id);
       if (existingProduct) {
         return prev.map((p) =>
-          p.productId === product._id
-            ? { ...p, quantityP: p.quantityP + 1, total: (p.quantityP + 1) * p.priceP }
-            : p
+          p.productId === product._id ? { ...p, quantityP: p.quantityP + 1, total: (p.quantityP + 1) * p.priceP } : p
         );
       }
-      return [...prev, { 
-        productId: product._id, 
-        nameP: product.pname, 
-        imageP: product.image, 
-        quantityP: 1, 
-        priceP: product.sale_price, 
-        total: product.sale_price 
-      }];
+      return [
+        ...prev,
+        {
+          productId: product._id,
+          nameP: product.pname,
+          imageP: product.image,
+          quantityP: 1,
+          priceP: product.sale_price,
+          total: product.sale_price,
+        },
+      ];
     });
   };
 
@@ -88,7 +89,12 @@ export default function AddProductModal({ isOpen, onClose, selectTB, onAddProduc
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-50" onClose={onClose}>
+      <Dialog
+        as="div"
+        className="relative z-10
+      "
+        onClose={onClose}
+      >
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -117,10 +123,7 @@ export default function AddProductModal({ isOpen, onClose, selectTB, onAddProduc
                   <FiShoppingCart className="mr-2" size={20} />
                   Thêm sản phẩm vào hóa đơn {selectTB ? `- ${selectTB.table_name}` : ''}
                 </Dialog.Title>
-                <button 
-                  onClick={onClose} 
-                  className="text-white hover:text-blue-200 transition duration-200"
-                >
+                <button onClick={onClose} className="text-white hover:text-blue-200 transition duration-200">
                   <IoClose size={24} />
                 </button>
               </div>
@@ -138,7 +141,7 @@ export default function AddProductModal({ isOpen, onClose, selectTB, onAddProduc
                       className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-300 focus:border-blue-300 transition-colors"
                     />
                   </div>
-                  
+
                   <div className="md:w-1/3">
                     <select
                       value={selectCategory}
@@ -159,17 +162,13 @@ export default function AddProductModal({ isOpen, onClose, selectTB, onAddProduc
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-h-48 overflow-y-auto mb-6 p-1">
                   {products.length > 0 ? (
                     products.map((product) => (
-                      <div 
+                      <div
                         key={product._id}
                         onClick={() => handleSelectProduct(product)}
                         className="border rounded-lg p-3 cursor-pointer hover:shadow-md transition-all"
                       >
                         <div className="flex items-center space-x-3">
-                          <img 
-                            src={product.image} 
-                            alt={product.pname} 
-                            className="w-12 h-12 rounded-md object-cover"
-                          />
+                          <img src={product.image} alt={product.pname} className="w-12 h-12 rounded-md object-cover" />
                           <div className="flex-1 min-w-0">
                             <p className="font-medium truncate">{product.pname}</p>
                             <p className="text-sm text-gray-600">{product.sale_price.toLocaleString()} VND</p>
@@ -178,9 +177,7 @@ export default function AddProductModal({ isOpen, onClose, selectTB, onAddProduc
                       </div>
                     ))
                   ) : (
-                    <div className="col-span-3 text-center py-4 text-gray-500">
-                      Không tìm thấy sản phẩm phù hợp
-                    </div>
+                    <div className="col-span-3 text-center py-4 text-gray-500">Không tìm thấy sản phẩm phù hợp</div>
                   )}
                 </div>
 
@@ -225,9 +222,9 @@ export default function AddProductModal({ isOpen, onClose, selectTB, onAddProduc
                       {selectedProducts.map((product) => (
                         <div key={product.productId} className="p-3 flex items-center justify-between">
                           <div className="flex items-center space-x-3">
-                            <img 
-                              src={product.imageP} 
-                              alt={product.nameP} 
+                            <img
+                              src={product.imageP}
+                              alt={product.nameP}
                               className="w-12 h-12 rounded-md object-cover"
                             />
                             <div>
@@ -267,7 +264,7 @@ export default function AddProductModal({ isOpen, onClose, selectTB, onAddProduc
                         </div>
                       ))}
                     </div>
-                    
+
                     {/* Total calculation */}
                     <div className="flex justify-between items-center mt-4 p-3 bg-gray-100 rounded-lg">
                       <span className="font-medium">Tổng tiền:</span>

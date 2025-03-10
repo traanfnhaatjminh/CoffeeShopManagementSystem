@@ -98,6 +98,7 @@ const postBill = async (req, res) => {
       total_cost,
       table_id,
       payment,
+      hidden,
       discount,
       status,
       product_list,
@@ -110,6 +111,7 @@ const postBill = async (req, res) => {
       total_cost,
       table_id,
       payment,
+      hidden,
       status,
       discount,
       product_list,
@@ -276,13 +278,12 @@ const getBill = async (req, res, next) => {
 
     // Lọc theo khoảng thời gian
     if (from && to) {
-      filter.updated_time = { 
-        $gte: new Date(from),  // Từ 00:00:00 ngày from
-        $lte: new Date(to)     // Đến 23:59:59 ngày to
+      filter.updated_time = {
+        $gte: new Date(from), // Từ 00:00:00 ngày from
+        $lte: new Date(to), // Đến 23:59:59 ngày to
       };
     }
-    
-    
+
     // Lọc theo trạng thái
     if (status && status !== "all") {
       filter.status = Number(status);
@@ -358,7 +359,8 @@ const getBillFilter = async (req, res) => {
 ////
 const createNewBill = async (req, res, next) => {
   try {
-    const { total_cost, table_id, product_list, payment, status } = req.body;
+    const { total_cost, table_id, product_list, payment, status, hidden } =
+      req.body;
 
     // Create a new bill document
     const newBill = new Bill({
@@ -367,6 +369,7 @@ const createNewBill = async (req, res, next) => {
       table_id: table_id,
       payment: payment,
       status: status,
+      hidden: hidden,
       product_list: product_list,
     });
 
@@ -382,6 +385,27 @@ const createNewBill = async (req, res, next) => {
       .json({ message: "Failed to create bill", error: error.message });
   }
 };
+const deleteBill = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const updatedBill = await Bill.findByIdAndUpdate(
+      id,
+      { hidden: 1 },
+      { new: true }
+    );
+    if (!updatedBill) {
+      return res.status(404).json({ message: " Bill  not found" });
+    }
+    await Table.findByIdAndUpdate(updatedBill.table_id, { status: true });
+
+    res.status(200).json({
+      message: "Bill status updated successfully",
+      result: updatedBill,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 module.exports = {
   getBill,
@@ -394,4 +418,5 @@ module.exports = {
   getProductsSoldByCategory,
   addProductsToBill,
   getBillFilter,
+  deleteBill,
 };

@@ -1,31 +1,43 @@
-
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import { generatePDF } from './PayBills';
-import { fetchTables } from '../../store/table-slice/tableSlice';
+import { fetchTables, updateTablePosition } from '../../../store/table-slice/tableSlice';
 import { useDispatch, useSelector } from 'react-redux';
-import AddProductModal from './AddProductModal';
-import { updateBill } from '../../store/bill-slice/billSlice';
+import AddProductModal from '../table-screen/AddProductModal';
+import { updateBill } from '../../../store/bill-slice/billSlice';
+import { Table, Input, Button, Radio, Modal, Select, Tabs } from 'antd';
+import { SearchOutlined, MergeCellsOutlined, AppstoreOutlined, UnorderedListOutlined } from '@ant-design/icons';
+import ReactFlow, { Controls } from 'react-flow-renderer';
+import FloorPlanView from './FloorPlanView';
+import floorPlan from '../../../assets/img/planFloor.jpg';
+import { useNavigate } from 'react-router-dom';
+const { Option } = Select;
 
 export default function TableList() {
   const [selectedTable, setSelectedTable] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState('');
-  const [billList, setBillList] = useState([]);
   const [selectBill, setSelectBill] = useState(null);
   const [discount, setDiscount] = useState(0);
   const [totalCost, setTotalCost] = useState(0);
   const [cashReal, setCashReal] = useState('');
+  const [notes, setNotes] = useState({});
+  const [splitBill, setSplitBill] = useState(false);
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [searchText, setSearchText] = useState('');
+  const [viewMode, setViewMode] = useState('grid');
+  const [zones, setZones] = useState(['Trong nhà', 'Ngoài trời', 'Tầng trên']);
+  const [selectedZone, setSelectedZone] = useState('all');
   const dispatch = useDispatch();
-  
-  const { tableList } = useSelector((state) => state.tables); 
+  const [floorPlanImage, setFloorPlanImage] = useState(floorPlan);
+  const navigate = useNavigate();
+
+  const { tableList } = useSelector((state) => state.tables);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
+
   const loadData = async () => {
     try {
       dispatch(fetchTables());
-      // const responseBill = await axios.get('/bills');
-      // setBillList(responseBill.data);
     } catch (error) {
       console.error('Error loading:', error);
     }
@@ -33,19 +45,21 @@ export default function TableList() {
 
   useEffect(() => {
     loadData();
+    window.handleTableClick = handleTableClick;
+    return () => {
+      delete window.handleTableClick;
+    };
   }, []);
-/////////code lại đoạn naỳ 
+
   useEffect(() => {
     if (selectedTable) {
-      // Tính tổng tiền ban đầu
       const subtotal = selectedTable.bill.reduce((total, item) => total + item.priceP * item.quantityP, 0);
-      const discountValue = discount || 0; // Sử dụng 0 nếu không có giảm giá
-      // Tính tổng tiền sau khi giảm giá
+      const discountValue = discount || 0;
       const discountedTotal = subtotal * ((100 - discountValue) / 100);
       setTotalCost(discountedTotal);
     }
   }, [selectedTable, discount]);
-////// cho vào redux 
+
   const handleTableClick = async (table) => {
     try {
       if (!table.status) {
@@ -54,10 +68,10 @@ export default function TableList() {
           setSelectBill(response.data);
           setSelectedTable({
             ...table,
-            bill: response.data.product_list || [], // Đảm bảo sử dụng đúng key từ API
+            bill: response.data.product_list || [],
           });
         } else {
-          toast.error("Không tìm thấy hóa đơn cho bàn này");
+          toast.error('Không tìm thấy hóa đơn cho bàn này');
         }
         setPaymentMethod('');
       } else {
@@ -66,7 +80,7 @@ export default function TableList() {
       }
     } catch (error) {
       console.error('Error fetching bill:', error);
-      toast.error("Lỗi khi tải thông tin hóa đơn!");
+      toast.error('Lỗi khi tải thông tin hóa đơn!');
     }
   };
 
@@ -76,21 +90,18 @@ export default function TableList() {
 
   const handleDiscountChange = (event) => {
     const value = event.target.value;
-
     if (value === '') {
       setDiscount(0);
       return;
     }
-
     const parsedValue = parseFloat(value);
-
     if (isNaN(parsedValue) || parsedValue < 0 || parsedValue > 100) {
       toast.error('Vui lòng nhập từ 0 - 100');
     } else {
-      setDiscount(parsedValue); // Đặt giảm giá nếu hợp lệ
+      setDiscount(parsedValue);
     }
   };
-//////cho vào redux 
+
   const handleUpdateBill = async () => {
     try {
       if (selectedTable && paymentMethod && selectBill) {
@@ -98,17 +109,13 @@ export default function TableList() {
           payment: paymentMethod,
           status: 1,
           table_id: selectedTable._id,
-          discount: discount || 0, // Sử dụng 0 nếu không có giảm giá
+          discount: discount || 0,
           totalCost: totalCost || selectedTable.bill.reduce((total, item) => total + item.priceP * item.quantityP, 0),
         };
-        
+
         const { data: updatedBill } = await axios.put(`/bills/update/${selectBill._id}`, billUpdateData);
-        
-        // Xuất hóa đơn PDF sau khi thanh toán
-        generatePDF(selectBill, paymentMethod, selectedTable,discount,totalCost);
-        
+        generatePDF(updatedBill.bill, cashReal);
         await loadData();
-      
         toast.success('Thanh toán thành công!');
         setSelectedTable(null);
         setSelectBill(null);
@@ -123,60 +130,127 @@ export default function TableList() {
       toast.error('Có lỗi xảy ra khi thanh toán!');
     }
   };
-console.log(selectedTable);
 
   const handleOpenModal = (tableId) => {
-    // Chỉ mở modal khi đã có bàn được chọn
     if (selectedTable || tableId) {
-      // Nếu được truyền tableId cụ thể, tìm bàn đó và cập nhật state
       if (tableId && (!selectedTable || selectedTable._id !== tableId)) {
-        const table = tableList.find(t => t._id === tableId);
+        const table = tableList.find((t) => t._id === tableId);
         if (table) {
           handleTableClick(table);
         }
       }
       setIsModalOpen(true);
     } else {
-      toast.error("Vui lòng chọn bàn trước khi thêm sản phẩm!");
+      toast.error('Vui lòng chọn bàn trước khi thêm sản phẩm!');
     }
   };
 
-  // Đóng modal
   const handleCloseModal = () => {
     setIsModalOpen(false);
   };
-  
-  // Xử lý khi thêm sản phẩm từ modal cho vapof redux 
+
   const handleAddProducts = async (products) => {
     try {
       if (selectBill && products.length > 0) {
-        // Gọi API để thêm nhiều sản phẩm vào hóa đơn
         await axios.put(`/bills/add-products/${selectBill._id}`, { products });
-  
-        // Cập nhật lại dữ liệu sau khi thêm
-        toast.success("Đã thêm sản phẩm vào hóa đơn!");
-        
-        // Refresh bill data
+        toast.success('Đã thêm sản phẩm vào hóa đơn!');
         const response = await axios.get(`/bills/table/${selectedTable._id}`);
         if (response.data) {
           setSelectBill(response.data);
           setSelectedTable({
             ...selectedTable,
-            bill: response.data.product_list || [], // Đảm bảo sử dụng đúng key từ API
+            bill: response.data.product_list || [],
           });
         }
       } else {
-        toast.error("Không thể thêm sản phẩm! Vui lòng chọn bàn trước.");
+        toast.error('Không thể thêm sản phẩm! Vui lòng chọn bàn trước.');
       }
     } catch (error) {
-      console.error("Error adding products:", error);
-      toast.error("Có lỗi xảy ra khi thêm sản phẩm!");
+      console.error('Error adding products:', error);
+      toast.error('Có lỗi xảy ra khi thêm sản phẩm!');
     }
   };
-  
+
+  const handleNoteChange = (itemId, note) => {
+    setNotes({ ...notes, [itemId]: note });
+  };
+
+  const handleSplitBill = () => {
+    setSplitBill(!splitBill);
+  };
+
+  const filteredTables = tableList.filter((table) => {
+    const matchesStatus = filterStatus === 'all' || table.status === (filterStatus === 'available');
+    const matchesSearch = table.table_name.toLowerCase().includes(searchText.toLowerCase());
+    const matchesZone = selectedZone === 'all' || table.zone === selectedZone;
+    return matchesStatus && matchesSearch && matchesZone;
+  });
+
+  const getTableStatistics = () => {
+    const occupiedTables = tableList.filter((table) => !table.status).length;
+    const availableTables = tableList.length - occupiedTables;
+    return { occupiedTables, availableTables };
+  };
+
+  const handleUpdateTablePosition = async (tableId, position) => {
+    dispatch(updateTablePosition({ tableId, position }));
+  };
+  const { occupiedTables, availableTables } = getTableStatistics();
+
+  const renderTables = () => {
+    if (viewMode === 'grid') {
+      return (
+        <div className={`grid grid-cols-5 gap-4 p-4`}>
+          {filteredTables.map((table) => (
+            <div
+              key={table._id}
+              className="bg-white rounded-lg shadow p-4 h-40 w-32 flex flex-col items-center justify-between cursor-pointer"
+              style={{
+                backgroundColor: table.status === true ? '#dcfce7' : '#fee2e2',
+              }}
+              onClick={() => handleTableClick(table)}
+            >
+              <div className="text-center w-full">
+                <h3 className="font-bold text-xl">{table.table_name}</h3>
+                <p className="text-sm">Số ghế: {table.number_of_chair}</p>
+                <p className={`text-xs font-semibold ${table.status === true ? 'text-green-500' : 'text-red-500'}`}>
+                  {table.status === true ? 'Đang trống' : 'Đang có khách'}
+                </p>
+                {!table.status && (
+                  <p className="text-xs text-gray-500">
+                    Thời gian vào: {new Date(table.startTime).toLocaleTimeString()}
+                  </p>
+                )}
+              </div>
+
+              {!table.status && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleOpenModal(table._id);
+                  }}
+                  className="mt-2 w-full bg-blue-500 text-white text-xs py-1 px-2 rounded hover:bg-blue-600"
+                >
+                  Gọi thêm
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      );
+    } else {
+      return (
+        <FloorPlanView
+          floorPlanImage={floorPlanImage}
+          tables={filteredTables}
+          onUpdateTablePosition={handleUpdateTablePosition}
+        />
+      );
+    }
+  };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-100">
+    <div className="flex flex-col h-min bg-gray-100">
       <ToastContainer
         position="top-right"
         autoClose={2000}
@@ -186,7 +260,7 @@ console.log(selectedTable);
         draggable
         pauseOnFocusLoss
       />
-      
+
       <main className="flex flex-1">
         <div className="flex space-x-6 p-4 w-full">
           {/* Phần Menu */}
@@ -195,40 +269,41 @@ console.log(selectedTable);
               <h1 className="text-lg font-bold px-2 font-lauren border bg-brown-900 text-white border-brown-400 rounded-lg">
                 Danh sách bàn
               </h1>
+              <div className="flex items-center space-x-4">
+                <Input
+                  placeholder="Tìm kiếm bàn"
+                  prefix={<SearchOutlined />}
+                  value={searchText}
+                  onChange={(e) => setSearchText(e.target.value)}
+                />
+                <Select defaultValue="all" style={{ width: 120 }} onChange={(value) => setFilterStatus(value)}>
+                  <Option value="all">Tất cả</Option>
+                  <Option value="available">Trống</Option>
+                  <Option value="occupied">Đang dùng</Option>
+                </Select>
+                <Select defaultValue="all" style={{ width: 120 }} onChange={(value) => setSelectedZone(value)}>
+                  <Option value="all">Tất cả khu vực</Option>
+                  {zones.map((zone) => (
+                    <Option key={zone} value={zone}>
+                      {zone}
+                    </Option>
+                  ))}
+                </Select>
+                <Button onClick={() => setViewMode(viewMode === 'grid' ? 'map' : 'grid')}>
+                  {viewMode === 'grid' ? <AppstoreOutlined /> : <UnorderedListOutlined />}
+                </Button>
+                <Button onClick={() => navigate('/cashier/tablelist/managerTable')}>Quản lý bàn</Button>
+              </div>
+            </div>
+
+            {/* Thống kê nhanh */}
+            <div className="mb-4">
+              <span className="text-sm text-gray-600">Bàn đang dùng: {occupiedTables}</span>
+              <span className="text-sm text-gray-600 ml-4">Bàn trống: {availableTables}</span>
             </div>
 
             {/* Danh sách bàn */}
-            <div className="grid grid-cols-5 gap-4 p-4">
-              {tableList.map((table) => (
-                <div
-                  key={table._id}
-                  className="bg-white rounded-lg shadow p-4 h-40 w-32 flex flex-col items-center justify-between cursor-pointer"
-                  style={{
-                    backgroundColor: table.status === true ? '#dcfce7' : '#fee2e2',
-                  }}
-                >
-                  <div onClick={() => handleTableClick(table)} className="text-center w-full">
-                    <h3 className="font-bold text-xl">{table.table_name}</h3>
-                    <p className="text-sm">Số ghế: {table.number_of_chair}</p>
-                    <p className={`text-xs font-semibold ${table.status === true ? 'text-green-500' : 'text-red-500'}`}>
-                      {table.status === true ? 'Đang trống' : 'Đang có khách'}
-                    </p>
-                  </div>
-                  
-                  {!table.status && (
-                    <button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleOpenModal(table._id); 
-                      }}
-                      className="mt-2 w-full bg-blue-500 text-white text-xs py-1 px-2 rounded hover:bg-blue-600"
-                    >
-                      Gọi thêm
-                    </button>
-                  )}
-                </div>
-              ))}
-            </div>
+            {renderTables()}
           </section>
 
           {/* Phần Giỏ hàng */}
@@ -237,9 +312,7 @@ console.log(selectedTable);
 
             {selectedTable ? (
               <div>
-                <div className="mb-4 text-lg font-medium">
-                  Bàn: {selectedTable.table_name}
-                </div>
+                <div className="mb-4 text-lg font-medium">Bàn: {selectedTable.table_name}</div>
 
                 {selectedTable.bill && selectedTable.bill.length > 0 ? (
                   <table className="w-full text-left mb-6">
@@ -249,6 +322,7 @@ console.log(selectedTable);
                         <th className="border-b py-2">Hình ảnh</th>
                         <th className="border-b py-2">Giá</th>
                         <th className="border-b py-2">Số lượng</th>
+                        <th className="border-b py-2">Ghi chú</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -260,6 +334,13 @@ console.log(selectedTable);
                           </td>
                           <td className="py-2">{item.priceP ? item.priceP.toLocaleString() : '0'} VND</td>
                           <td className="py-2">{item.quantityP}</td>
+                          <td className="py-2">
+                            <Input
+                              value={notes[item._id] || ''}
+                              onChange={(e) => handleNoteChange(item._id, e.target.value)}
+                              placeholder="Ghi chú"
+                            />
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -297,7 +378,8 @@ console.log(selectedTable);
                     {(
                       selectedTable.bill.reduce((total, item) => total + item.priceP * item.quantityP, 0) *
                       ((100 - discount) / 100)
-                    ).toLocaleString()} VND
+                    ).toLocaleString()}{' '}
+                    VND
                   </span>
                 </div>
 
@@ -359,7 +441,7 @@ console.log(selectedTable);
                     <div className="p-4 bg-gray-100 rounded-md shadow-md text-center">
                       <h4 className="text-lg font-bold">Quét mã QR để thanh toán</h4>
                       <img
-                        src={require('../../assets/images/maqr.jpg')}
+                        src={require('../../../assets/images/maqr.jpg')}
                         alt="QR Code"
                         className="mx-auto mt-2 w-40 h-100"
                       />
@@ -375,6 +457,14 @@ console.log(selectedTable);
                 >
                   Xác nhận thanh toán & Xuất hóa đơn
                 </button>
+
+                {/* Tách hóa đơn */}
+                <button
+                  onClick={handleSplitBill}
+                  className="w-full bg-purple-500 text-white py-2 px-4 rounded hover:bg-purple-600 font-bold mt-4"
+                >
+                  {splitBill ? 'Hủy tách hóa đơn' : 'Tách hóa đơn'}
+                </button>
               </div>
             ) : (
               <p className="text-center text-gray-500">Vui lòng chọn bàn để xem hóa đơn</p>
@@ -385,7 +475,7 @@ console.log(selectedTable);
 
       {/* Modal thêm sản phẩm */}
       {selectedTable && (
-        <AddProductModal 
+        <AddProductModal
           isOpen={isModalOpen}
           onClose={handleCloseModal}
           selectTB={selectedTable}

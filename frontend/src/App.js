@@ -10,9 +10,9 @@ import WarehouseLayout from '@/page/warehouse/WarehouseLayout';
 import CashierLayout from '@/page/cashier/CashierLayout';
 
 import React, { useEffect } from 'react';
-import CashierScreen from './page/cashier/CashierScreen';
-import BillList from './page/cashier/BillList';
-import TableList from './page/cashier/TableList';
+import CashierScreen from './page/cashier/cashier-screen/CashierScreen';
+import BillList from './page/cashier/bill-screen/BillList';
+import TableList from './page/cashier/table-screen/TableList';
 import LandingPage from './components/common/landing';
 import { useDispatch, useSelector } from 'react-redux';
 import { checkAuth } from './store/auth-slice/authSlice';
@@ -25,6 +25,8 @@ import WarehouseCategory from './page/warehouse/warehouseCategory';
 import WarehouseIngredient from './page/warehouse/warehouseIngredient';
 import UserProfile from './components/common/Profile';
 import ChangePassword from '@/page/auth/ChangePassword';
+import EnhancedTableManager from './page/cashier/table-screen/ManagerTableModal';
+
 import Dashboard from './page/shopowner/dashboard/Dashboard';
 function App() {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
@@ -77,6 +79,7 @@ function App() {
           <Route path="allbill" element={<BillList />}></Route>
           <Route path="createbill" element={<CashierScreen />}></Route>
           <Route path="tablelist" element={<TableList />}></Route>
+          <Route path="tablelist/managerTable" element={<EnhancedTableManager />} />
           <Route path="profile" element={<UserProfile />}></Route>
           <Route path="change-password" element={<ChangePassword />}></Route>
         </Route>
