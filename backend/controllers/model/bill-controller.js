@@ -141,7 +141,7 @@ const getBillFromTable = async (req, res, next) => {
     const { id } = req.params;
 
     const bill = await Bill.findOne({ table_id: id, status: 0 }).populate(
-      "product_list.productId" 
+      "product_list.productId"
     );
 
     if (!bill) {
@@ -406,6 +406,140 @@ const deleteBill = async (req, res, next) => {
     next(error);
   }
 };
+const splitBill = async (req, res, next) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    const { originalBillId, splitDetails } = req.body;
+
+    // Lấy bill gốc
+    const originalBill = await Bill.findById(originalBillId).session(session);
+    if (!originalBill) {
+      throw new Error("Không tìm thấy hóa đơn gốc");
+    }
+
+    // Tạo các bill mới từ splitDetails
+    const newBills = splitDetails.map((detail) => {
+      const products = originalBill.product_list.filter((product) =>
+        detail.productIds.includes(product.productId.toString())
+      );
+
+      const totalCost = products.reduce(
+        (sum, product) => sum + product.total,
+        0
+      );
+
+      return new Bill({
+        created_time: new Date(),
+        updated_time: new Date(),
+        total_cost: totalCost,
+        table_id: originalBill.table_id,
+        payment: originalBill.payment,
+        status: originalBill.status,
+        hidden: originalBill.hidden,
+        discount: detail.discount || 0,
+        product_list: products,
+      });
+    });
+
+    // Xóa các sản phẩm đã tách khỏi bill gốc
+    const remainingProducts = originalBill.product_list.filter(
+      (product) =>
+        !splitDetails.some((detail) =>
+          detail.productIds.includes(product.productId.toString())
+        )
+    );
+
+    if (remainingProducts.length > 0) {
+      // Nếu còn sản phẩm, cập nhật bill gốc
+      originalBill.product_list = remainingProducts;
+      originalBill.total_cost = remainingProducts.reduce(
+        (sum, product) => sum + product.total,
+        0
+      );
+      originalBill.updated_time = new Date();
+      await originalBill.save({ session });
+    } else {
+      // Nếu không còn sản phẩm, xóa bill gốc
+      await Bill.findByIdAndDelete(originalBillId).session(session);
+    }
+
+    // Lưu các bill mới
+    await Bill.insertMany(newBills, { session });
+
+    await session.commitTransaction();
+    session.endSession();
+
+    res.status(200).json({
+      message: "Tách hóa đơn thành công",
+      newBills,
+    });
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    next(error);
+  }
+};
+const mergeBills = async (req, res, next) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    const { billIds } = req.body;
+
+    // Lấy các bill cần gộp
+    const bills = await Bill.find({ _id: { $in: billIds } }).session(session);
+    if (bills.length === 0) {
+      throw new Error("Không tìm thấy hóa đơn để gộp");
+    }
+
+    // Kiểm tra xem các bill có cùng bàn không
+    const tableId = bills[0].table_id;
+    const isSameTable = bills.every(
+      (bill) => bill.table_id.toString() === tableId.toString()
+    );
+    if (!isSameTable) {
+      throw new Error("Các hóa đơn không thuộc cùng một bàn");
+    }
+
+    // Gộp sản phẩm từ các bill
+    const mergedProducts = bills.flatMap((bill) => bill.product_list);
+    const totalCost = mergedProducts.reduce(
+      (sum, product) => sum + product.total,
+      0
+    );
+
+    // Tạo bill mới
+    const mergedBill = new Bill({
+      created_time: new Date(),
+      updated_time: new Date(),
+      total_cost: totalCost,
+      table_id: tableId,
+      payment: bills[0].payment,
+      status: bills[0].status,
+      hidden: bills[0].hidden,
+      discount: bills.reduce((sum, bill) => sum + (bill.discount || 0), 0),
+      product_list: mergedProducts,
+    });
+
+    // Xóa các bill cũ
+    await Bill.deleteMany({ _id: { $in: billIds } }).session(session);
+
+    // Lưu bill mới
+    await mergedBill.save({ session });
+
+    await session.commitTransaction();
+    session.endSession();
+
+    res.status(200).json({
+      message: "Gộp hóa đơn thành công",
+      mergedBill,
+    });
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    next(error);
+  }
+};
 
 module.exports = {
   getBill,
@@ -419,4 +553,6 @@ module.exports = {
   addProductsToBill,
   getBillFilter,
   deleteBill,
+  mergeBills,
+  splitBill,
 };
