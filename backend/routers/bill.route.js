@@ -14,6 +14,8 @@ const {
   getProductsSoldByCategory,
   addProductsToBill,
   deleteBill,
+  mergeBills,
+  splitBill,
 } = require("../controllers/model/bill-controller");
 
 billRouter.get("", getBill);
@@ -26,5 +28,6 @@ billRouter.put("/update/:id", postBillUpdate);
 billRouter.put("/add-products/:id", addProductsToBill);
 billRouter.get("/filter", addProductsToBill);
 billRouter.put("/delete/:id", deleteBill);
-
+billRouter.post("/merge", mergeBills);
+billRouter.post("/split", splitBill);
 module.exports = billRouter;

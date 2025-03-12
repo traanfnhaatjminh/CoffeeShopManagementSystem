@@ -953,3 +953,764 @@ export default function CashierScreen() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ <div
+            className="bg-white rounded-lg shadow p-3 md:p-4 mb-4 overflow-hidden"
+            style={{ maxHeight: '700px', display: 'flex', flexDirection: 'column' }}
+          >
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 space-y-3 sm:space-y-0">
+              <h2 className="text-base md:text-lg font-bold px-3 py-1 md:px-4 md:py-2 bg-brown-900 text-white rounded-lg flex items-center">
+                <IoRestaurant className="mr-2" /> Menu
+              </h2>
+
+              <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
+                {/* View Toggle */}
+                <div className="flex items-center bg-gray-200 rounded-lg p-1 self-end sm:self-auto">
+                  <button
+                    className={`px-2 py-1 rounded-md text-xs md:text-sm ${selectedView === 'grid' ? 'bg-white shadow' : ''}`}
+                    onClick={() => setSelectedView('grid')}
+                  >
+                    <span className="flex items-center">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="14"
+                        height="14"
+                        fill="currentColor"
+                        viewBox="0 0 16 16"
+                      >
+                        <path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3A1.5 1.5 0 0 1 7 2.5v3A1.5 1.5 0 0 1 5.5 7h-3A1.5 1.5 0 0 1 1 5.5v-3zm8 0A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5v3A1.5 1.5 0 0 1 13.5 7h-3A1.5 1.5 0 0 1 9 5.5v-3zm-8 8A1.5 1.5 0 0 1 2.5 9h3A1.5 1.5 0 0 1 7 10.5v3A1.5 1.5 0 0 1 5.5 15h-3A1.5 1.5 0 0 1 1 13.5v-3zm8 0A1.5 1.5 0 0 1 10.5 9h3a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-3a1.5 1.5 0 0 1-1.5-1.5v-3z" />
+                      </svg>
+                    </span>
+                  </button>
+                  <button
+                    className={`px-2 py-1 rounded-md text-xs md:text-sm ${selectedView === 'list' ? 'bg-white shadow' : ''}`}
+                    onClick={() => setSelectedView('list')}
+                  >
+                    <span className="flex items-center">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="14"
+                        height="14"
+                        fill="currentColor"
+                        viewBox="0 0 16 16"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"
+                        />
+                      </svg>
+                    </span>
+                  </button>
+                </div>
+
+                {/* Search */}
+                <div className="relative w-full sm:max-w-xs">
+                  <input
+                    type="text"
+                    className="w-full bg-white border border-gray-300 rounded-md pl-8 pr-3 py-1 text-left text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-brown-500 focus:border-brown-500"
+                    placeholder="Tìm sản phẩm..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                  />
+                  <IoSearch className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500 h-4 w-4" />
+                </div>
+              </div>
+            </div>
+
+            {/* Categories - Scrollable horizontally on small screens */}
+            <div className=" pb-2 mb-3 -mx-1 px-1">
+              <div className="flex space-x-2 min-w-max">
+                <button
+                  className={`btn-categories flex items-center px-3 py-1 md:px-4 md:py-2 rounded-lg transition-colors text-xs md:text-sm ${
+                    selectCategory === ''
+                      ? 'bg-brown-900 text-white font-medium'
+                      : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
+                  }`}
+                  onClick={() => setSelectCategory('')}
+                >
+                  <FaUtensils className="mr-1 h-3 w-3 md:h-4 md:w-4" />
+                  Tất cả
+                </button>
+
+                {categories.map((category) => (
+                  <button
+                    key={category._id}
+                    className={`btn-categories flex items-center px-3 py-1 md:px-4 md:py-2 rounded-lg  transition-colors text-xs md:text-sm ${
+                      selectCategory === category._id
+                        ? 'bg-brown-900 text-white font-medium'
+                        : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
+                    }`}
+                    onClick={() => setSelectCategory(category._id)}
+                  >
+                    {category.category_name === 'Cà phê' && <FaCoffee className="mr-1 h-3 w-3 md:h-4 md:w-4" />}
+                    {category.category_name === 'Đồ uống' && <FaWineGlassAlt className="mr-1 h-3 w-3 md:h-4 md:w-4" />}
+                    {category.category_name !== 'Cà phê' && category.category_name !== 'Đồ uống' && (
+                      <FaUtensils className="mr-1 h-3 w-3 md:h-4 md:w-4" />
+                    )}
+                    {category.category_name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Popular Items - Responsive grid/flex layout with smaller images */}
+            {/* {popularItems.length > 0 && (
+              <div className="mb-4">
+                <h3 className="text-sm md:text-md font-semibold mb-2 text-gray-700 flex items-center">
+                  <FaClipboardList className="mr-2 h-3 w-3 md:h-4 md:w-4" /> Sản phẩm phổ biến
+                </h3>
+                <div className="flex space-x-3 overflow-x-auto pb-2 -mx-1 px-1">
+                  {popularItems.map((product) => (
+                    <div
+                      key={`popular-${product._id}`}
+                      className="bg-gray-50 rounded-lg shadow-sm p-2 min-w-max max-w-xs cursor-pointer hover:shadow-md transition-shadow border border-gray-100 flex-shrink-0"
+                      onClick={() => handleAddToCart(product)}
+                    >
+                      <img
+                        src={product.image}
+                        alt={product.pname}
+                        className="w-16 h-16 md:w-20 md:h-20 object-cover rounded mb-1"
+                      />
+                      <h4 className="text-xs md:text-sm font-medium truncate max-w-[76px] md:max-w-[100px]">
+                        {product.pname}
+                      </h4>
+                      <p className="text-xs md:text-sm text-blue-600 font-semibold">
+                        {product.price.toLocaleString()} VND
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )} */}
+          </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+          <div className="flex-1 overflow-y-auto">
+            {selectedView === 'grid' && (
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2 md:gap-4">
+                {products.length > 0 ? (
+                  products
+                    .filter(
+                      (product) =>
+                        product.status !== 'inactive' &&
+                        product.status !== 'discontinued' &&
+                        product.status !== 'out of stock'
+                    )
+                    .map((product) => (
+                      <div
+                        key={product._id}
+                        className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+                        onClick={() => handleAddToCart(product)}
+                      >
+                        <div className="h-24 md:h-32 overflow-hidden">
+                          <img src={product.image} alt={product.pname} className="w-full h-full object-cover" />
+                        </div>
+                        <div className="p-2 md:p-3">
+                          <h3 className="font-medium text-xs md:text-sm text-gray-800 truncate">{product.pname}</h3>
+                          <div className="flex justify-between items-center mt-1 md:mt-2">
+                            <p className="text-blue-600 font-bold text-xs md:text-sm">
+                              {product.sale_price.toLocaleString()} VND
+                            </p>
+                            <button
+                              className="bg-brown-500 text-white p-1 rounded-full hover:bg-brown-600"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleAddToCart(product);
+                              }}
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-3 w-3 md:h-4 md:w-4"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                                />
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                ) : (
+                  <div className="col-span-full text-center py-10 text-red-600 text-sm">
+                    {noResultsMessage || 'Không tìm thấy sản phẩm nào'}
+                  </div>
+                )}
+
+                {/* Inactive products (faded) */}
+                {products
+                  .filter((product) => product.status === 'inactive')
+                  .map((product) => (
+                    <div
+                      key={product._id}
+                      className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden opacity-50 cursor-pointer hover:shadow-md transition-shadow"
+                      onClick={() => handleAddToCart(product)}
+                    >
+                      <div className="h-24 md:h-32 overflow-hidden">
+                        <img src={product.image} alt={product.pname} className="w-full h-full object-cover" />
+                      </div>
+                      <div className="p-2 md:p-3">
+                        <h3 className="font-medium text-xs md:text-sm text-gray-800 truncate">{product.pname}</h3>
+                        <div className="flex justify-between items-center mt-1 md:mt-2">
+                          <p className="text-blue-600 font-bold text-xs md:text-sm">
+                            {product.sale_price.toLocaleString()} VND
+                          </p>
+                          <button
+                            className="bg-brown-500 text-white p-1 rounded-full hover:bg-brown-600"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleAddToCart(product);
+                            }}
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-3 w-3 md:h-4 md:w-4"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                              />
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+
+                {/* Discontinued products */}
+                {products
+                  .filter((product) => product.status === 'discontinued')
+                  .map((product) => (
+                    <div
+                      key={product._id}
+                      className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+                    >
+                      <div className="h-24 md:h-32 overflow-hidden relative">
+                        <img
+                          src={product.image}
+                          alt={product.pname}
+                          className="w-full h-full object-cover opacity-70"
+                        />
+                        <div className="absolute top-0 left-0 bg-red-500 text-white text-xs px-2 py-1 rounded-br-md">
+                          Ngừng sản xuất
+                        </div>
+                      </div>
+                      <div className="p-2 md:p-3">
+                        <h3 className="font-medium text-xs md:text-sm text-gray-800 truncate">{product.pname}</h3>
+                        <div className="flex justify-between items-center mt-1 md:mt-2">
+                          <p className="text-blue-600 font-bold text-xs md:text-sm">
+                            {product.sale_price.toLocaleString()} VND
+                          </p>
+                          <button disabled className="bg-gray-400 text-white p-1 rounded-full cursor-not-allowed">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-3 w-3 md:h-4 md:w-4"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M6 18L18 6M6 6l12 12"
+                              />
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+
+                {/* Out of stock products */}
+                {products
+                  .filter((product) => product.status === 'out of stock')
+                  .map((product) => (
+                    <div
+                      key={product._id}
+                      className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+                    >
+                      <div className="h-24 md:h-32 overflow-hidden relative">
+                        <img
+                          src={product.image}
+                          alt={product.pname}
+                          className="w-full h-full object-cover opacity-70"
+                        />
+                        <div className="absolute top-0 left-0 bg-yellow-500 text-white text-xs px-2 py-1 rounded-br-md">
+                          Hết hàng
+                        </div>
+                      </div>
+                      <div className="p-2 md:p-3">
+                        <h3 className="font-medium text-xs md:text-sm text-gray-800 truncate">{product.pname}</h3>
+                        <div className="flex justify-between items-center mt-1 md:mt-2">
+                          <p className="text-blue-600 font-bold text-xs md:text-sm">
+                            {product.price.toLocaleString()} VND
+                          </p>
+                          <button disabled className="bg-gray-400 text-white p-1 rounded-full cursor-not-allowed">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-3 w-3 md:h-4 md:w-4"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                              />
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            )}
+
+            {/* Products Display - List View - Responsive table with smaller text */}
+            {selectedView === 'list' && (
+              <div className="bg-white rounded-lg overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-2 md:px-6 py-2 md:py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
+                        Sản phẩm
+                      </th>
+                      <th className="px-2 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Giá
+                      </th>
+                      <th className="px-2 md:px-6 py-2 md:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Trạng thái
+                      </th>
+                      <th className="px-2 md:px-6 py-2 md:py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Thao tác
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {products.length > 0 ? (
+                      products.map((product) => (
+                        <tr
+                          key={product._id}
+                          className={`hover:bg-gray-50 ${product.status === 'inactive' ? 'opacity-50' : ''}`}
+                        >
+                          <td className="px-3 md:px-6 py-2 md:py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <div className="flex-shrink-0 h-8 w-8 md:h-10 md:w-10">
+                                <img
+                                  className="h-8 w-8 md:h-10 md:w-10 rounded-md object-cover"
+                                  src={product.image}
+                                  alt={product.pname}
+                                />
+                              </div>
+                              <div className="ml-2 md:ml-4">
+                                <div className="text-xs md:text-sm font-medium text-gray-900 truncate max-w-[120px] md:max-w-full">
+                                  {product.pname}
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-3 md:px-6 py-2 md:py-4 whitespace-nowrap">
+                            <div className="text-xs md:text-sm text-blue-600 font-semibold">
+                              {product.sale_price.toLocaleString()} VND
+                            </div>
+                          </td>
+                          <td className="px-3 md:px-6 py-2 md:py-4 whitespace-nowrap">
+                            {product.status === 'discontinued' && (
+                              <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                Ngừng sản xuất
+                              </span>
+                            )}
+                            {product.status === 'out of stock' && (
+                              <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                Hết hàng
+                              </span>
+                            )}
+                            {product.status === 'active' && (
+                              <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                Còn hàng
+                              </span>
+                            )}
+                            {product.status === 'inactive' && (
+                              <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                Ẩn
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-3 md:px-6 py-2 md:py-4 whitespace-nowrap text-right text-xs md:text-sm font-medium">
+                            {product.status === 'active' || product.status === 'inactive' ? (
+                              <button
+                                onClick={() => handleAddToCart(product)}
+                                className="text-brown-600 hover:text-brown-900 bg-brown-100 hover:bg-brown-200 px-2 py-1 md:px-3 md:py-1 rounded-md text-xs"
+                              >
+                                Thêm vào giỏ
+                              </button>
+                            ) : (
+                              <button
+                                disabled
+                                className="text-gray-400 bg-gray-100 px-2 py-1 md:px-3 md:py-1 rounded-md text-xs cursor-not-allowed"
+                              >
+                                Không có sẵn
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td
+                          colSpan="4"
+                          className="px-3 md:px-6 py-2 md:py-4 text-center text-red-600 text-xs md:text-sm"
+                        >
+                          {noResultsMessage || 'Không tìm thấy sản phẩm nào'}
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+
+          
+      {/* Header - Fixed height and responsive padding */}
+      {/* <header className="bg-brown-900 text-white py-2 px-3 md:p-4 shadow-md">
+        <div className="flex justify-between items-center max-w-full">
+          <h1 className="text-lg md:text-xl lg:text-2xl font-bold font-lauren">Coffee Shop POS</h1>
+          <div className="flex space-x-2 md:space-x-4 items-center">
+            <div className="text-xs md:text-sm">
+              <div>Thu ngân: Admin</div>
+              <div>{new Date().toLocaleDateString()}</div>
+            </div>
+            <button
+              onClick={toggleCartView}
+              className="bg-yellow-600 hover:bg-yellow-700 px-2 py-1 md:px-4 md:py-2 rounded-lg flex items-center text-xs md:text-sm"
+            >
+              <IoCart className="h-4 w-4 md:h-5 md:w-5 mr-1 md:mr-2" />
+              <span>{isCartExpanded ? 'Thu gọn' : 'Mở rộng'} giỏ hàng</span>
+            </button>
+          </div>
+        </div>
+      </header> */}
+
+
+
+      import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { toast, ToastContainer } from 'react-toastify';
+import { generatePDF } from './PayBills';
+import { fetchTables, updateTablePosition } from '../../../store/table-slice/tableSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import AddProductModal from '../table-screen/AddProductModal';
+import { updateBill } from '../../../store/bill-slice/billSlice';
+
+import floorPlan from '../../../assets/img/planFloor.jpg';
+import { useNavigate } from 'react-router-dom';
+
+import CartOrder from './CartOrder';
+import RenderTables from './RenderTables';
+import FilterTable from './FilterTable';
+
+const { Option } = Select;
+
+export default function TableList() {
+  const [selectedTable, setSelectedTable] = useState(null);
+  const [paymentMethod, setPaymentMethod] = useState('');
+  const [selectBill, setSelectBill] = useState(null);
+  const [discount, setDiscount] = useState(0);
+  const [totalCost, setTotalCost] = useState(0);
+  const [cashReal, setCashReal] = useState('');
+  const [notes, setNotes] = useState({});
+  const [splitBill, setSplitBill] = useState(false);
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [searchText, setSearchText] = useState('');
+  const [viewMode, setViewMode] = useState('grid');
+  const [zones, setZones] = useState(['Trong nhà', 'Ngoài trời', 'Tầng trên']);
+  const [selectedZone, setSelectedZone] = useState('all');
+  const dispatch = useDispatch();
+  const [floorPlanImage, setFloorPlanImage] = useState(floorPlan);
+  const navigate = useNavigate();
+
+  const { tableList } = useSelector((state) => state.tables);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const loadData = async () => {
+    try {
+      dispatch(fetchTables());
+    } catch (error) {
+      console.error('Error loading:', error);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+    window.handleTableClick = handleTableClick;
+    return () => {
+      delete window.handleTableClick;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (selectedTable) {
+      const subtotal = selectedTable.bill.reduce((total, item) => total + item.priceP * item.quantityP, 0);
+      const discountValue = discount || 0;
+      const discountedTotal = subtotal * ((100 - discountValue) / 100);
+      setTotalCost(discountedTotal);
+    }
+  }, [selectedTable, discount]);
+
+  const handleTableClick = async (table) => {
+    try {
+      if (!table.status) {
+        const response = await axios.get(`/bills/table/${table._id}`);
+        if (response.data) {
+          setSelectBill(response.data);
+          setSelectedTable({
+            ...table,
+            bill: response.data.product_list || [],
+          });
+        } else {
+          toast.error('Không tìm thấy hóa đơn cho bàn này');
+        }
+        setPaymentMethod('');
+      } else {
+        setSelectedTable(null);
+        setSelectBill(null);
+      }
+    } catch (error) {
+      console.error('Error fetching bill:', error);
+      toast.error('Lỗi khi tải thông tin hóa đơn!');
+    }
+  };
+
+  const handleChange = (event) => {
+    setPaymentMethod(event.target.value);
+  };
+
+  const handleDiscountChange = (event) => {
+    const value = event.target.value;
+    if (value === '') {
+      setDiscount(0);
+      return;
+    }
+    const parsedValue = parseFloat(value);
+    if (isNaN(parsedValue) || parsedValue < 0 || parsedValue > 100) {
+      toast.error('Vui lòng nhập từ 0 - 100');
+    } else {
+      setDiscount(parsedValue);
+    }
+  };
+
+  const handleUpdateBill = async () => {
+    try {
+      if (selectedTable && paymentMethod && selectBill) {
+        const billUpdateData = {
+          payment: paymentMethod,
+          status: 1,
+          table_id: selectedTable._id,
+          discount: discount || 0,
+          totalCost: totalCost || selectedTable.bill.reduce((total, item) => total + item.priceP * item.quantityP, 0),
+        };
+
+        const { data: updatedBill } = await axios.put(`/bills/update/${selectBill._id}`, billUpdateData);
+        generatePDF(updatedBill.bill, cashReal);
+        await loadData();
+        toast.success('Thanh toán thành công!');
+        setSelectedTable(null);
+        setSelectBill(null);
+        setPaymentMethod('');
+        setDiscount(0);
+        setCashReal('');
+      } else {
+        toast.error('Vui lòng chọn phương thức thanh toán!');
+      }
+    } catch (error) {
+      console.error('Error updating bill:', error);
+      toast.error('Có lỗi xảy ra khi thanh toán!');
+    }
+  };
+
+  const handleOpenModal = (tableId) => {
+    if (selectedTable || tableId) {
+      if (tableId && (!selectedTable || selectedTable._id !== tableId)) {
+        const table = tableList.find((t) => t._id === tableId);
+        if (table) {
+          handleTableClick(table);
+        }
+      }
+      setIsModalOpen(true);
+    } else {
+      toast.error('Vui lòng chọn bàn trước khi thêm sản phẩm!');
+    }
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleAddProducts = async (products) => {
+    try {
+      if (selectBill && products.length > 0) {
+        await axios.put(`/bills/add-products/${selectBill._id}`, { products });
+        toast.success('Đã thêm sản phẩm vào hóa đơn!');
+        const response = await axios.get(`/bills/table/${selectedTable._id}`);
+        if (response.data) {
+          setSelectBill(response.data);
+          setSelectedTable({
+            ...selectedTable,
+            bill: response.data.product_list || [],
+          });
+        }
+      } else {
+        toast.error('Không thể thêm sản phẩm! Vui lòng chọn bàn trước.');
+      }
+    } catch (error) {
+      console.error('Error adding products:', error);
+      toast.error('Có lỗi xảy ra khi thêm sản phẩm!');
+    }
+  };
+
+  const handleNoteChange = (itemId, note) => {
+    setNotes({ ...notes, [itemId]: note });
+  };
+
+  const handleSplitBill = () => {
+    setSplitBill(!splitBill);
+  };
+
+  const filteredTables = tableList.filter((table) => {
+    const matchesStatus = filterStatus === 'all' || table.status === (filterStatus === 'available');
+    const matchesSearch = table.table_name.toLowerCase().includes(searchText.toLowerCase());
+    const matchesZone = selectedZone === 'all' || table.zone === selectedZone;
+    return matchesStatus && matchesSearch && matchesZone;
+  });
+
+  const getTableStatistics = () => {
+    const occupiedTables = tableList.filter((table) => !table.status).length;
+    const availableTables = tableList.length - occupiedTables;
+    return { occupiedTables, availableTables };
+  };
+
+  const handleUpdateTablePosition = async (tableId, position) => {
+    dispatch(updateTablePosition({ tableId, position }));
+  };
+  const { occupiedTables, availableTables } = getTableStatistics();
+
+  return (
+    <div className="flex flex-col h-min bg-gray-100">
+      <ToastContainer
+        position="top-right"
+        autoClose={2000}
+        hideProgressBar={false}
+        closeOnClick
+        pauseOnHover
+        draggable
+        pauseOnFocusLoss
+      />
+
+      <main className="flex flex-1">
+        <div className="flex space-x-6 p-4 w-full">
+          {/* Phần Menu */}
+          <section className="flex-1">
+            <FilterTable
+              searchText={searchText}
+              setFilterStatus={setFilterStatus}
+              setSearchText={setSearchText}
+              setSelectedZone={setSelectedZone}
+              zones={zones}
+              setViewMode={setViewMode}
+              viewMode={viewMode}
+            />
+            {/* Thống kê nhanh */}
+            <div className="mb-4">
+              <span className="text-sm text-gray-600">Bàn đang dùng: {occupiedTables}</span>
+              <span className="text-sm text-gray-600 ml-4">Bàn trống: {availableTables}</span>
+            </div>
+
+            {/* Danh sách bàn */}
+            <RenderTables
+              viewMode={viewMode}
+              filteredTables={filteredTables}
+              handleOpenModal={handleOpenModal}
+              handleTableClick={handleTableClick}
+              floorPlanImage={floorPlanImage}
+              handleUpdateTablePosition={handleUpdateTablePosition}
+            />
+          </section>
+
+          {/* Phần Giỏ hàng */}
+          <CartOrder
+            selectedTable={selectedTable}
+            handleChange={handleChange}
+            handleDiscountChange={handleDiscountChange}
+            handleNoteChange={handleNoteChange}
+            notes={notes}
+            handleOpenModal={handleOpenModal}
+            discount={discount}
+            paymentMethod={paymentMethod}
+            cashReal={cashReal}
+            setCashReal={setCashReal}
+            totalCost={totalCost}
+            handleUpdateBill={handleUpdateBill}
+            handleSplitBill={handleSplitBill}
+            splitBill={splitBill}
+          />
+        </div>
+      </main>
+
+      {/* Modal thêm sản phẩm */}
+      {selectedTable && (
+        <AddProductModal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          selectTB={selectedTable}
+          onAddProduct={handleAddProducts}
+        />
+      )}
+    </div>
+  );
+}
