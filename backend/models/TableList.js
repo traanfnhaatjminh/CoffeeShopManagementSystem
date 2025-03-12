@@ -10,7 +10,16 @@ const tableList = new Schema({
     type: Boolean,
     required: true,
   },
-  location_table: Number,
+  location_table: {
+    type: String,
+    required: true,
+    enum: [
+      "indoor",
+      "outdoor",
+      "takeaway",
+      ...Array.from({ length: 10 }, (_, i) => `floor_${i + 1}`),
+    ],
+  },
   isTakeaway: {
     type: Boolean,
     default: false,
@@ -19,8 +28,15 @@ const tableList = new Schema({
     type: String,
     required: true,
   },
-  //false: hết bàn
-  //true: còn bàn
+  x: {
+    type: Number,
+    default: 0, // Vị trí x trên sơ đồ
+  },
+  y: {
+    type: Number,
+    default: 0, // Vị trí y trên sơ đồ
+  },
 });
+
 const Table = mongoose.model("TableList", tableList);
 module.exports = Table;

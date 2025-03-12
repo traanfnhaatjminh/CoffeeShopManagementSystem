@@ -48,6 +48,11 @@ const infoSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
+  map: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
 });
 const Info = mongoose.model("Info", infoSchema);
 module.exports = Info;

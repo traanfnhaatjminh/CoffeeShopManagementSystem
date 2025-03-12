@@ -17,7 +17,7 @@ const createNewTable = async (req, res) => {
         message: "Insert successfully.",
         result: newDoc,
       });
-       });
+    });
   } catch (error) {
     console.error(error);
     res.status(400).json({
@@ -33,6 +33,37 @@ const getAllTable = async (req, res, next) => {
     res.status(200).json(tables);
   } catch (error) {
     next(error);
+  }
+};
+
+const updateTableView = async (req, res) => {
+  const { id } = req.params;
+  const { x, y } = req.body;
+
+  // Log dữ liệu nhận được
+  console.log("🛠 Dữ liệu nhận từ client:", req.body);
+
+  // Kiểm tra dữ liệu đầu vào
+  if (typeof x !== "number" || typeof y !== "number") {
+    return res.status(400).json({ message: "Dữ liệu x hoặc y không hợp lệ" });
+  }
+
+  try {
+    // Đổi từ TableList thành Table
+    const updatedTable = await TableList.findByIdAndUpdate(
+      id,
+      { x, y },
+      { new: true }
+    );
+
+    if (!updatedTable) {
+      return res.status(404).json({ message: "Không tìm thấy bàn" });
+    }
+
+    res.status(200).json(updatedTable);
+  } catch (error) {
+    console.error("❌ Lỗi cập nhật vị trí bàn:", error);
+    res.status(500).json({ message: "Lỗi khi cập nhật vị trí bàn" });
   }
 };
 const getAllTables = async (req, res, next) => {
@@ -98,7 +129,7 @@ const deleteTable = async (req, res, next) => {
     }
     res.status(200).json({
       message: "Table deleted successfully",
-      result: deletedTable
+      result: deletedTable,
     });
   } catch (error) {
     next(error);
@@ -111,5 +142,6 @@ module.exports = {
   updateStatus,
   getAllTables,
   updateTable,
-  deleteTable
+  deleteTable,
+  updateTableView,
 };

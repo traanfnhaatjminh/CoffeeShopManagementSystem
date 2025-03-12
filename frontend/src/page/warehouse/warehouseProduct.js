@@ -9,7 +9,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 import APISERVICECASHIER from '../../services/api-cashier';
 
-
 function WarehouseProduct() {
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState('');

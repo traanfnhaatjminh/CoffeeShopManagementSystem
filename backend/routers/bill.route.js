@@ -11,16 +11,23 @@ const {
   getBill,
   createNewBill,
   getStatistics,
-  getProductsSoldByCategory, addProductsToBill
+  getProductsSoldByCategory,
+  addProductsToBill,
+  deleteBill,
+  mergeBills,
+  splitBill,
 } = require("../controllers/model/bill-controller");
 
 billRouter.get("", getBill);
+billRouter.get("/all", getAllBill);
 billRouter.post("/createBill", createNewBill);
 billRouter.get("/statistics", getStatistics);
 billRouter.get("/sold-by-category", getProductsSoldByCategory);
 billRouter.get("/table/:id", getBillFromTable);
-billRouter.put("/update/:id",postBillUpdate);
-billRouter.put("/add-products/:id",addProductsToBill);
-billRouter.get("/filter",addProductsToBill);
-
+billRouter.put("/update/:id", postBillUpdate);
+billRouter.put("/add-products/:id", addProductsToBill);
+billRouter.get("/filter", addProductsToBill);
+billRouter.put("/delete/:id", deleteBill);
+billRouter.post("/merge", mergeBills);
+billRouter.post("/split", splitBill);
 module.exports = billRouter;
