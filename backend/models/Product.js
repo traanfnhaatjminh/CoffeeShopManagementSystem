@@ -45,6 +45,7 @@ const productSchema = new Schema(
                 TotalPerIngredient: {
                     type: Number,
                 },
+                _id: false
             },
         ],
     },

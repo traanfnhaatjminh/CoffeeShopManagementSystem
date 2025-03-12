@@ -26,9 +26,10 @@ export default function EditProductModal({ product, closeModal, refreshProducts 
 
         if (product) {
             setProductName(product.pname);
-            setPrice(product.price);
+            setPrice(product.sale_price);
             setImage(product.image);
-            setCategory(product.category_id ? product.category_id._id : '');            setImagePreview(product.image); //xem trc ảnh
+            setCategory(product.category_id ? product.category_id._id : '');
+            setImagePreview(product.image); //xem trc ảnh
         }
     }, [product]);
 
