@@ -33,8 +33,8 @@ const AuthLogin = () => {
 
   const dispatch = useDispatch();
   const validationSchema = yup.object({
-    email: yup.string().required('Email is required.').email('Invalid email format.'),
-    password: yup.string().required('Password is required.'),
+    email: yup.string().required('Email không được để trống').email('Email nhập vào không đúng'),
+    password: yup.string().required('Mật khẩu không được để trống'),
   });
 
   const handleLogin = async (event) => {
@@ -55,6 +55,7 @@ const AuthLogin = () => {
       err.inner.forEach((error) => {
         newErrors[error.path] = error.message;
       });
+      console.log();
       setErrors(newErrors);
       console.log('errors:', errors);
       setLoading(false);
@@ -131,17 +132,12 @@ const AuthLogin = () => {
                       onChange={handleChange}
                     ></input>
                   </div>
-                  {errors.email && <div className="text-red-500 mt-1">{errors.email}</div>}
-                  {errors.password && <div className="text-red-500 mt-1">{errors.password}</div>}
-                  {errors.general && <div className="text-red-500 mb-2">{errors.general}</div>}
+                  {Object.keys(errors).length > 0 && (
+                    <div className="text-red-500 mt-1">{errors[Object.keys(errors)[0]]}</div>
+                  )}
                 </div>
                 <div className="feature-login flex justify-between mt-2">
-                  <div className="remember-account flex items-center">
-                    <input type="checkbox" id="check-remember" className="h-6" />
-                    <label htmlFor="check-remember" className="pl-2">
-                      Ghi nhớ
-                    </label>
-                  </div>
+                  <div className="remember-account flex items-center"></div>
                   <Link className="forgot-password text-[#3B82F6]" to="./forgot-password">
                     Quên mật khẩu
                   </Link>

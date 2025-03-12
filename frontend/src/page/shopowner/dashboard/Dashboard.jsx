@@ -14,11 +14,19 @@ import {
 } from 'recharts';
 import Card from './common/Card';
 import Table from './common/Table';
-import { COLORS, totalRevenue, totalProfit, totalExpense, listChartData } from './data/dataDashboard';
+import { COLORS, totalRevenue, totalProfit, totalExpense, listChartData, staticSelect } from './data/dataDashboard';
 import { formatCurrency } from './data/helper';
 import { useDispatch } from 'react-redux';
-import { getTotalRevenue, getTotalProfit, getTotalExpense } from '@/store/revenue-slice/revenueSlice';
+import {
+  getTotalRevenue,
+  getTotalProfit,
+  getTotalExpense,
+  getDataLatestMonths,
+  getListTopProductsOrder,
+  getListIngredient,
+} from '@/store/revenue-slice/revenueSlice';
 import MoonLoader from 'react-spinners/MoonLoader';
+import { Link } from 'react-router-dom';
 
 const cssOverride = {
   position: 'fixed',
@@ -29,23 +37,6 @@ const cssOverride = {
   margin: 'auto',
   zIndex: 9999,
 };
-const monthlyRevenueData = [
-  { month: 'Tháng 1', revenue: 4800000 },
-  { month: 'Tháng 2', revenue: 5200000 },
-  { month: 'Tháng 3', revenue: 4900000 },
-];
-
-const profitSources = [
-  { source: 'Bán cà phê', amount: 1800000 },
-  { source: 'Bán trà', amount: 500000 },
-  { source: 'Khác', amount: 200000 },
-];
-
-const expenseSources = [
-  { source: 'Nhập hàng', amount: 700000 },
-  { source: 'Nhân viên', amount: 300000 },
-  { source: 'Khác', amount: 200000 },
-];
 
 const ReportDashboard = () => {
   const dispatch = useDispatch();
@@ -54,24 +45,46 @@ const ReportDashboard = () => {
   const [dataTotalProfit, setDataTotalProfit] = useState(totalProfit);
   const [dataTotalExpense, setDataTotalExpense] = useState(totalExpense);
   const [chartData, setChartData] = useState(listChartData);
+  const [dataLatestMonth, setDataLatestMonth] = useState([]);
+  const [listTopProductOrder, setListTopProductOrder] = useState([]);
+  const [listIngredient, setListIngredient] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [filterMode, setFilterMode] = useState('latest');
 
+  const month = new Date().getMonth() + 1;
+  const year = new Date().getFullYear();
   const handleGetDataTotalRevenue = async () => {
     setLoading(true);
     try {
-      const dataRevenue = await dispatch(getTotalRevenue({ month: 3 }));
+      let dataRevenue, dataProfit, dataExpense, dataAllLatestMonth, dataListTopOrderProduct, dataListIngredient;
+
+      let params = filterMode === 'latest' ? { month, year } : {};
+
+      [dataRevenue, dataProfit, dataExpense, dataAllLatestMonth, dataListTopOrderProduct, dataListIngredient] =
+        await Promise.all([
+          dispatch(getTotalRevenue(params)),
+          dispatch(getTotalProfit(params)),
+          dispatch(getTotalExpense(params)),
+          dispatch(getDataLatestMonths()),
+          dispatch(getListTopProductsOrder(params)),
+          dispatch(getListIngredient(params)),
+        ]);
+
       setDataTotalRevenue(dataRevenue.payload.data);
-
-      const dataProfit = await dispatch(getTotalProfit({ month: 3 }));
       setDataTotalProfit(dataProfit.payload.data);
-
-      const dataExpense = await dispatch(getTotalExpense({ month: 3 }));
       setDataTotalExpense(dataExpense.payload.data);
+      setListTopProductOrder(dataListTopOrderProduct.payload.data.listDataTopProduct);
+      setListIngredient(dataListIngredient.payload.data);
 
       setChartData([
         { name: 'Lợi nhuận', value: dataProfit.payload.data.totalMoneyProfit || 0, rase: true },
         { name: 'Chi phí', value: dataExpense.payload.data.totalExpense || 0, rase: true },
       ]);
+
+      if (dataAllLatestMonth?.payload?.data) {
+        setDataLatestMonth(dataAllLatestMonth.payload.data);
+      }
+      console.log('listIngredient:', listIngredient);
     } catch (error) {
       console.log(error);
     } finally {
@@ -81,7 +94,7 @@ const ReportDashboard = () => {
 
   useEffect(() => {
     handleGetDataTotalRevenue();
-  }, []);
+  }, [filterMode]);
 
   return (
     <>
@@ -92,8 +105,30 @@ const ReportDashboard = () => {
       )}
       <div className="py-5 bg-[#F5E1C0] min-h-screen flex flex-col gap-6 px-6 md:px-10 w-full font-mono">
         <div className="w-full text-center">
-          <h1 className="text-4xl font-bold text-[#5D4037] mb-6">Báo Cáo Kinh Doanh Tháng 3</h1>
+          <h1 className="text-4xl font-bold text-gray-800 mb-6 flex items-center justify-center gap-2">
+            📊 Báo Cáo Kinh Doanh
+          </h1>
+
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="px-6 py-3 bg-blue-100 text-blue-700 text-2xl font-bold border border-blue-500 rounded-lg shadow-md min-w-[150px] text-center">
+              {filterMode === 'latest' ? `Tháng ${month}` : 'Toàn bộ'}
+            </div>
+
+            <select
+              value={filterMode}
+              onChange={(e) => setFilterMode(e.target.value)}
+              className="px-4 py-3 border border-gray-300 rounded-lg text-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              {staticSelect &&
+                staticSelect.map((item, index) => (
+                  <option value={item.value} key={index}>
+                    {item.name}
+                  </option>
+                ))}
+            </select>
+          </div>
         </div>
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card
             title="Doanh Thu Tổng"
@@ -102,19 +137,22 @@ const ReportDashboard = () => {
             className={`bg-white border shadow-lg rounded-lg p-4 text-center flex items-center gap-4`}
           />
 
-          <Card
-            title="Lợi Nhuận"
-            value={dataTotalProfit.totalMoneyProfit || 0}
-            type={true}
-            className={`bg-white border shadow-lg rounded-lg p-4 text-center flex items-center gap-4`}
-          />
-
-          <Card
-            title="Chi Phí"
-            value={dataTotalExpense.totalExpense || 0}
-            type={false}
-            className={`bg-white border shadow-lg rounded-lg p-4 text-center flex items-center gap-4`}
-          />
+          <Link to="/admin/profits">
+            <Card
+              title="Lợi Nhuận"
+              value={dataTotalProfit.totalMoneyProfit || 0}
+              type={true}
+              className={`bg-white border shadow-lg rounded-lg p-4 text-center flex items-center gap-4`}
+            />
+          </Link>
+          <Link to="/admin/expense">
+            <Card
+              title="Chi Phí"
+              value={dataTotalExpense.totalExpense || 0}
+              type={false}
+              className={`bg-white border shadow-lg rounded-lg p-4 text-center flex items-center gap-4`}
+            />
+          </Link>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-white p-6 rounded-lg shadow-lg border-2 border-[#795548]">
@@ -141,28 +179,28 @@ const ReportDashboard = () => {
             </ResponsiveContainer>
           </div>
           <div className="bg-white p-6 rounded-lg shadow-lg border-2 border-[#795548]">
-            <h2 className="text-xl font-semibold text-[#5D4037] mb-4">Doanh thu 3 tháng gần nhất</h2>
-            <ResponsiveContainer width="90%" height={300} className="p-2">
-              <BarChart data={monthlyRevenueData}>
+            <h2 className="text-xl font-semibold text-[#5D4037] mb-4">Doanh thu các tháng gần nhất</h2>
+            <ResponsiveContainer width="90%" height={300} className="p-5">
+              <BarChart data={dataLatestMonth}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip formatter={(value) => formatCurrency(value)} />
-                <Legend />
-                <Bar dataKey="revenue" fill="#6D4C41" />
+                <XAxis dataKey="month" tickFormatter={(value) => `Tháng ${value}`} />
+                <YAxis tickFormatter={(value) => formatCurrency(value)} />
+                <Tooltip
+                  formatter={(value, name, props) => [`${formatCurrency(value)}`, `Tháng ${props.payload.month}`]}
+                />
+                <Legend formatter={() => `Thống kê doanh thu theo tháng`} />
+                <Bar dataKey="totalAmountInMonth" fill="#6D4C41" />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Table
-            title="Lợi nhuận trong tháng qua"
-            data={profitSources.map((item) => ({ source: item.source, amount: formatCurrency(item.amount) }))}
-          />
-          <Table
-            title="Các nguồn chi trong tháng qua"
-            data={expenseSources.map((item) => ({ source: item.source, amount: formatCurrency(item.amount) }))}
-          />
+          {listTopProductOrder && (
+            <Table title="Top 5 đồ uống Hot" data={listTopProductOrder} row={5} type="listTopProductOrder" />
+          )}
+          {listIngredient && (
+            <Table title="Các nguồn chi trong tháng qua" data={listIngredient} row={5} type="listIngredient" />
+          )}
         </div>
       </div>
     </>
