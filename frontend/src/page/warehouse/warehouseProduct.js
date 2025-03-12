@@ -8,12 +8,14 @@ import axios from 'axios'; // Import axios
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import 'react-confirm-alert/src/react-confirm-alert.css';
+import ShowIngredientInProduct from './ShowIngredientInProduct';
 
 function WarehouseProduct() {
   const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showIngredientModal, setShowIngredientModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -54,6 +56,11 @@ function WarehouseProduct() {
   const handleEditProduct = (product) => {
     setSelectedProduct(product);
     setShowEditModal(true);
+  };
+
+  const handleShowIngredientInProduct = (product) => {
+    setSelectedProduct(product);
+    setShowIngredientModal(true);
   };
 
   const handleAddProduct = () => {
@@ -168,8 +175,6 @@ function WarehouseProduct() {
                 </label>
               ))}
             </div>
-
-
           </div>
 
           <div className="overflow-x-auto">
@@ -212,7 +217,7 @@ function WarehouseProduct() {
                         <td className="px-6 py-4 text-lg font-medium text-gray-900">
                           {index + 1 + (currentPage - 1) * productPerPage}
                         </td>
-                        <td className="px-6 py-4 text-md text-gray-500">
+                        <td className="px-6 py-4 text-md text-gray-500" onClick={() => handleShowIngredientInProduct(product)}>
                           {product.pname}
 
                           {/* Nếu danh mục của sản phẩm bị inactive */}
@@ -268,6 +273,13 @@ function WarehouseProduct() {
               <EditProductModal
                 product={selectedProduct}
                 closeModal={() => setShowEditModal(false)}
+                refreshProducts={fetchProducts}
+              />
+            )}
+            {showIngredientModal && (
+              <ShowIngredientInProduct
+                product={selectedProduct}
+                closeModal={() => setShowIngredientModal(false)}
                 refreshProducts={fetchProducts}
               />
             )}

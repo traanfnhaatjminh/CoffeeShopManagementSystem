@@ -52,7 +52,6 @@ ingredientSchema.methods.toJSON = function () {
         ...entry,
         date: moment(entry.date).tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY HH:mm')
     }));
-
     return obj;
 };
 
