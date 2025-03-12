@@ -171,7 +171,7 @@ export default function AddProductModal({ isOpen, onClose, selectTB, onAddProduc
                           <img src={product.image} alt={product.pname} className="w-12 h-12 rounded-md object-cover" />
                           <div className="flex-1 min-w-0">
                             <p className="font-medium truncate">{product.pname}</p>
-                            <p className="text-sm text-gray-600">{product.sale_price.toLocaleString()} VND</p>
+                            <p className="text-sm text-gray-600">{product.sale_price} VND</p>
                           </div>
                         </div>
                       </div>

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { set } from 'mongoose';
 
 export default function AddProductModal({ closeModal, refreshProducts }) {
   const [productName, setProductName] = useState('');
@@ -37,8 +36,6 @@ export default function AddProductModal({ closeModal, refreshProducts }) {
     setCostPrice(Math.round(total)); // Làm tròn để tránh số lẻ
   }, [selectedIngredients, quantities]);
 
-
-
   // Lấy danh sách ingredients
   useEffect(() => {
     const fetchIngredients = async () => {
@@ -59,9 +56,7 @@ export default function AddProductModal({ closeModal, refreshProducts }) {
       return;
     }
     // Giả sử ingredient có field 'name'
-    const filtered = ingredientsList.filter((item) =>
-      item.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filtered = ingredientsList.filter((item) => item.name.toLowerCase().includes(searchTerm.toLowerCase()));
     setFilteredIngredients(filtered);
   }, [searchTerm, ingredientsList]);
 
@@ -73,9 +68,7 @@ export default function AddProductModal({ closeModal, refreshProducts }) {
   // Xử lý khi user chọn 1 ingredient
   const handleSelectIngredient = (ingredient) => {
     // Kiểm tra xem ingredient đã có trong danh sách chưa
-    const alreadyExists = selectedIngredients.some(
-      (item) => item._id === ingredient._id
-    );
+    const alreadyExists = selectedIngredients.some((item) => item._id === ingredient._id);
     if (!alreadyExists) {
       setSelectedIngredients([...selectedIngredients, ingredient]);
     }
@@ -93,8 +86,7 @@ export default function AddProductModal({ closeModal, refreshProducts }) {
     if (!ingredient.purchase_history || ingredient.purchase_history.length === 0) {
       return 0;
     }
-    const latestPurchase = ingredient.purchase_history
-      .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+    const latestPurchase = ingredient.purchase_history.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
     return latestPurchase.cost_price;
   };
 
@@ -155,13 +147,16 @@ export default function AddProductModal({ closeModal, refreshProducts }) {
     formData.append('category_id', category);
 
     // Chuyển danh sách ingredients thành JSON string
-    formData.append('ingredients', JSON.stringify(
-      selectedIngredients.map(item => ({
-        ingredient_id: item._id,
-        quantitative: quantities[item._id],
-        TotalPerIngredient: calculatePrice(item)
-      }))
-    ));
+    formData.append(
+      'ingredients',
+      JSON.stringify(
+        selectedIngredients.map((item) => ({
+          ingredient_id: item._id,
+          quantitative: quantities[item._id],
+          TotalPerIngredient: calculatePrice(item),
+        }))
+      )
+    );
 
     try {
       await axios.post(`/products/createProduct`, formData, {
@@ -190,7 +185,7 @@ export default function AddProductModal({ closeModal, refreshProducts }) {
                 className="border rounded-md p-2 w-full"
                 value={productName}
                 onChange={(e) => setProductName(e.target.value)}
-                placeholder='Nhập tên hàng hóa'
+                placeholder="Nhập tên hàng hóa"
                 required
               />
             </div>
@@ -272,20 +267,26 @@ export default function AddProductModal({ closeModal, refreshProducts }) {
                 <tbody>
                   {selectedIngredients.map((item) => (
                     <tr key={item._id}>
-                      <td className="border p-2" style={{ fontWeight: 'bold' }}>{item.name} - ({item.unit})</td>
+                      <td className="border p-2" style={{ fontWeight: 'bold' }}>
+                        {item.name} - ({item.unit})
+                      </td>
                       <td className="border p-2">
                         <input
                           type="number"
                           className="border p-1 w-20"
-                          value={quantities[item._id] || ""}
+                          value={quantities[item._id] || ''}
                           onChange={(e) => handleQuantityChange(item._id, e.target.value)}
                         />
                       </td>
                       <td className="border p-2">
-                        {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(getLatestCostPrice(item))}
+                        {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(
+                          getLatestCostPrice(item)
+                        )}
                       </td>
                       <td className="border p-2">
-                        {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(calculatePrice(item))}
+                        {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(
+                          calculatePrice(item)
+                        )}
                       </td>
                       <td className="border p-2">
                         <button
@@ -298,12 +299,11 @@ export default function AddProductModal({ closeModal, refreshProducts }) {
                     </tr>
                   ))}
                 </tbody>
-                <div className='p-2' style={{ fontWeight: 'bold' }}>Tổng giá vốn thành phần:
-                  <span className='ml-2' style={{ fontWeight: 'normal' }}>
-                    {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(costPrice)}
-
+                <div className="p-2" style={{ fontWeight: 'bold' }}>
+                  Tổng giá vốn thành phần:
+                  <span className="ml-2" style={{ fontWeight: 'normal' }}>
+                    {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(costPrice)}
                   </span>
-
                 </div>
               </table>
             )}
@@ -315,25 +315,22 @@ export default function AddProductModal({ closeModal, refreshProducts }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center" >
-      <div
-        className="bg-white p-4 rounded-lg h-auto"
-        style={{ maxHeight: '150vh', width: '70%' }}
-      >
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+      <div className="bg-white p-4 rounded-lg h-auto" style={{ maxHeight: '150vh', width: '70%' }}>
         <h2 className="text-xl font-bold mb-2">Thêm hàng hóa mới</h2>
 
         {/* Thanh tab */}
         <div className="flex mb-4">
           <button
-            className={`mr-2 px-3 py-1 rounded ${activeTab === 'thongtin' ? 'bg-green-500 text-white' : 'bg-gray-300'
-              }`}
+            className={`mr-2 px-3 py-1 rounded ${activeTab === 'thongtin' ? 'bg-green-500 text-white' : 'bg-gray-300'}`}
             onClick={() => setActiveTab('thongtin')}
           >
             Thông tin
           </button>
           <button
-            className={`mr-2 px-3 py-1 rounded ${activeTab === 'thanhphan' ? 'bg-green-500 text-white' : 'bg-gray-300'
-              }`}
+            className={`mr-2 px-3 py-1 rounded ${
+              activeTab === 'thanhphan' ? 'bg-green-500 text-white' : 'bg-gray-300'
+            }`}
             onClick={() => setActiveTab('thanhphan')}
           >
             Thành phần
@@ -346,17 +343,10 @@ export default function AddProductModal({ closeModal, refreshProducts }) {
 
           {/* Nút hủy và nút thêm */}
           <div className="flex justify-end mt-3">
-            <button
-              type="button"
-              onClick={closeModal}
-              className="bg-gray-400 text-white px-3 py-1 rounded-lg mr-2"
-            >
+            <button type="button" onClick={closeModal} className="bg-gray-400 text-white px-3 py-1 rounded-lg mr-2">
               Hủy
             </button>
-            <button
-              type="submit"
-              className="bg-green-400 text-white px-3 py-1 rounded-lg"
-            >
+            <button type="submit" className="bg-green-400 text-white px-3 py-1 rounded-lg">
               Thêm
             </button>
           </div>
