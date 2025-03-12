@@ -33,16 +33,17 @@ export default function AddUserModal({ closeModal }) {
     username: yup.string().required('Please enter your username.'),
     password: yup
       .string()
-      .required('Password is required.')
-      .min(8, 'Password must be at least 8 characters long.')
-      .matches(/[0-9]/, 'Password must contain at least one number.')
-      .matches(/[A-Z]/, 'Password must contain at least one uppercase letter.')
-      .matches(/[a-z]/, 'Password must contain at least one lowercase letter.')
-      .matches(/[~!@#$%^&*()_+|}{><}]/, 'Password must contain at least one symbol.'),
+      .required('Mật khẩu không được để trống.')
+      .min(8, 'Mật khẩu phải có ít nhất 8 ký tự.')
+      .matches(/[0-9]/, 'Mật khẩu phải chứa ít nhất một chữ số.')
+      .matches(/[A-Z]/, 'Mật khẩu phải chứa ít nhất một chữ cái in hoa.')
+      .matches(/[a-z]/, 'Mật khẩu phải chứa ít nhất một chữ cái thường.')
+      .matches(/[~!@#$%^&*()_+|}{><}]/, 'Mật khẩu phải chứa ít nhất một ký tự đặc biệt.'),
+
     confirmPassword: yup
       .string()
-      .oneOf([yup.ref('password'), null], 'Passwords do not match.')
-      .required('Please confirm your password.'),
+      .oneOf([yup.ref('password'), null], 'Mật khẩu xác nhận không khớp.')
+      .required('Vui lòng nhập lại mật khẩu.'),
   });
 
   const handleSubmitForm = async (event) => {
