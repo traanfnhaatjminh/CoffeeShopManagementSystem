@@ -75,33 +75,10 @@ const UserRolesSettings = () => {
       toast.error("Cập nhật không thành công!");
     }
   };
-  //cập nhật trạng thái
-  const handleUpdateStatus = async (id, currentStatus) => {
-    try {
-      const newStatus = currentStatus === "active" ? "banned" : "active"; // Đảo trạng thái
 
-      await axios.put(`/users/banUser/${id}`, { status: newStatus });
-
-      setUsers(prevUsers =>
-        prevUsers.map(user =>
-          user._id === id ? { ...user, status: newStatus } : user
-        )
-      );
-
-      toast.success(`Trạng thái đã được cập nhật: ${newStatus}`);
-    } catch (error) {
-      console.error("Lỗi khi cập nhật trạng thái:", error);
-      toast.error("Cập nhật trạng thái thất bại!");
-    }
-  };
-
-
-  const filteredUsers = users.filter(user => {
-    if (filterActive && filterInactive) return true; // Nếu cả hai đều chọn, hiển thị tất cả
-    if (filterActive) return user.status === "active"; // Chỉ hiển thị user Active
-    if (filterInactive) return user.status === "banned"; // Chỉ hiển thị user Banned
-    return true; // Nếu không chọn gì, hiển thị tất cả
-  });
+  const filteredUsers = users.filter(user =>
+    (filterActive && user.status) || (filterInactive && !user.status) || (!filterActive && !filterInactive)
+  );
 
   const indexOfLastUser = currentPage * userPerPage;
   const indexOfFirstUser = indexOfLastUser - userPerPage;
@@ -113,128 +90,71 @@ const UserRolesSettings = () => {
       <div className="bg-white rounded-lg shadow-md p-6">
         <h2 className="text-2xl font-semibold mb-6">Quản lý nhân viên & Phân quyền</h2>
 
-        {/* Bộ lọc trạng thái */}
-        {/* Thanh công cụ chứa Bộ Lọc & Nút "Thêm Nhân Viên" */}
-        <div className="flex justify-between items-center mb-4 p-4 bg-gray-100 rounded-lg">
-          {/* Bộ lọc trạng thái */}
-          <div className="flex items-center gap-4">
-            <label className="flex items-center space-x-2 cursor-pointer">
-              <input
-                type="checkbox"
-                className="w-5 h-5 accent-blue-500"
-                checked={filterActive}
-                onChange={() => {
-                  setFilterActive(!filterActive);
-                  setCurrentPage(1);
-                }}
-              />
-              <span className="text-lg text-gray-700">Hoạt động</span>
-            </label>
-
-            <label className="flex items-center space-x-2 cursor-pointer">
-              <input
-                type="checkbox"
-                className="w-5 h-5 accent-red-500"
-                checked={filterInactive}
-                onChange={() => {
-                  setFilterInactive(!filterInactive);
-                  setCurrentPage(1);
-                }}
-              />
-              <span className="text-lg text-gray-700">Bị ban</span>
-            </label>
-          </div>
-
-          {/* Nút Thêm Nhân Viên */}
-          <button
-            onClick={openAddUserModal}
-            className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition"
-          >
-            <FaPlus className="w-4 h-4" />
-            Thêm nhân viên
-          </button>
+        {/* Filter checkboxes */}
+        <div className="flex gap-4 mb-4">
+          <label>
+            <input
+              type="checkbox"
+              checked={filterActive}
+              onChange={() => {
+                setFilterActive(!filterActive);
+                setCurrentPage(1);
+              }}
+            />
+            Active
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={filterInactive}
+              onChange={() => {
+                setFilterInactive(!filterInactive);
+                setCurrentPage(1);
+              }}
+            />
+            Inactive
+          </label>
         </div>
 
-          {/* Bảng danh sách nhân viên */}
-          <div className="overflow-x-auto">
-            <table className="min-w-full border border-gray-200 rounded-lg shadow-sm">
-              <thead className="bg-gray-100">
-                <tr>
-                  <th className="py-3 px-4 border-b text-left">Họ & Tên</th>
-                  <th className="py-3 px-4 border-b text-left">Email</th>
-                  <th className="py-3 px-4 border-b text-left">Số điện thoại</th>
-                  <th className="py-3 px-4 border-b text-left">Địa chỉ</th>
-                  <th className="py-3 px-4 border-b text-left">Vai trò</th>
-                  <th className="py-3 px-4 border-b text-left">Trạng thái</th>
-                  <th className="py-3 px-4 border-b text-center">Hành động</th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentUsers.map((user) => (
-                  <tr key={user._id} className="border-b">
-                    <td className="py-3 px-4">
-                      <p className="font-semibold">{user.fullName}</p>
-                      {user.status === "banned" && (
-                        <p className="text-xs text-red-500 mt-1">Người dùng này đã bị ban</p>
-                      )}
-                    </td>
-                    <td className="py-3 px-4">{user.email}</td>
-                    <td className="py-3 px-4">{user.phone}</td>
-                    <td className="py-3 px-4">{user.address}</td>
-                    <td className="py-3 px-4">
-                      {user.role ? {
-                        "cashier": "Thu ngân",
-                        "warehouse manager": "Quản lý kho",
-                        "admin": "Quản trị viên",
-                        "manager": "Quản lý"
-                      }[user.role.role_name.toLowerCase()] || user.role.role_name
-                        : "Chưa phân quyền"}
-                    </td>
+        <div className="space-y-4">
+          <div className="flex justify-end">
+            <button onClick={openAddUserModal} className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
+              <FaPlus className="w-4 h-4" />
+              Thêm nhân viên
+            </button>
+          </div>
 
-                    <td className="py-3 px-4 font-bold">
-                      <span
-                        className={`${user.status === "active" ? "text-green-500" : "text-red-500"
-                          }`}
-                      >
-                        {user.status === "active" ? "Active" : "Banned"}
+          {currentUsers.map((user) => (
+            <div key={user._id} className="bg-white border rounded-lg p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <FaUser className="w-8 h-8 text-gray-500" />
+                  <div>
+                    <p className="font-medium">{user.fullName}</p>
+                    <p className="text-sm text-gray-500 font-bold">
+                      Vai trò: {user.role ? user.role.role_name : 'Chưa phân quyền'}
+                    </p>
+                    <p className="text-sm font-bold">
+                      Trạng thái:
+                      <span className={`font-bold ${user.status ? 'text-green-500 text-lg' : 'text-red-500 text-lg'}`}>
+                        {user.status ? 'Active' : 'Inactive'}
                       </span>
-                    </td>
-                    <td className="py-3 px-4 text-center">
-                      <td className="py-3 px-4 text-center">
-                        <button
-                          onClick={() => openEditModal(user)}
-                          className="p-2 rounded-md border border-gray-300 hover:bg-gray-50"
-                        >
-                          <FaPencilAlt className="w-4 h-4 text-gray-500" />
-                        </button>
-
-                        {/* Kiểm tra trạng thái để hiển thị đúng nút */}
-                        {user.status === "active" ? (
-                          <button
-                            onClick={() => handleUpdateStatus(user._id, "active")}
-                            className="ml-2 px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition"
-                          >
-                            Ban
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => handleUpdateStatus(user._id, "banned")}
-                            className="ml-2 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition"
-                          >
-                            Bỏ ban
-                          </button>
-                        )}
-
-                      </td>
-
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => openEditModal(user)}
+                    className="p-2 rounded-md border border-gray-300 hover:bg-gray-50"
+                  >
+                    <FaPencilAlt className="w-4 h-4 text-gray-500" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
-
+      </div>
 
       {showEditModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
@@ -255,7 +175,17 @@ const UserRolesSettings = () => {
                 ))}
               </select>
             </div>
-          
+            <div className="mb-4">
+              <label className="block mb-1">Trạng thái:</label>
+              <select
+                value={newStatus ? 'Active' : 'Inactive'}
+                onChange={(e) => setNewStatus(e.target.value === 'Active')}
+                className="border border-gray-300 rounded-md p-2 w-full"
+              >
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+              </select>
+            </div>
             <div className="flex justify-end">
               <button onClick={closeEditModal} className="mr-2 bg-gray-300 px-4 py-2 rounded-md">
                 Hủy

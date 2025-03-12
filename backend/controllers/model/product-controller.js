@@ -44,39 +44,10 @@ const createNewProduct = async (req, res, next) => {
 
 const getAllProductInWarehouse = async (req, res, next) => {
     try {
-        const { search = "", page = "1", limit = "10", status = "" } = req.query;
-
-        const searchQuery = search.trim();
-        const pageNumber = Math.max(parseInt(page, 10) || 1, 1);
-        const limitNumber = Math.max(parseInt(limit, 10) || 10, 1);
-
-        let filter = {};
-
-        if (searchQuery) {
-            filter.pname = { $regex: searchQuery, $options: "i" };
-        }
-
-        if (status) {
-            const statusLower = status.trim().toLowerCase();
-            const validStatuses = ["active", "inactive", "discontinued", "out of stock"];
-            if (!validStatuses.includes(statusLower)) {
-                return res.status(400).json({ message: "Invalid status value" });
-            }
-            filter.status = statusLower;
-        }
-
-        const totalProducts = await Product.countDocuments(filter);
-        const products = await Product.find(filter)
-            .populate("category_id", "category_name status")
-            .skip((pageNumber - 1) * limitNumber)
-            .limit(limitNumber);
-
-        res.status(200).json({
-            products,
-            totalProducts,
-            currentPage: pageNumber,
-            totalPages: Math.ceil(totalProducts / limitNumber),
-        });
+        const products = await Product.find()
+            .populate('category_id')
+            .exec();
+        res.status(200).json(products);
     } catch (error) {
         next(error);
     }
@@ -231,6 +202,21 @@ const updateProductStatus = async (req, res, next) => {
         next(error);
     }
 };
-module.exports = { createNewProduct, getAllProductInHome, getAllProductInWarehouse, getProductsByCategory, updateProduct, updateProductStatus };
 
+const deleteProduct = async (req, res, next) => {
+    try {
+        const { productId } = req.params;
+        const updatedProduct = await Product.findByIdAndUpdate(productId, { status: 0 }, { new: true });
+        if (!updatedProduct) {
+            return res.status(404).json({ message: " Product not found" });
+        }
+        res.status(200).json({
+            message: "Product status updated successfully",
+            result: updatedProduct
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+module.exports = { createNewProduct, getAllProductInHome, getAllProductInWarehouse, getProductsByCategory, updateProduct, deleteProduct, updateProductStatus };
 

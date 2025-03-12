@@ -4,57 +4,52 @@ import { IoSearch } from 'react-icons/io5';
 import EditProductModal from './EditProductModal';
 import AddProductModal from './AddProductModal';
 import Paging from '../../components/common/paging';
+import axios from 'axios'; // Import axios
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import 'react-confirm-alert/src/react-confirm-alert.css';
-import APISERVICECASHIER from '../../services/api-cashier';
 
 function WarehouseProduct() {
   const [products, setProducts] = useState([]);
-  const [search, setSearch] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [selectedStatus, setSelectedStatus] = useState('');
+  const [selectedStatus, setSelectedStatus] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(0);
-  const [productIndexMap, setProductIndexMap] = useState({});
   const productPerPage = 6;
+
 
   const fetchProducts = async () => {
     try {
-      const response = await APISERVICECASHIER.ApiProductInWareHouse(
-        search,
-        currentPage,
-        productPerPage,
-        selectedStatus
+      let query = "/products/listall";
+      if (selectedStatus.length > 0) {
+        query += `?status=${selectedStatus.join(",")}`;
+      }
+
+      const response = await axios.get(query);
+      let allProducts = response.data;
+
+      // Lọc theo từ khóa tìm kiếm
+      let filteredProducts = allProducts.filter((product) =>
+        product.pname.toLowerCase().includes(searchTerm.toLowerCase())
       );
-      setProducts(response.data.products);
-      setTotalPages(response.data.totalPages);
-      const newIndexMap = {};
-      response.data.products.forEach((product, index) => {
-        newIndexMap[product._id] = (currentPage - 1) * productPerPage + index + 1;
+
+      // Sắp xếp theo thứ tự ưu tiên: Active > Inactive > Out of Stock > Discontinued
+      filteredProducts.sort((a, b) => {
+        const statusOrder = ["active", "inactive", "out of stock", "discontinued"];
+        return statusOrder.indexOf(a.status) - statusOrder.indexOf(b.status);
       });
-      setProductIndexMap(newIndexMap);
+
+      setProducts(filteredProducts);
     } catch (error) {
-      toast.error("Không thể tải danh sách sản phẩm!");
+      console.error("Error fetching products:", error);
     }
   };
 
   useEffect(() => {
     fetchProducts();
-  }, [search, selectedStatus, currentPage]);
-
-  const handleSearchChange = (e) => {
-    setSearch(e.target.value);
-    if (currentPage !== 1) setCurrentPage(1); // Chỉ reset khi cần
-  };
-
-  const handleStatusFilterChange = (status) => {
-    setSelectedStatus(prevStatus => prevStatus === status ? '' : status);
-    if (currentPage !== 1) setCurrentPage(1);
-  };
-
+  }, [selectedStatus, searchTerm]);
 
   const handleEditProduct = (product) => {
     setSelectedProduct(product);
@@ -67,20 +62,18 @@ function WarehouseProduct() {
 
   const handleUpdateStatus = async (productId, currentStatus) => {
     let newStatus = "";
+
     if (currentStatus === "active") {
-      newStatus = "inactive";
+      newStatus = "inactive";  // Tạm ngừng bán
     } else if (currentStatus === "inactive") {
-      newStatus = "active";
+      newStatus = "active";  // Bán lại
     } else if (currentStatus === "discontinued") {
       toast.error("Sản phẩm đã ngừng bán hẳn, không thể thay đổi!");
-      return;
-    } else if (currentStatus === "out of stock") {
-      toast.error("Sản phẩm đã hết hàng, cần nhập thêm để kích hoạt lại!");
       return;
     }
 
     try {
-      await APISERVICECASHIER.updateProductStatus(productId, newStatus);
+      await axios.put(`/products/updateStatus/${productId}`, { status: newStatus });
       toast.success("Cập nhật trạng thái thành công!");
       fetchProducts();
     } catch (error) {
@@ -88,6 +81,29 @@ function WarehouseProduct() {
       console.error("Lỗi cập nhật trạng thái:", error);
     }
   };
+
+
+
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    fetchProducts(value);
+  };
+
+  const handleStatusFilterChange = (status) => {
+    setSelectedStatus((prevStatus) => {
+      if (prevStatus.includes(status)) {
+        return prevStatus.filter((s) => s !== status);
+      } else {
+        return [...prevStatus, status];
+      }
+    });
+  };
+
+
+
+  //paging
+  const currentProducts = products.slice((currentPage - 1) * productPerPage, currentPage * productPerPage);
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
@@ -108,18 +124,21 @@ function WarehouseProduct() {
             </h1>
           </div>
 
-
           <div className="flex mb-4 items-center space-x-4">
+            {/* Thanh tìm kiếm */}
             <div className="relative w-72">
               <input
-                className="bg-white border rounded-md pl-3 pr-10 py-2 cursor-default w-full"
+                className="bg-white border border-gray-300 rounded-md pl-3 pr-10 py-2 text-left cursor-default focus-within:outline-none focus-within:ring-1 focus-within:ring-indigo-500 focus-within:border-indigo-500 sm:text-sm w-full"
                 type="text"
-                placeholder="Tìm kiếm sản phẩm..."
-                value={search}
+                placeholder="Tìm kiếm..."
+                aria-label="Tìm kiếm sản phẩm"
+                value={searchTerm}
                 onChange={handleSearchChange}
               />
               <span className="absolute inset-y-0 right-0 flex items-center pr-3">
-                <IoSearch />
+                <button type="button" className="bg-transparent border-none cursor-pointer" aria-label="Tìm kiếm">
+                  <IoSearch />
+                </button>
               </span>
             </div>
 
@@ -129,38 +148,28 @@ function WarehouseProduct() {
               Thêm
             </button>
 
-            <div className="bg-white p-2 shadow-md rounded-lg flex space-x-4 border">
-              <label className="flex items-center space-x-1 cursor-pointer">
-                <input
-                  type="radio"
-                  name="status"
-                  value=""
-                  checked={selectedStatus === ''}
-                  onChange={() => handleStatusFilterChange('')}
-                  className="mr-1"
-                />
-                <span className="text-gray-700">Tất cả</span>
-              </label>
-
+            {/* Bộ lọc trạng thái */}
+            <div className="bg-white p-2 shadow-md rounded-lg flex space-x-4 border border-gray-300">
               {[
                 { value: "active", label: "Đang bán" },
                 { value: "inactive", label: "Tạm ngừng bán" },
-                { value: "discontinued", label: "Nghỉ bán" },
-                { value: "out of stock", label: "Tạm hết hàng" }
-              ].map((status) => (
-                <label key={status.value} className="flex items-center space-x-1 cursor-pointer">
+                { value: "discontinued", label: "Ngừng cung cấp" },
+                { value: "out of stock", label: "Hết hàng" }
+              ].map(({ value, label }) => (
+                <label key={value} className="flex items-center space-x-1 cursor-pointer">
                   <input
-                    type="radio"
-                    name="status"
-                    value={status.value}
-                    checked={selectedStatus === status.value}
-                    onChange={() => handleStatusFilterChange(status.value)}
+                    type="checkbox"
+                    value={value}
+                    checked={selectedStatus.includes(value)}
+                    onChange={() => handleStatusFilterChange(value)}
                     className="mr-1"
                   />
-                  <span className="text-gray-700">{status.label}</span>
+                  <span className="text-gray-700">{label}</span>
                 </label>
               ))}
             </div>
+
+
           </div>
 
           <div className="overflow-x-auto">
@@ -172,7 +181,7 @@ function WarehouseProduct() {
                     Tên đồ uống
                   </th>
                   <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                    Giá vốn
+                    Giá vốn 
                   </th>
                   <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                     Giá bán
@@ -186,91 +195,60 @@ function WarehouseProduct() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {products.length === 0 ? (
+                {currentProducts.length === 0 ? (
                   <tr>
                     <td colSpan="6" className="text-center py-4 font-bold text-lg italic text-gray-400">
                       Không tìm thấy sản phẩm nào.
                     </td>
                   </tr>
                 ) : (
-                  products.map((product, index) => {
+                  currentProducts.map((product, index) => {
                     const isInactiveCategory = product.category_id?.status === "discontinued";
-                    const isOutOfStock = product.status === "out of stock";
-                    const isDiscontinued = product.status === "discontinued";
-                    const isInactive = product.status === "inactive";
-
                     return (
                       <tr
                         key={product._id}
-                        className={`border-b hover:bg-gray-100 transition-colors duration-300 ${isInactiveCategory ? "opacity-50" : ""
-                          }`}
+                        className={`border-b hover:bg-gray-100 transition-colors duration-300 ${isInactiveCategory ? "opacity-50" : ""}`}
                       >
-                        <td className="px-6 py-4 text-lg font-medium text-gray-900">{productIndexMap[product._id]}</td>
-
+                        <td className="px-6 py-4 text-lg font-medium text-gray-900">
+                          {index + 1 + (currentPage - 1) * productPerPage}
+                        </td>
                         <td className="px-6 py-4 text-md text-gray-500">
                           {product.pname}
 
-                          {isInactive && !isInactiveCategory && (
-                            <p className="text-orange-500 text-sm mt-1 italic">
-                              Sản phẩm này tạm ngừng bán.
-                            </p>
+                          {/* Nếu danh mục của sản phẩm bị inactive */}
+                          {isInactiveCategory && (
+                            <p className="text-red-500 text-sm mt-1 italic">Sản phẩm này hiện đang ngừng cung cấp</p>
                           )}
-                          {isOutOfStock && (
-                            <p className="text-blue-500 text-sm mt-1 italic">
-                              Sản phẩm này đã hết hàng.
-                            </p>
-                          )}
-                          {isDiscontinued && (
-                            <p className="text-red-600 text-sm mt-1 italic">
-                              Sản phẩm này đã ngừng bán do danh mục đã ngừng cung cấp.
-                            </p>
+
+                          {/* Nếu chính sản phẩm bị inactive */}
+                          {product.status === "inactive" && !isInactiveCategory && (
+                            <p className="text-red-500 text-sm mt-1 italic">Sản phẩm này tạm ngừng bán</p>
                           )}
                         </td>
-
-                        {/* Giá vốn */}
                         <td className="px-6 py-4 text-md text-gray-500">
                           {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(product.cost_price)}
                         </td>
-
-                        {/* Giá bán */}
                         <td className="px-6 py-4 text-md text-gray-500">
                           {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(product.sale_price)}
                         </td>
-
-                        {/* Ảnh sản phẩm */}
                         <td className="px-6 py-4 text-md text-gray-500">
                           <img src={product.image} alt={product.pname} className="w-16 h-16 object-cover rounded-lg" />
                         </td>
-
-                        {/* Hành động */}
                         <td className="px-6 py-4 text-md font-medium flex space-x-2">
                           <button
                             className="bg-brown-500 text-white py-1 px-3 rounded-lg mr-2 disabled:opacity-50 disabled:cursor-not-allowed"
                             onClick={() => handleEditProduct(product)}
-                            disabled={isInactiveCategory || isDiscontinued}
+                            disabled={isInactiveCategory} // Vô hiệu hóa nếu danh mục bị inactive
                           >
                             <FaPen className="inline-block" />
                           </button>
-
                           <button
-                            className={`py-1 px-3 rounded-lg text-white ${isInactiveCategory || isDiscontinued
-                              ? "bg-gray-400 cursor-not-allowed"
-                              : isOutOfStock
-                                ? "bg-blue-500"
-                                : isInactive
-                                  ? "bg-orange-500"
-                                  : "bg-green-500"
+                            className={`py-1 px-3 rounded-lg text-white ${isInactiveCategory || product.status === "inactive" ? "bg-red-500" : "bg-green-500"
                               }`}
                             onClick={() => handleUpdateStatus(product._id, product.status)}
-                            disabled={isInactiveCategory || isDiscontinued || isOutOfStock}
+                            disabled={isInactiveCategory} // Vô hiệu hóa nếu danh mục bị inactive
                           >
-                            {isInactiveCategory || isDiscontinued
-                              ? "Ngừng bán"
-                              : isOutOfStock
-                                ? "Hết hàng"
-                                : isInactive
-                                  ? "Bán lại"
-                                  : "Đang bán"}
+                            {isInactiveCategory || product.status === "inactive" ? "Đang ngừng bán" : "Đang bán"}
                           </button>
                         </td>
                       </tr>
@@ -280,8 +258,12 @@ function WarehouseProduct() {
               </tbody>
 
             </table>
-            <Paging currentPage={currentPage} totalItems={totalPages * productPerPage} itemsPerPage={productPerPage} onPageChange={setCurrentPage} />
-
+            <Paging
+              currentPage={currentPage}
+              totalItems={products.length}
+              itemsPerPage={productPerPage}
+              onPageChange={setCurrentPage}
+            />
             {showEditModal && (
               <EditProductModal
                 product={selectedProduct}

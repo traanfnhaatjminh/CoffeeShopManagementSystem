@@ -21,42 +21,14 @@ const createNewCategory = async (req, res, next) => {
 //lay tat ca category
 const getAllCategory = async (req, res, next) => {
     try {
-        const { search = "", page = 1, limit = 10, status = "" } = req.query;
-
-        const pageNumber = Math.max(parseInt(page, 10) || 1, 1);
-        const limitNumber = Math.max(parseInt(limit, 10) || 10, 1);
-
-        let filter = {};
-
-        if (search.trim()) {
-            filter.category_name = { $regex: search.trim(), $options: "i" };
-        }
-
-        if (status.trim() === "active" || status.trim() === "discontinued") {
-            filter.status = status.trim();
-        }
-
-        // Kiểm tra danh mục có bị xóa mềm không (nếu có cột deleted)
-        if ("deleted" in Category.schema.paths) {
-            filter.deleted = false;
-        }
-
-        const totalCategories = await Category.countDocuments(filter);
-        const categories = await Category.find(filter)
-            .skip((pageNumber - 1) * limitNumber)
-            .limit(limitNumber);
-
-        res.status(200).json({
-            categories,
-            totalCategories,
-            currentPage: pageNumber,
-            totalPages: Math.ceil(totalCategories / limitNumber),
-        });
+        const categories = await Category.find();
+        res.status(200).json(
+            categories
+        );
     } catch (error) {
         next(error);
     }
 };
-
 
 //tim category theo id
 const getCategoryById = async (req, res, next) => {

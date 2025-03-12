@@ -48,7 +48,7 @@ const createNewUser = async (req, res, next) => {
 
 const getAllUser = async (req, res, next) => {
     try {
-        const users = await User.find({ status: "active" });
+        const users = await User.find({ status: 1 });
         res.status(200).json(users);
     } catch (error) {
         next(error);
@@ -67,11 +67,11 @@ const getAllUsersWithRole = async (req, res, next) => {
 const editUser = async (req, res, next) => {
     try {
         const { userId } = req.params;
-        const { newRole } = req.body;
+        const { newRole, status } = req.body;
         const role = await Role.findOne({ role_name: newRole });
         const updateUser = await User.findByIdAndUpdate(
             userId,
-            { role: role._id },
+            { role: role._id, status: status },
             { new: true }
         ).populate("role");
         if (!updateUser) {
@@ -85,17 +85,4 @@ const editUser = async (req, res, next) => {
         next(error);
     }
 };
-const banUser = async (req, res, next) => {
-    try {
-        const { userId } = req.params;
-        const { status } = req.body;
-        const changedUser = await User.findByIdAndUpdate(userId, { status });
-        if (!changedUser) {
-            return res.status(404).json({ message: "User not found" });
-        }
-        res.status(200).json({ message: "User banned successfully" });
-    } catch (error) {
-        next(error);
-    }
-};
-module.exports = { createNewUser, getAllUser, getAllUsersWithRole, editUser, banUser };
+module.exports = { createNewUser, getAllUser, getAllUsersWithRole, editUser };

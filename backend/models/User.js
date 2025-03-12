@@ -10,11 +10,7 @@ const UserSchema = new Schema(
         address: { type: String },
         avatar: { type: String },
         role: { type: Schema.Types.ObjectId, require: true, ref: "Role" },
-        status: { //Trang thái
-            type: String,
-            enum: ['active', 'banned'],
-            default: 'active',
-        },
+        status: { type: Boolean },
     },
     { timestamps: true }
 );
