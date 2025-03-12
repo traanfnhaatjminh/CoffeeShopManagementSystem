@@ -144,9 +144,8 @@ export default function CashierScreen() {
       <main className="flex  md:flex-row flex-1 p-1 md:p-2 overflow-hidden">
         {/* Menu Section - Adaptive width based on screen size */}
         <section
-          className={`flex-1 transition-all duration-300 mb-4 md:mb-0 overflow-auto ${
-            isCartExpanded ? 'md:w-3/3 lg:w-3/4' : 'md:w-5/6'
-          }`}
+          className={`flex-1 transition-all duration-300 mb-4 md:mb-0 overflow-auto ${isCartExpanded ? 'md:w-3/3 lg:w-3/4' : 'md:w-5/6'
+            }`}
         >
           <MenuSection
             categories={categories}

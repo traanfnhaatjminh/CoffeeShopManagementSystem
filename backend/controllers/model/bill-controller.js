@@ -251,7 +251,7 @@ const postBillUpdate = async (req, res, next) => {
 
 const getAllBill = async (req, res) => {
   try {
-    const billlist = await Bill.find();
+    const billlist = await Bill.find().populate("table_id", "table_name");
     res.status(200).json(billlist);
   } catch (error) {
     next(error);
