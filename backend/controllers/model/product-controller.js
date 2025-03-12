@@ -44,10 +44,39 @@ const createNewProduct = async (req, res, next) => {
 
 const getAllProductInWarehouse = async (req, res, next) => {
     try {
-        const products = await Product.find()
-            .populate('category_id')
-            .exec();
-        res.status(200).json(products);
+        const { search = "", page = "1", limit = "10", status = "" } = req.query;
+
+        const searchQuery = search.trim();
+        const pageNumber = Math.max(parseInt(page, 10) || 1, 1);
+        const limitNumber = Math.max(parseInt(limit, 10) || 10, 1);
+
+        let filter = {};
+
+        if (searchQuery) {
+            filter.pname = { $regex: searchQuery, $options: "i" };
+        }
+
+        if (status) {
+            const statusLower = status.trim().toLowerCase();
+            const validStatuses = ["active", "inactive", "discontinued", "out of stock"];
+            if (!validStatuses.includes(statusLower)) {
+                return res.status(400).json({ message: "Invalid status value" });
+            }
+            filter.status = statusLower;
+        }
+
+        const totalProducts = await Product.countDocuments(filter);
+        const products = await Product.find(filter)
+            .populate("category_id", "category_name status")
+            .skip((pageNumber - 1) * limitNumber)
+            .limit(limitNumber);
+
+        res.status(200).json({
+            products,
+            totalProducts,
+            currentPage: pageNumber,
+            totalPages: Math.ceil(totalProducts / limitNumber),
+        });
     } catch (error) {
         next(error);
     }

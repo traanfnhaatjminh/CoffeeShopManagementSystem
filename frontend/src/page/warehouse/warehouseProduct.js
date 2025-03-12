@@ -58,11 +58,6 @@ function WarehouseProduct() {
     setShowEditModal(true);
   };
 
-  const handleShowIngredientInProduct = (product) => {
-    setSelectedProduct(product);
-    setShowIngredientModal(true);
-  };
-
   const handleAddProduct = () => {
     setShowAddModal(true);
   };
@@ -106,6 +101,8 @@ function WarehouseProduct() {
       }
     });
   };
+
+
 
   //paging
   const currentProducts = products.slice((currentPage - 1) * productPerPage, currentPage * productPerPage);
@@ -173,6 +170,8 @@ function WarehouseProduct() {
                 </label>
               ))}
             </div>
+
+
           </div>
 
           <div className="overflow-x-auto">
@@ -184,7 +183,7 @@ function WarehouseProduct() {
                     Tên đồ uống
                   </th>
                   <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
-                    Giá vốn
+                    Giá vốn 
                   </th>
                   <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
                     Giá bán
@@ -207,9 +206,6 @@ function WarehouseProduct() {
                 ) : (
                   currentProducts.map((product, index) => {
                     const isInactiveCategory = product.category_id?.status === "discontinued";
-                    const isOutOfStock = product.status === "out of stock";
-                    const isDiscontinued = product.status === "discontinued";
-                    const isInactive = product.status === "inactive";
                     return (
                       <tr
                         key={product._id}
@@ -218,7 +214,7 @@ function WarehouseProduct() {
                         <td className="px-6 py-4 text-lg font-medium text-gray-900">
                           {index + 1 + (currentPage - 1) * productPerPage}
                         </td>
-                        <td className="px-6 py-4 text-md text-gray-500" onClick={() => handleShowIngredientInProduct(product)}>
+                        <td className="px-6 py-4 text-md text-gray-500">
                           {product.pname}
 
                           {/* Nếu danh mục của sản phẩm bị inactive */}
@@ -248,28 +244,14 @@ function WarehouseProduct() {
                           >
                             <FaPen className="inline-block" />
                           </button>
-
                           <button
-                            className={`py-1 px-3 rounded-lg text-white ${isInactiveCategory || isDiscontinued
-                              ? "bg-gray-400 cursor-not-allowed"
-                              : isOutOfStock
-                                ? "bg-blue-500"
-                                : isInactive
-                                  ? "bg-orange-500"
-                                  : "bg-green-500"
+                            className={`py-1 px-3 rounded-lg text-white ${isInactiveCategory || product.status === "inactive" ? "bg-red-500" : "bg-green-500"
                               }`}
                             onClick={() => handleUpdateStatus(product._id, product.status)}
-                            disabled={isInactiveCategory || isDiscontinued || isOutOfStock}
+                            disabled={isInactiveCategory} // Vô hiệu hóa nếu danh mục bị inactive
                           >
-                            {isInactiveCategory || isDiscontinued
-                              ? "Ngừng bán"
-                              : isOutOfStock
-                                ? "Hết hàng"
-                                : isInactive
-                                  ? "Bán lại"
-                                  : "Đang bán"}
+                            {isInactiveCategory || product.status === "inactive" ? "Đang ngừng bán" : "Đang bán"}
                           </button>
-
                         </td>
                       </tr>
                     );
@@ -288,13 +270,6 @@ function WarehouseProduct() {
               <EditProductModal
                 product={selectedProduct}
                 closeModal={() => setShowEditModal(false)}
-                refreshProducts={fetchProducts}
-              />
-            )}
-            {showIngredientModal && (
-              <ShowIngredientInProduct
-                product={selectedProduct}
-                closeModal={() => setShowIngredientModal(false)}
                 refreshProducts={fetchProducts}
               />
             )}
