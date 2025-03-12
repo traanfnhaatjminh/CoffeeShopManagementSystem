@@ -3,7 +3,7 @@ import { GrFormNext, GrFormPrevious } from 'react-icons/gr';
 
 const Paging = ({ setCurrentPage, currentPage, totalPages }) => {
   return (
-    <div className="flex justify-center mt-4 md:mt-6">
+    <div className="flex justify-center  md:mt-2 mb-1">
       <nav className="flex items-center space-x-1 md:space-x-2">
         <button
           onClick={() => setCurrentPage(currentPage - 1)}

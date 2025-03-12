@@ -13,10 +13,10 @@ const MenuSection = ({
 }) => {
   return (
     <div
-      className="bg-white rounded-lg shadow p-3 md:p-4 mb-4 overflow-hidden"
+      className="bg-white rounded-lg shadow p-3  md:p-2 mb-2 overflow-hidden"
       style={{ maxHeight: '700px', display: 'flex', flexDirection: 'column' }}
     >
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 space-y-3 sm:space-y-0">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2 space-y-3 sm:space-y-0">
         <h2 className="text-base md:text-lg font-bold px-3 py-1 md:px-4 md:py-2 bg-brown-900 text-white rounded-lg flex items-center">
           <IoRestaurant className="mr-2" /> Menu
         </h2>
@@ -64,8 +64,8 @@ const MenuSection = ({
       </div>
 
       {/* Categories */}
-      <div className=" pb-2 mb-3 -mx-1 px-1">
-        <div className="flex space-x-2 min-w-max">
+      <div className="overflow-x-auto  mb-1 -mx-1 px-1">
+        <div className="flex space-x-2 min-w-max ">
           <button
             className={`btn-categories flex items-center px-3 py-1 md:px-4 md:py-2 rounded-lg transition-colors text-xs md:text-sm ${
               selectCategory === ''
@@ -81,7 +81,7 @@ const MenuSection = ({
           {categories.map((category) => (
             <button
               key={category._id}
-              className={`btn-categories flex items-center px-3 py-1 md:px-4 md:py-2 rounded-lg transition-colors text-xs md:text-sm ${
+              className={`btn-categories flex items-center overflow-x-auto px-3 py-1 md:px-4 md:py-2 rounded-lg transition-colors text-xs md:text-sm ${
                 selectCategory === category._id
                   ? 'bg-brown-900 text-white font-medium'
                   : 'bg-gray-200 hover:bg-gray-300 text-gray-800'

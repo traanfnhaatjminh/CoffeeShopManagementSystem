@@ -3,11 +3,11 @@ import { IoTime } from 'react-icons/io5';
 
 const LastOrder = ({ recentOrders }) => {
   return (
-    <div className="bg-white rounded-lg shadow p-3 md:p-4 min-h-min">
+    <div className="bg-white rounded-lg shadow p-3 md:p-2 min-h-min">
       <h3 className="text-sm md:text-md font-semibold mb-2 md:mb-3 text-gray-700 flex items-center">
         <IoTime className="mr-1 md:mr-2 h-3 w-3 md:h-4 md:w-4" /> Đơn hàng gần đây
       </h3>
-      <div className="overflow-x-auto -mx-3 px-3">
+      <div className="overflow-x-auto -mx-1 px-1 max-h-94 overflow-y-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
