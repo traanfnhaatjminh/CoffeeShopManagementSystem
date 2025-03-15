@@ -145,6 +145,14 @@ function WarehouseIngredient() {
     //paging
     const currentingredients = ingredients.slice((currentPage - 1) * ingredientPerPage, currentPage * ingredientPerPage);
 
+    function splitUnit(quantity, capacity, unit) {
+        const units = unit.split('/'); // Tách đơn vị bằng dấu '/'
+        return {
+            current_quantity: `${quantity} ${units[0]}`,
+            capacity: `${capacity} ${units[1] || ''}` // Nếu chỉ có 1 đơn vị, đơn vị thứ 2 để trống
+        };
+    }
+
     return (
         <div className="flex flex-col min-h-screen bg-gray-100">
             <ToastContainer
@@ -205,20 +213,20 @@ function WarehouseIngredient() {
                         <table className="min-w-full divide-y divide-gray-200 bg-white shadow-lg rounded-lg overflow-hidden">
                             <thead className="bg-gray-50">
                                 <tr className="bg-gray-50">
-                                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
+                                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-900 uppercase tracking-wider">ID</th>
+                                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-900 uppercase tracking-wider">
                                         Tên nguyên liệu
                                     </th>
-                                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
+                                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-900 uppercase tracking-wider">
                                         Đơn vị
                                     </th>
-                                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
+                                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-900 uppercase tracking-wider">
                                         Dung tích
                                     </th>
-                                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
+                                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-900 uppercase tracking-wider">
                                         Tồn kho
                                     </th>
-                                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider">
+                                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-900 uppercase tracking-wider">
                                         Hành Động
                                     </th>
                                 </tr>
@@ -234,14 +242,14 @@ function WarehouseIngredient() {
                                     currentingredients.map((ingredient, index) => (
                                         <tr key={ingredient._id} className="border-b hover:bg-gray-100 transition-colors duration-300">
                                             <td className="px-6 py-4 text-lg font-medium text-gray-900"> {index + 1 + (currentPage - 1) * ingredientPerPage}</td>
-                                            <td className="px-6 py-4 text-md text-gray-500">{ingredient.name}
+                                            <td className="px-6 py-4 text-md text-gray-700">{ingredient.name}
                                             </td>
-                                            <td className="px-6 py-4 text-md text-gray-500">{ingredient.unit}</td>
-                                            <td className="px-6 py-4 text-md text-gray-500">
-                                                {ingredient.capacity}
+                                            <td className="px-6 py-4 text-md text-gray-700">{ingredient.unit}</td>
+                                            <td className="px-6 py-4 text-md text-gray-700">
+                                                {splitUnit(ingredient.current_quantity, ingredient.capacity, ingredient.unit).capacity}
                                             </td>
-                                            <td className="px-6 py-4 text-md text-gray-500">
-                                                {ingredient.current_quantity}
+                                            <td className="px-6 py-4 text-md text-gray-700">
+                                                {splitUnit(ingredient.capacity, ingredient.current_quantity, ingredient.unit).capacity}
                                             </td>
                                             <td className="px-6 py-4 text-md font-medium flex">
                                                 <button

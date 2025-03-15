@@ -46,8 +46,13 @@ export default function CashierScreen() {
         setOrderLoading(true);
 
         // Fetch categories
-        const categoriesResponse = await axios.get('/categories/list');
-        setCategories(categoriesResponse.data);
+        fetch('/categories/list')
+          .then((res) => res.json())
+          .then((data) => {
+            console.log('Fetched Categories:', data); // In ra response để kiểm tra
+            setCategories(data.categories || []); // Đảm bảo nó là mảng
+          })
+          .catch((error) => console.error('Error fetching categories:', error));
 
         // Fetch products based on filters
         const productsResponse = await APISERVICECASHIER.ApiProductInHome(

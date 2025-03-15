@@ -91,7 +91,7 @@ const AddIngredientModal = ({ closeModal, refreshIngredients }) => {
             setCapacityError('*Dung tích phải lớn hơn 0!');
             hasError = true;
         }
-        
+
         if (hasError) return; // Nếu có lỗi thì dừng lại
 
         // Tạo formData để gửi lên server
@@ -121,20 +121,23 @@ const AddIngredientModal = ({ closeModal, refreshIngredients }) => {
         switch (activeTab) {
             case 'thongtin':
                 return (
-                    <div>
+                    <div className="grid grid-cols-2 gap-4">
+                        {/* Tên nguyên liệu */}
                         <div>
-                            <label>Tên nguyên liệu</label>
+                            <label className="block font-medium">Tên nguyên liệu</label>
                             <input
                                 type="text"
                                 className="border rounded-md p-2 w-full"
                                 value={productName}
                                 onChange={(e) => setProductName(e.target.value)}
-                                placeholder='Nhập tên nguyên liệu'
+                                placeholder="Nhập tên nguyên liệu"
                                 required
                             />
                         </div>
+
+                        {/* Số lượng nhập */}
                         <div>
-                            <label>Số lượng nhập</label>
+                            <label className="block font-medium">Số lượng nhập</label>
                             <input
                                 type="number"
                                 className="border rounded-md p-2 w-full"
@@ -144,8 +147,10 @@ const AddIngredientModal = ({ closeModal, refreshIngredients }) => {
                             />
                             {quantityError && <p className="text-red-500">{quantityError}</p>}
                         </div>
+
+                        {/* Giá vốn */}
                         <div>
-                            <label>Giá vốn</label>
+                            <label className="block font-medium">Giá vốn</label>
                             <input
                                 type="number"
                                 className="border rounded-md p-2 w-full"
@@ -155,19 +160,23 @@ const AddIngredientModal = ({ closeModal, refreshIngredients }) => {
                             />
                             {costPriceError && <p className="text-red-500">{costPriceError}</p>}
                         </div>
+
+                        {/* Đơn vị tính */}
                         <div>
-                            <label>Đơn vị tính</label>
+                            <label className="block font-medium">Đơn vị tính</label>
                             <input
                                 type="text"
                                 className="border rounded-md p-2 w-full"
                                 value={unit}
                                 onChange={(e) => setUnit(e.target.value)}
-                                placeholder='Nhập đơn vị tính'
+                                placeholder="Nhập đơn vị tính"
                                 required
                             />
                         </div>
-                        <div>
-                            <label>Dung tích nguyên liệu</label>
+
+                        {/* Dung tích nguyên liệu */}
+                        <div className="">
+                            <label className="block font-medium">Dung tích nguyên liệu</label>
                             <input
                                 type="number"
                                 className="border rounded-md p-2 w-full"
@@ -179,19 +188,19 @@ const AddIngredientModal = ({ closeModal, refreshIngredients }) => {
                         </div>
                     </div>
                 );
+
             case 'thanhphan':
                 return (
                     <div>
-                        <label>Thành phần</label>
-                        <div className="relative w-96">
+                        <label className="block font-medium">Thành phần</label>
+                        <div className="relative w-full md:w-96">
                             <input
                                 type="text"
-                                className="border rounded-md p-2 w-96"
+                                className="border rounded-md p-2 w-full"
                                 placeholder="Tìm kiếm thành phần..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
-                            {/* Hiển thị danh sách gợi ý khi searchTerm có dữ liệu */}
                             {filteredIngredients.length > 0 && (
                                 <ul className="absolute left-0 right-0 bg-white border rounded-md shadow-md mt-1 z-10">
                                     {filteredIngredients.map((ingredient) => (
@@ -207,43 +216,44 @@ const AddIngredientModal = ({ closeModal, refreshIngredients }) => {
                             )}
                         </div>
 
-                        {/* Bảng hiển thị các ingredient đã chọn */}
                         {selectedIngredients.length > 0 && (
-                            <table className="w-full mt-4 border-collapse border border-gray-300">
-                                <thead>
-                                    <tr className="bg-gray-100">
-                                        <th className="border p-2">Tên thành phần</th>
-                                        <th className="border p-2">Số lượng</th>
-                                        <th className="border p-2">Giá vốn</th>
-                                        <th className="border p-2">Thành tiền</th>
-                                        <th className="border p-2">Hành động</th>
-
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {selectedIngredients.map((item) => (
-                                        <tr key={item._id}>
-                                            <td className="border p-2">{item.name}</td>
-                                            <td className="border p-2">
-                                                <input type='number' defaultValue={0} />
-                                            </td>
-                                            <td className="border p-2">{item.cost_costPrice}</td>
-                                            <td className="border p-2">VND</td>
-                                            <td className="border p-2">
-                                                <button
-                                                    onClick={() => handleRemoveIngredient(item._id)}
-                                                    className="bg-red-500 text-white px-2 py-1 rounded"
-                                                >
-                                                    Xóa
-                                                </button>
-                                            </td>
+                            <div className="overflow-auto mt-4">
+                                <table className="w-full border-collapse border border-gray-300">
+                                    <thead>
+                                        <tr className="bg-gray-100">
+                                            <th className="border p-2">Tên thành phần</th>
+                                            <th className="border p-2">Số lượng</th>
+                                            <th className="border p-2">Giá vốn</th>
+                                            <th className="border p-2">Thành tiền</th>
+                                            <th className="border p-2">Hành động</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        {selectedIngredients.map((item) => (
+                                            <tr key={item._id} className="text-center">
+                                                <td className="border p-2">{item.name}</td>
+                                                <td className="border p-2">
+                                                    <input type="number" defaultValue={0} className="w-20 text-center border rounded-md p-1" />
+                                                </td>
+                                                <td className="border p-2">{item.cost_costPrice}</td>
+                                                <td className="border p-2">VND</td>
+                                                <td className="border p-2">
+                                                    <button
+                                                        onClick={() => handleRemoveIngredient(item._id)}
+                                                        className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition"
+                                                    >
+                                                        Xóa
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
                         )}
                     </div>
                 );
+
             default:
                 return null;
         }
@@ -252,7 +262,7 @@ const AddIngredientModal = ({ closeModal, refreshIngredients }) => {
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center" >
             <div
-                className="bg-white p-4 rounded-lg h-auto"
+                className="bg-white p-4 rounded-lg h-auto w-full max-w-3xl shadow-lg"
                 style={{ maxHeight: '150vh', width: '70%' }}
             >
                 <h2 className="text-xl font-bold mb-2">Thêm nguyên liệu mới</h2>

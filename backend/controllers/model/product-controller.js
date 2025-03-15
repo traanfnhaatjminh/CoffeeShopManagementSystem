@@ -176,7 +176,7 @@ const getProductsByCategory = async (req, res, next) => {
 // };
 const updateProduct = async (req, res, next) => {
     const { productId } = req.params;
-    const { pname, price, category_id } = req.body;
+    const { pname, sale_price, category_id } = req.body;
 
     try {
         // Kiểm tra sản phẩm có tồn tại không
@@ -186,7 +186,7 @@ const updateProduct = async (req, res, next) => {
             return res.status(404).json({ message: "Product not found" });
         }
 
-        const updatedProduct = { pname, price, category_id };
+        const updatedProduct = { pname, sale_price, category_id };
 
         if (req.file) {
             if (existingProduct.cloudinary_id) {
@@ -266,6 +266,7 @@ const getProductIngredients = async (req, res) => {
         // Lấy danh sách nguyên liệu từ sản phẩm
         const ingredientList = product.ingredients.map((ingredient) => ({
             name: ingredient.ingredient_id.name,
+            unit: ingredient.unit,
             quantitative: ingredient.quantitative,
             TotalPerIngredient: ingredient.TotalPerIngredient
         }));

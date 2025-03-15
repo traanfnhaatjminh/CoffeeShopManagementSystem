@@ -26,6 +26,13 @@ export default function ShowIngredientInProduct({ product, closeModal }) {
     if (loading) return <p className="text-center">Đang tải...</p>;
     if (error) return <p className="text-center text-red-500">{error}</p>;
 
+    function splitUnit(number, unit) {
+        const units = unit.split('/'); // Tách đơn vị bằng dấu '/'
+        return {
+            quantitative: `${number} ${units[1]}`,
+        };
+    }
+
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
             <div className="bg-white p-6 rounded-lg shadow-lg w-2/3">
@@ -42,7 +49,9 @@ export default function ShowIngredientInProduct({ product, closeModal }) {
                         {ingredients.map((ingredient, index) => (
                             <tr key={index} className="border">
                                 <td className="border px-4 py-2">{ingredient.name}</td>
-                                <td className="border px-4 py-2">{ingredient.quantitative}</td>
+                                <td className="border px-4 py-2">
+                                    {splitUnit(ingredient.quantitative, ingredient.unit).quantitative}
+                                </td>
                                 <td className="border px-4 py-2">
                                     {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(ingredient.TotalPerIngredient)}
                                 </td>

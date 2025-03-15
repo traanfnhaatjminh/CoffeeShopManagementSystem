@@ -25,6 +25,10 @@ const ingredientSchema = new mongoose.Schema({
             type: Number,
             required: true,
         },
+        remaining_quantity: {
+            type: Number,
+            required: true,
+        },
         cost_price: {
             type: Number,
             required: true,
