@@ -155,6 +155,7 @@ const getBillFromTable = async (req, res, next) => {
     next(error);
   }
 };
+
 const addProductsToBill = async (req, res, next) => {
   try {
     const { products } = req.body; // Nhận danh sách sản phẩm từ request body
@@ -196,6 +197,45 @@ const addProductsToBill = async (req, res, next) => {
 
     // Lưu lại hóa đơn sau khi cập nhật
     await bill.save();
+
+    // Duyệt từng sản phẩm trong đơn để trừ nguyên liệu
+    for (const item of products) {
+      const product = await Product.findById(item.productId).populate("ingredients.ingredient_id");
+
+      if (!product) continue; // Nếu sản phẩm không tồn tại, bỏ qua
+
+      for (const ingredient of product.ingredients) {
+        const ingredientDoc = await Ingredient.findById(ingredient.ingredient_id);
+        if (!ingredientDoc) continue;
+
+        let remainingToSubtract = ingredient.quantitative * item.quantityP; // Tổng lượng cần trừ
+
+        // Sắp xếp lịch sử nhập hàng theo thứ tự cũ -> mới
+        ingredientDoc.purchase_history.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+        for (const historyEntry of ingredientDoc.purchase_history) {
+          if (remainingToSubtract <= 0) break; // Nếu đã trừ hết thì thoát vòng lặp
+
+          const availableQuantity = historyEntry.remaining_quantity;
+
+          if (availableQuantity >= remainingToSubtract) {
+            historyEntry.remaining_quantity -= remainingToSubtract;
+            remainingToSubtract = 0;
+          } else {
+            remainingToSubtract -= availableQuantity;
+            historyEntry.remaining_quantity = 0;
+          }
+        }
+
+        // Cập nhật lại tổng lượng nguyên liệu hiện có
+        ingredientDoc.current_quantity = ingredientDoc.purchase_history.reduce(
+          (sum, entry) => sum + entry.remaining_quantity,
+          0
+        );
+
+        await ingredientDoc.save(); // Lưu lại thay đổi vào database
+      }
+    }
 
     res
       .status(200)

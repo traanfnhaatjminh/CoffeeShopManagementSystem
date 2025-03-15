@@ -30,9 +30,9 @@ export default function AddProductModal({ closeModal, refreshProducts }) {
   useEffect(() => {
     let total = 0;
     selectedIngredients.forEach((ingredient) => {
-      const latestCostPrice = getLatestCostPrice(ingredient);
+      const costPrice = getCostPrice(ingredient);
       const quantity = quantities[ingredient._id] || 0;
-      total += (quantity / ingredient.capacity) * latestCostPrice;
+      total += (quantity / ingredient.capacity) * costPrice;
     });
     setCostPrice(Math.round(total)); // Làm tròn để tránh số lẻ
   }, [selectedIngredients, quantities]);
@@ -87,19 +87,27 @@ export default function AddProductModal({ closeModal, refreshProducts }) {
     setSelectedIngredients(selectedIngredients.filter((item) => item._id !== id));
   };
 
-  const getLatestCostPrice = (ingredient) => {
+  const getCostPrice = (ingredient) => {
     if (!ingredient.purchase_history || ingredient.purchase_history.length === 0) {
       return 0;
     }
-    const latestPurchase = ingredient.purchase_history
-      .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
-    return latestPurchase.cost_price;
+
+    // Lọc ra các lần nhập hàng có remaining_quantity > 0
+    const validPurchases = ingredient.purchase_history
+      .filter((purchase) => purchase.remaining_quantity > 0)
+      .sort((a, b) => new Date(a.date) - new Date(b.date)); // Sắp xếp từ mới đến cũ
+
+    if (validPurchases.length === 0) {
+      return 0; // Nếu không còn lần nhập nào có tồn kho
+    }
+
+    return validPurchases[0].cost_price; // Lấy giá nhập của lần gần nhất còn tồn kho
   };
 
   const calculatePrice = (ingredient) => {
-    const latestCostPrice = getLatestCostPrice(ingredient);
+    const costPrice = getCostPrice(ingredient);
     const quantity = quantities[ingredient._id] || 0;
-    return ((quantity / ingredient.capacity) * latestCostPrice).toFixed(0);
+    return ((quantity / ingredient.capacity) * costPrice).toFixed(0);
   };
 
   useEffect(() => {
@@ -279,7 +287,7 @@ export default function AddProductModal({ closeModal, refreshProducts }) {
                         />
                       </td>
                       <td className="border p-2">
-                        {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(getLatestCostPrice(item))}
+                        {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(getCostPrice(item))}
                       </td>
                       <td className="border p-2">
                         {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(calculatePrice(item))}
