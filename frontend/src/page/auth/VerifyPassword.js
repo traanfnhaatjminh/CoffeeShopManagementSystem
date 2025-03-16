@@ -82,12 +82,12 @@ const VerifyPassword = () => {
         <div className="content-left w-5/12 pl-14 mt-10">
           <Link className="btn-back flex items-center w-3/12" to="/auth/login">
             <IoIosArrowBack />
-            <p className="ml-2 font-bold">Back to login</p>
+            <p className="ml-2 font-bold">Quay về</p>
           </Link>
-          <h1 className="title-page font-semibold text-4xl mt-10 hover:text-amber-600">Verify code</h1>
-          <p className="mt-5 text-base w-11/12">An authentication code has been sent to your email.</p>
+          <h1 className="title-page font-semibold text-4xl mt-10 hover:text-amber-600">Xác minh mã</h1>
+          <p className="mt-5 text-base w-11/12">Mã xác thực đã được gửi tới email của bạn.</p>
           <div className="email-login w-4/5 mt-8">
-            <label htmlFor="email">Enter Code</label>
+            <label htmlFor="email">Nhập mã</label>
             <div className="relative">
               <div className="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
                 <RiQrScan2Line className="w-4 h-4 text-slate-400 dark:text-orange-300" fill="currentColor" />
@@ -106,14 +106,14 @@ const VerifyPassword = () => {
           {errors.code && <div className="text-red-500 mt-2">{errors.code}</div>}
 
           <p className="mt-5">
-            Didn’t receive a code? <Link className="text-cyan-500">Resend</Link>
+            Không nhận được mã? <Link className="text-cyan-500">Gửi lại</Link>
           </p>
           <button
             type="button"
             className="w-4/5 mt-3 focus:outline-none text-white bg-teal-500 hover:bg-teal-300 focus:ring-4 focus:ring-teal-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 dark:bg-teal-600 dark:hover:bg-teal-500 dark:focus:ring-teal-200"
             onClick={handleVerify}
           >
-            Verify
+            Xác minh
           </button>
         </div>
       </div>

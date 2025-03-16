@@ -28,6 +28,8 @@ import ChangePassword from '@/page/auth/ChangePassword';
 import EnhancedTableManager from './page/cashier/table-screen/ManagerTableModal';
 
 import Dashboard from './page/shopowner/dashboard/Dashboard';
+import Profits from './page/shopowner/dashboard/Profits';
+import Expense from './page/shopowner/dashboard/Expense';
 function App() {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
 
@@ -66,6 +68,8 @@ function App() {
           <Route path="statistic" element={<Statistic />}></Route>
           <Route path="dashboard" element={<Dashboard />}></Route>
           <Route path="setting" element={<Settings />}></Route>
+          <Route path="profits" element={<Profits />}></Route>
+          <Route path="expense" element={<Expense />}></Route>
         </Route>
 
         <Route

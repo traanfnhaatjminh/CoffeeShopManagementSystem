@@ -4,9 +4,10 @@ import Sidebar from '../../components/common/sidebar';
 
 const CashierLayout = () => {
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      {/* Sidebar */}
-      <Sidebar />
+    <div className="flex flex-col h-screen bg-gray-100">
+      <div className="fixed top-0 left-0 w-full shadow-md z-10 h-[9%] lg:h-[10%]">
+        <Header />
+      </div>
 
       {/* Main Content */}
       <div className="flex-1">
