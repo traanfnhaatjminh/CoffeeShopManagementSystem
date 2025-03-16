@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { MdLogout } from 'react-icons/md';
 import { CgProfile } from 'react-icons/cg';
 import logo from '../../assets/img/z5872646337869_8529aff6a7d5eb21b.png';
@@ -10,6 +10,7 @@ export default function Header() {
   const user = useSelector((state) => state.auth.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
   const handleLogout = async () => {
     try {
       dispatch(logout()).then((data) => {
@@ -20,7 +21,8 @@ export default function Header() {
     }
   };
   const handleProfile = () => {
-    navigate('/cashier/profile');
+    console.log('user:', user);
+    user.role.role_name === 'warehouse manager' ? navigate('/warehouse/profile') : navigate('/cashier/profile');
   };
   return (
     <div className="sticky top-0 z-10">

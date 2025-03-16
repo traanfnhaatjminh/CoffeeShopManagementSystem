@@ -1,9 +1,9 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { FaHome, FaWarehouse, FaThList } from 'react-icons/fa';
 import { MdCategory, MdListAlt, MdLeaderboard } from 'react-icons/md';
 import { IoIosSettings } from 'react-icons/io';
 import { Link } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 function Sidebar() {
   const { user } = useSelector((state) => state.auth);

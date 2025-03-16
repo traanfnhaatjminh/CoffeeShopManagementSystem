@@ -20,6 +20,15 @@ const loginUser = async (req, res) => {
                 message:
                     "Email chưa được tạo tồn tại , vui lòng đăng ký tài khoản",
             });
+
+        if (checkUser.status === "banned") {
+            return res.status(StatusCodes.FORBIDDEN).json({
+                success: false,
+                message: "Tài khoản đã bị khóa",
+                status: "Banned",
+            });
+        }
+
         const checkPasswordMatches = await bcrypt.compare(
             password,
             checkUser.password
@@ -48,6 +57,7 @@ const loginUser = async (req, res) => {
                 id: checkUser._id,
                 userName: checkUser.fullName,
                 phone: checkUser.phone,
+                status: checkUser.status,
             },
         });
     } catch (err) {
@@ -192,17 +202,15 @@ const checkAuthor = (req, res, next) => {
 
 const register = async (req, res, next) => {
     try {
-        const {
-            fullName,
-            email,
-            password,
-            dob,
-            phone,
-            address,
-            avatar,
-            role,
-            status,
-        } = req.body;
+        const { fullName, email, password, dob, phone, address, avatar, role } =
+            req.body;
+        const checkUser = await User.find({ email });
+        if (checkUser.length) {
+            return res.status(StatusCodes.CONFLICT).json({
+                success: false,
+                message: "Email đã tồn tại . Vui lòng nhập email khác!",
+            });
+        }
         const role_id = await Role.findOne({ role_name: role });
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -216,19 +224,11 @@ const register = async (req, res, next) => {
             address,
             avatar: avatar || "",
             role: role_id._id,
-            status: status === "1" ? true : false,
         });
-
         await newUser.save().then((newDoc) => {
             res.status(StatusCodes.CREATED).json({
                 success: true,
                 message: "Thêm người dùng mới thành công.",
-                data: {
-                    email: newUser.email,
-                    role: newUser.role,
-                    id: newUser._id,
-                    userName: newUser.fullName,
-                },
             });
         });
     } catch (error) {
@@ -302,11 +302,9 @@ const resetPassword = (req, res, next) => {
             process.env.JWT_ACCESS_TOKEN_SECRET,
             async (err, decoded) => {
                 if (err)
-                    return res
-                        .status(StatusCodes.BAD_REQUEST)
-                        .json({
-                            message: "Mã OTP không hợp lệ hoặc đã hết hạn!",
-                        });
+                    return res.status(StatusCodes.BAD_REQUEST).json({
+                        message: "Mã OTP không hợp lệ hoặc đã hết hạn!",
+                    });
                 const { otp, email } = decoded;
                 const user = await db.User.findOne({ email });
                 if (!user) {

@@ -9,10 +9,12 @@ const CashierLayout = () => {
         <Header />
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1">
-        <Header />
-        <div className="content h-[94%] lg:h-[90%]">
+      <div className="flex flex-1 pt-[5%]">
+        <div className="fixed left-0 top-[9%] shadow-lg">
+          <Sidebar />
+        </div>
+
+        <div className="flex-1 overflow-auto ml-32 mt-3 lg:mt-[-5px] xl:mt-[]">
           <Outlet />
         </div>
       </div>

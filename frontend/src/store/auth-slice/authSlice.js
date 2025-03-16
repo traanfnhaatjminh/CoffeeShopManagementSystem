@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, isRejectedWithValue } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { environment } from '@/environment/env';
 
@@ -6,12 +6,20 @@ const initialState = {
   isAuthenticated: false,
   isLoading: false,
   user: null,
+  status: false,
   email: '',
 };
 
 export const login = createAsyncThunk('auth/login', async (formData) => {
-  const response = await axios.post(`${environment.apiUrl}/auth/login`, formData, { withCredentials: true });
-  return response.data;
+  try {
+    const response = await axios.post(`${environment.apiUrl}/auth/login`, formData, { withCredentials: true });
+    return response.data;
+  } catch (error) {
+    if (error.response && error.response.data) {
+      return isRejectedWithValue(error.response.data);
+    }
+    return isRejectedWithValue({ message: 'Lỗi hệ thống' });
+  }
 });
 
 export const register = createAsyncThunk('auth/register', async (formData) => {
@@ -63,10 +71,16 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(login.rejected, (state) => {
+      .addCase(login.rejected, (state, action) => {
         state.isLoading = false;
-        state.user = null;
         state.isAuthenticated = false;
+
+        if (action.payload && action.payload.status === 'Banned') {
+          state.user = null;
+          state.status = 'Banned';
+        } else {
+          state.status = false;
+        }
       })
       .addCase(login.pending, (state) => {
         state.isLoading = true;
