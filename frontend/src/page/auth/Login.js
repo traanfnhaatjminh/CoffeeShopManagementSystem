@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import HeaderAuthentication from '@/components/authentication/HeaderAuthentication';
 import logoLoginMain from '@/assets/images/imgLogin.png';
 import { useDispatch } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { MdOutlineMail } from 'react-icons/md';
 import * as yup from 'yup';
 import { FaUserLock } from 'react-icons/fa';
@@ -30,7 +30,7 @@ const AuthLogin = () => {
   const [loading, setLoading] = useState(false);
   const [isRegisterModalOpen, setRegisterModalOpen] = useState(false);
   const closeRegisterModal = () => setRegisterModalOpen(false);
-
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const validationSchema = yup.object({
     email: yup.string().required('Email không được để trống').email('Email nhập vào không đúng'),
@@ -44,6 +44,9 @@ const AuthLogin = () => {
       await validationSchema.validate(formData, { abortEarly: false });
       setErrors({});
       const response = await dispatch(login(formData));
+      if (!response.payload) {
+        navigate('/banned');
+      }
       if (response.payload.success) {
         setLoading(false);
       } else {
@@ -55,7 +58,6 @@ const AuthLogin = () => {
       err.inner.forEach((error) => {
         newErrors[error.path] = error.message;
       });
-      console.log();
       setErrors(newErrors);
       console.log('errors:', errors);
       setLoading(false);

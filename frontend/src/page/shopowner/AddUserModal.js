@@ -14,23 +14,25 @@ const dataForm = {
   password: '',
   confirmPassword: '',
   role: 'cashier',
-  status: '1',
 };
+
+const phoneRegExp =
+  /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
 export default function AddUserModal({ closeModal }) {
   const [formData, setFormData] = useState(dataForm);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
   const validationSchema = yup.object({
-    fullName: yup.string().required('Please enter your full name.'),
-    dob: yup.date().required('Please select your date of birth.'),
-    email: yup.string().email('Invalid email address.').required('Please enter your email.'),
+    fullName: yup.string().required('Vui lòng nhập tên đầy đủ của bạn.'),
+    dob: yup.date().required('Vui lòng chọn ngày sinh của bạn.'),
+    email: yup.string().email('Địa chỉ email không hợp lệ.').required('Vui lòng nhập email của bạn.'),
     phone: yup
       .string()
-      .matches(/^[0-9]{10,11}$/, 'Invalid phone number.')
-      .required('Please enter your phone number.'),
-    address: yup.string().required('Please enter your address.'),
-    username: yup.string().required('Please enter your username.'),
+      .matches(phoneRegExp, 'Số điện thoại không hợp lệ.')
+      .required('Vui lòng nhập số điện thoại của bạn.'),
+    address: yup.string().required('Vui lòng nhập địa chỉ của bạn.'),
+    username: yup.string().required('Vui lòng nhập tên người dùng của bạn.'),
     password: yup
       .string()
       .required('Mật khẩu không được để trống.')
@@ -51,12 +53,15 @@ export default function AddUserModal({ closeModal }) {
     try {
       setLoading(true);
       await validationSchema.validate(formData, { abortEarly: false });
+      setErrors({});
+
+      console.log(formData);
       const result = await dispatch(register(formData));
-      if (result.payload?.success) {
-        toast.success(result.payload.message || 'User created successfully');
-        closeModal();
+
+      if (result.payload.success) {
+        toast.success(result.payload.message);
       } else {
-        toast.error(result.payload.message || 'Failed to create user');
+        toast.error(result.payload.message);
       }
 
       setErrors({});
@@ -66,9 +71,9 @@ export default function AddUserModal({ closeModal }) {
         newErrors[err.path] = err.message;
       });
       setErrors(newErrors);
-      console.log('error:', errors);
     } finally {
       setLoading(false);
+      closeModal();
     }
   };
 
@@ -100,6 +105,7 @@ export default function AddUserModal({ closeModal }) {
               type="text"
               name="fullName"
               className="border rounded-md p-2 w-full"
+              placeholder="Nguyễn Văn A ..."
               value={formData.fullName}
               onChange={handleChange}
             />
@@ -123,6 +129,7 @@ export default function AddUserModal({ closeModal }) {
               type="email"
               name="email"
               className="border rounded-md p-2 w-full"
+              placeholder="demo@gmail.com..."
               value={formData.email}
               onChange={handleChange}
             />
@@ -134,6 +141,7 @@ export default function AddUserModal({ closeModal }) {
               type="tel"
               name="phone"
               className="border rounded-md p-2 w-full"
+              placeholder="0977786928 ..."
               value={formData.phone}
               onChange={handleChange}
             />
@@ -145,6 +153,7 @@ export default function AddUserModal({ closeModal }) {
               type="text"
               name="address"
               className="border rounded-md p-2 w-full"
+              placeholder="Hà Nội..."
               value={formData.address}
               onChange={handleChange}
             />
@@ -156,6 +165,7 @@ export default function AddUserModal({ closeModal }) {
               type="text"
               name="username"
               className="border rounded-md p-2 w-full"
+              placeholder="nguyenvana..."
               value={formData.username}
               onChange={handleChange}
             />
@@ -187,19 +197,7 @@ export default function AddUserModal({ closeModal }) {
             <label>Vai trò</label>
             <select name="role" className="border rounded-md p-2 w-full" value={formData.role} onChange={handleChange}>
               <option value="cashier">Thu ngân</option>
-              <option value="warehouse">Quản lý kho</option>
-            </select>
-          </div>
-          <div>
-            <label>Trạng thái</label>
-            <select
-              name="status"
-              className="border rounded-md p-2 w-full"
-              value={formData.status}
-              onChange={handleChange}
-            >
-              <option value="1">Đang hoạt động</option>
-              <option value="0">Không hoạt động</option>
+              <option value="warehouse manager">Quản lý kho</option>
             </select>
           </div>
         </div>
@@ -208,7 +206,7 @@ export default function AddUserModal({ closeModal }) {
           <button onClick={closeModal} className="bg-gray-500 text-white px-4 py-2 rounded-lg mr-2">
             Hủy
           </button>
-          <button type="submit" className="bg-green-500 text-white px-4 py-2 rounded-lg" onClick={handleSubmitForm}>
+          <button type="button" className="bg-green-500 text-white px-4 py-2 rounded-lg" onClick={handleSubmitForm}>
             Tạo
           </button>
         </div>

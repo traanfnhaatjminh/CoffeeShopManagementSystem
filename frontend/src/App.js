@@ -30,6 +30,7 @@ import EnhancedTableManager from './page/cashier/table-screen/ManagerTableModal'
 import Dashboard from './page/shopowner/dashboard/Dashboard';
 import Profits from './page/shopowner/dashboard/Profits';
 import Expense from './page/shopowner/dashboard/Expense';
+import BannedAccountPage from './page/auth/Banned';
 function App() {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
 
@@ -43,6 +44,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<LandingPage />}></Route>
+        <Route path="/banned" element={<BannedAccountPage />}></Route>
         <Route
           path="/auth"
           element={
