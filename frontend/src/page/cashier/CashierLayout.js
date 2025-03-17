@@ -4,14 +4,17 @@ import Sidebar from '../../components/common/sidebar';
 
 const CashierLayout = () => {
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      {/* Sidebar */}
-      <Sidebar />
-
-      {/* Main Content */}
-      <div className="flex-1">
+    <div className="flex flex-col h-screen bg-gray-100">
+      <div className="fixed top-0 left-0 w-full shadow-md z-10 h-[9%] lg:h-[10%]">
         <Header />
-        <div className="content h-[94%] lg:h-[90%]">
+      </div>
+
+      <div className="flex flex-1 pt-[5%]">
+        <div className="fixed left-0 top-[9%] shadow-lg">
+          <Sidebar />
+        </div>
+
+        <div className="flex-1 overflow-auto ml-32 mt-3 lg:mt-[-5px] xl:mt-[]">
           <Outlet />
         </div>
       </div>

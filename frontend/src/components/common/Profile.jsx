@@ -56,7 +56,7 @@ const Profile = () => {
       navigation('/warehouse/change-password');
     } else if (dataUser.role.role_name === ERoleUser.cashier) {
       navigation('/cashier/change-password');
-    };
+    }
   };
 
   const handleEditInfoUser = (info) => {
@@ -87,7 +87,6 @@ const Profile = () => {
     });
   };
 
-  // handle modal
   const handleCloseModal = () => {
     setToggleModalEditUser(false);
     setIsEditInfoUser(editInfoUser);
@@ -162,9 +161,6 @@ const Profile = () => {
         <div className="info w-full md:w-2/3 lg:w-2/5 bg-white mt-5 lg:mt-5 shadow-lg rounded-lg p-6 border border-[#6B4226]">
           <div className="avatar flex flex-col sm:flex-row justify-between items-center">
             <img src={imgAvatar} alt="avatar" className="w-24 h-24 rounded-full border-4 border-[#6B4226]" />
-            <button className="bg-[#6B4226] text-white h-10 px-6 rounded-3xl mt-3 sm:mt-0 hover:bg-[#8B5E3C] transition-all">
-              Chỉnh sửa ảnh
-            </button>
           </div>
 
           <div className="info_user border border-gray-300 py-3 px-5 mt-5 rounded-lg bg-[#FFF9F2]">
@@ -298,8 +294,8 @@ const Profile = () => {
             </div>
             <p className="text-sm text-gray-600 mt-3">
               <span className="font-medium">{dataUser.userName}</span> là một nhân viên tận tâm, có tinh thần trách
-              nhiệm cao và luôn giữ thái độ chuyên nghiệp trong công việc. Trong suốt thời gian làm việc, Tuấn luôn thể
-              hiện sự nhanh nhẹn, chủ động và linh hoạt trong mọi tình huống.
+              nhiệm cao và luôn giữ thái độ chuyên nghiệp trong công việc. Trong suốt thời gian làm việc,{' '}
+              {dataUser.userName} luôn thể hiện sự nhanh nhẹn, chủ động và linh hoạt trong mọi tình huống.
             </p>
           </div>
         </div>
@@ -316,7 +312,7 @@ const Profile = () => {
           <div className="skill_user mt-5">
             <h2 className="text-lg font-semibold">Chuyên môn</h2>
             <div className="flex flex-wrap gap-3 mt-3">
-              <button className="bg-green-300 px-4 py-2 rounded-3xl text-sm hover:bg-green-500 transition-all">
+              <button className="bg-[#D3B8A0] px-4 py-2 rounded-3xl text-sm hover:bg-[#B89578] transition-all">
                 Thu Ngân
               </button>
               <button className="bg-[#D3B8A0] px-4 py-2 rounded-3xl text-sm hover:bg-[#B89578] transition-all">
