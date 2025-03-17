@@ -16,7 +16,7 @@ export default function AddCategoryModal({ closeModal, refreshCategories }) {
       closeModal();
     } catch (error) {
       console.error('Error adding category:', error);
-      toast.success("Đã xảy ra lỗi thêm danh mục!");
+      toast.success("Thêm danh mục thất bại!");
     }
   };
   return (

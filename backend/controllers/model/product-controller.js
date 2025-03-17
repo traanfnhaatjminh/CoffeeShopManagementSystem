@@ -231,6 +231,39 @@ const updateProductStatus = async (req, res, next) => {
         next(error);
     }
 };
-module.exports = { createNewProduct, getAllProductInHome, getAllProductInWarehouse, getProductsByCategory, updateProduct, updateProductStatus };
+//ingredient
+const getProductIngredients = async (req, res) => {
+    try {
+        const { productId } = req.params;
+
+        // Tìm sản phẩm và populate ingredients
+        const product = await Product.findById(productId).populate({
+            path: "ingredients.ingredient_id",
+            select: "name"
+        });
+
+        // Kiểm tra nếu không tìm thấy sản phẩm
+        if (!product) {
+            return res.status(404).json({ message: "Product not found" });
+        }
+
+        // Lấy danh sách nguyên liệu từ sản phẩm
+        const ingredientList = product.ingredients.map((ingredient) => ({
+            name: ingredient.ingredient_id.name,
+            quantitative: ingredient.quantitative,
+            TotalPerIngredient: ingredient.TotalPerIngredient
+        }));
+
+        return res.status(200).json({
+            productName: product.pname,
+            ingredients: ingredientList
+        });
+    } catch (error) {
+        console.error("Error fetching product ingredients:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+module.exports = { createNewProduct, getAllProductInHome, getAllProductInWarehouse, getProductsByCategory, updateProduct, updateProductStatus, getProductIngredients };
 
 

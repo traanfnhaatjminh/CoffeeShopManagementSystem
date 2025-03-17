@@ -8,6 +8,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 import APISERVICECASHIER from '../../services/api-cashier';
+import ShowIngredientInProduct from './ShowIngredientInProduct';
 
 function WarehouseProduct() {
   const [products, setProducts] = useState([]);
@@ -19,6 +20,7 @@ function WarehouseProduct() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [productIndexMap, setProductIndexMap] = useState({});
+  const [showIngredientModal, setShowIngredientModal] = useState(false);
   const productPerPage = 6;
 
   const fetchProducts = async () => {
@@ -63,6 +65,11 @@ function WarehouseProduct() {
 
   const handleAddProduct = () => {
     setShowAddModal(true);
+  };
+
+  const handleShowIngredientInProduct = (product) => {
+    setSelectedProduct(product);
+    setShowIngredientModal(true);
   };
 
   const handleUpdateStatus = async (productId, currentStatus) => {
@@ -207,8 +214,7 @@ function WarehouseProduct() {
                       >
                         <td className="px-6 py-4 text-lg font-medium text-gray-900">{productIndexMap[product._id]}</td>
 
-                        <td className="px-6 py-4 text-md text-gray-500">
-                          {product.pname}
+                        <td className="px-6 py-4 text-md text-gray-500" onClick={() => handleShowIngredientInProduct(product)}>                          {product.pname}
 
                           {isInactive && !isInactiveCategory && (
                             <p className="text-orange-500 text-sm mt-1 italic">
@@ -291,6 +297,13 @@ function WarehouseProduct() {
             )}
             {showAddModal && (
               <AddProductModal closeModal={() => setShowAddModal(false)} refreshProducts={fetchProducts} />
+            )}
+            {showIngredientModal && (
+              <ShowIngredientInProduct
+                product={selectedProduct}
+                closeModal={() => setShowIngredientModal(false)}
+                refreshProducts={fetchProducts}
+              />
             )}
           </div>
         </div>
