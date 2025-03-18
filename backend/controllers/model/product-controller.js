@@ -176,7 +176,7 @@ const getProductsByCategory = async (req, res, next) => {
 // };
 const updateProduct = async (req, res, next) => {
     const { productId } = req.params;
-    const { pname, price, category_id } = req.body;
+    const { pname, sale_price, category_id } = req.body;
 
     try {
         // Kiểm tra sản phẩm có tồn tại không
@@ -186,7 +186,7 @@ const updateProduct = async (req, res, next) => {
             return res.status(404).json({ message: "Product not found" });
         }
 
-        const updatedProduct = { pname, price, category_id };
+        const updatedProduct = { pname, sale_price, category_id };
 
         if (req.file) {
             if (existingProduct.cloudinary_id) {
@@ -231,6 +231,55 @@ const updateProductStatus = async (req, res, next) => {
         next(error);
     }
 };
-module.exports = { createNewProduct, getAllProductInHome, getAllProductInWarehouse, getProductsByCategory, updateProduct, updateProductStatus };
 
+const deleteProduct = async (req, res, next) => {
+    try {
+        const { productId } = req.params;
+        const updatedProduct = await Product.findByIdAndUpdate(productId, { status: 0 }, { new: true });
+        if (!updatedProduct) {
+            return res.status(404).json({ message: " Product not found" });
+        }
+        res.status(200).json({
+            message: "Product status updated successfully",
+            result: updatedProduct
+        });
+    } catch (error) {
+        next(error);
+    }
+}
+
+const getProductIngredients = async (req, res) => {
+    try {
+        const { productId } = req.params;
+
+        // Tìm sản phẩm và populate ingredients
+        const product = await Product.findById(productId).populate({
+            path: "ingredients.ingredient_id",
+            select: "name"
+        });
+
+        // Kiểm tra nếu không tìm thấy sản phẩm
+        if (!product) {
+            return res.status(404).json({ message: "Product not found" });
+        }
+
+        // Lấy danh sách nguyên liệu từ sản phẩm
+        const ingredientList = product.ingredients.map((ingredient) => ({
+            name: ingredient.ingredient_id.name,
+            unit: ingredient.unit,
+            quantitative: ingredient.quantitative,
+            TotalPerIngredient: ingredient.TotalPerIngredient
+        }));
+
+        return res.status(200).json({
+            productName: product.pname,
+            ingredients: ingredientList
+        });
+    } catch (error) {
+        console.error("Error fetching product ingredients:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+module.exports = { createNewProduct, getAllProductInHome, getAllProductInWarehouse, getProductsByCategory, updateProduct, deleteProduct, updateProductStatus, getProductIngredients };
 

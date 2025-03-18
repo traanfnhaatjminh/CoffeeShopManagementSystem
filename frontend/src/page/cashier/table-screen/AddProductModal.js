@@ -21,8 +21,13 @@ export default function AddProductModal({ isOpen, onClose, selectTB, onAddProduc
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const categoriesResponse = await axios.get('/categories/list');
-        setCategories(categoriesResponse.data);
+        fetch('/categories/list')
+          .then((res) => res.json())
+          .then((data) => {
+            console.log('Fetched Categories:', data); // In ra response để kiểm tra
+            setCategories(data.categories || []); // Đảm bảo nó là mảng
+          })
+          .catch((error) => console.error('Error fetching categories:', error));
 
         const productsResponse = await APISERVICECASHIER.ApiProductInHome(
           search,
@@ -195,11 +200,10 @@ export default function AddProductModal({ isOpen, onClose, selectTB, onAddProduc
                       <button
                         key={index}
                         onClick={() => setCurrentPage(index + 1)}
-                        className={`relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg ${
-                          currentPage === index + 1
+                        className={`relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg ${currentPage === index + 1
                             ? 'bg-blue-600 text-white'
                             : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
-                        }`}
+                          }`}
                       >
                         {index + 1}
                       </button>

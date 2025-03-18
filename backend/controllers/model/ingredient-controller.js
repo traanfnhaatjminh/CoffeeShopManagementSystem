@@ -63,15 +63,20 @@ const importIngredient = async (req, res, next) => {
         const { quantity, cost_price, supplier } = req.body;
         console.log("Dữ liệu nhận từ client:", req.body);
         console.log("ID nguyên liệu:", ingredientId);
-        
+
         const ingredient = await Ingredient.findById(ingredientId);
         if (!ingredient) return res.status(404).json({ error: "Không tìm thấy nguyên liệu" });
 
+        const remaining_quantity = Number(quantity) * Number(ingredient.capacity);
         // Cập nhật số lượng
-        ingredient.current_quantity = Number(ingredient.current_quantity) + Number(quantity);
+        ingredient.current_quantity = Number(ingredient.current_quantity) + remaining_quantity;
 
         // Lưu vào lịch sử nhập hàng
-        ingredient.purchase_history.push({ quantity, cost_price, supplier, date: moment().tz('Asia/Ho_Chi_Minh').toDate() });
+        const date = new Date(); // Không cần đổi múi giờ
+        console.log("Date (as JavaScript object):", date);
+        console.log("Date (formatted with moment):", moment(date).format('YYYY-MM-DD HH:mm:ss'));
+
+        ingredient.purchase_history.push({ quantity, remaining_quantity, cost_price, supplier, date});
 
         await ingredient.save();
         res.json(ingredient);

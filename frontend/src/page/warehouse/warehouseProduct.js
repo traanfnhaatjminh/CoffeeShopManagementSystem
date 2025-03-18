@@ -4,12 +4,16 @@ import { IoSearch } from 'react-icons/io5';
 import EditProductModal from './EditProductModal';
 import AddProductModal from './AddProductModal';
 import Paging from '../../components/common/paging';
+import axios from 'axios'; // Import axios
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import 'react-confirm-alert/src/react-confirm-alert.css';
+import ShowIngredientInProduct from './ShowIngredientInProduct';
 import APISERVICECASHIER from '../../services/api-cashier';
 
 function WarehouseProduct() {
+  const [showIngredientModal, setShowIngredientModal] = useState(false);
+
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState('');
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -20,6 +24,11 @@ function WarehouseProduct() {
   const [totalPages, setTotalPages] = useState(0);
   const [productIndexMap, setProductIndexMap] = useState({});
   const productPerPage = 6;
+
+  const handleShowIngredientInProduct = (product) => {
+    setSelectedProduct(product);
+    setShowIngredientModal(true);
+  };
 
   const fetchProducts = async () => {
     try {
@@ -107,7 +116,6 @@ function WarehouseProduct() {
               Danh sách hàng hóa
             </h1>
           </div>
-
 
           <div className="flex mb-4 items-center space-x-4">
             <div className="relative w-72">
@@ -207,7 +215,7 @@ function WarehouseProduct() {
                       >
                         <td className="px-6 py-4 text-lg font-medium text-gray-900">{productIndexMap[product._id]}</td>
 
-                        <td className="px-6 py-4 text-md text-gray-500">
+                        <td className="px-6 py-4 text-md text-gray-500 cursor-pointer hover:text-blue-500" onClick={() => handleShowIngredientInProduct(product)}>
                           {product.pname}
 
                           {isInactive && !isInactiveCategory && (
@@ -281,11 +289,17 @@ function WarehouseProduct() {
 
             </table>
             <Paging currentPage={currentPage} totalItems={totalPages * productPerPage} itemsPerPage={productPerPage} onPageChange={setCurrentPage} />
-
             {showEditModal && (
               <EditProductModal
                 product={selectedProduct}
                 closeModal={() => setShowEditModal(false)}
+                refreshProducts={fetchProducts}
+              />
+            )}
+            {showIngredientModal && (
+              <ShowIngredientInProduct
+                product={selectedProduct}
+                closeModal={() => setShowIngredientModal(false)}
                 refreshProducts={fetchProducts}
               />
             )}

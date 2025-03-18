@@ -25,6 +25,10 @@ const ingredientSchema = new mongoose.Schema({
             type: Number,
             required: true,
         },
+        remaining_quantity: {
+            type: Number,
+            required: true,
+        },
         cost_price: {
             type: Number,
             required: true,
@@ -52,7 +56,6 @@ ingredientSchema.methods.toJSON = function () {
         ...entry,
         date: moment(entry.date).tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY HH:mm')
     }));
-
     return obj;
 };
 

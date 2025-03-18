@@ -69,12 +69,12 @@ function Sidebar() {
 
         {user.role.role_name === 'admin' && (
           <>
-            <div className="abc">
+            {/* <div className="abc">
               <MdLeaderboard className="w-6 h-6 mb-1 text-gray-700" />
               <Link to="/admin/statistic">
                 <span className="text-sm text-gray-700 font-lauren font-semibold">Tổng quan</span>
               </Link>
-            </div>
+            </div> */}
             <div className="abc">
               <IoIosSettings className="w-6 h-6 mb-1 text-gray-700" />
               <Link to="/admin/dashboard">

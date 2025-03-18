@@ -14,15 +14,13 @@ export default function EditProductModal({ product, closeModal, refreshProducts 
 
     //list categories
     useEffect(() => {
-        const fetchCategories = async () => {
-            try {
-                const response = await axios.get('/categories/list');
-                setCategories(response.data);
-            } catch (error) {
-                console.error('Error fetching categories:', error);
-            }
-        };
-        fetchCategories();
+        fetch('/categories/list')
+            .then((res) => res.json())
+            .then((data) => {
+                console.log('Fetched Categories:', data); // In ra response để kiểm tra
+                setCategories(data.categories || []); // Đảm bảo nó là mảng
+            })
+            .catch((error) => console.error('Error fetching categories:', error));
 
         if (product) {
             setProductName(product.pname);
@@ -62,7 +60,7 @@ export default function EditProductModal({ product, closeModal, refreshProducts 
         }
         const formData = new FormData();
         formData.append('pname', productName);
-        formData.append('price', price);
+        formData.append('sale_price', price);
         formData.append('category_id', category);
         if (image) {
             formData.append('image', image);  // thêm file ảnh vào FormData

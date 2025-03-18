@@ -46,6 +46,8 @@ export default function ImportIngredientModal({ ingredient, closeModal, refreshi
         }
     };
 
+    const units = ingredient.unit.split('/');
+
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
             <div className="bg-white p-4 rounded-lg w-1/3 h-auto" style={{ maxHeight: '90vh', overflowY: 'auto' }}>
@@ -59,6 +61,16 @@ export default function ImportIngredientModal({ ingredient, closeModal, refreshi
                                 className="border rounded-md p-2 w-full"
                                 value={quantity}
                                 onChange={(e) => setQuantity(e.target.value)}
+                            />
+                            {quantityError && <p className="text-red-500">{quantityError}</p>}
+                        </div>
+                        <div>
+                            <label>Đơn vị nhập</label>
+                            <input
+                                type="text"
+                                className="border rounded-md p-2 w-full"
+                                value={units[0]}
+                                disabled
                             />
                             {quantityError && <p className="text-red-500">{quantityError}</p>}
                         </div>

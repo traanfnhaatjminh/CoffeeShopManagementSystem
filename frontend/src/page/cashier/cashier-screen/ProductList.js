@@ -89,7 +89,7 @@ const ProductList = ({ selectedView, products, handleAddToCart, noResultsMessage
                         className="bg-brown-500 text-white p-1 rounded-full hover:bg-brown-600"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleAddToCart(product);
+                          // handleAddToCart(product);
                         }}
                       >
                         <svg
@@ -165,7 +165,7 @@ const ProductList = ({ selectedView, products, handleAddToCart, noResultsMessage
                   <div className="p-2 md:p-3">
                     <h3 className="font-medium text-xs md:text-sm text-gray-800 truncate">{product.pname}</h3>
                     <div className="flex justify-between items-center mt-1 md:mt-2">
-                      <p className="text-blue-600 font-bold text-xs md:text-sm">{product.price.toLocaleString()} VND</p>
+                      <p className="text-blue-600 font-bold text-xs md:text-sm">{product.sale_price.toLocaleString()} VND</p>
                       <button disabled className="bg-gray-400 text-white p-1 rounded-full cursor-not-allowed">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"

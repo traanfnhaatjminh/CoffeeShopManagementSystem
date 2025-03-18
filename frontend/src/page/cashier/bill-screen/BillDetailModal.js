@@ -25,7 +25,7 @@ export default function BillDetailModal({ show, onClose, bill, tableInfo }) {
           <span className="font-semibold">Thời gian thanh toán:</span> {new Date(bill.updated_time).toLocaleString()}
         </p>
         <p className="mb-2 text-gray-700">
-          <span className="font-semibold">Bàn:</span> {getTableNumber(bill.table_id)}
+          <span className="font-semibold">Bàn:</span> {bill.table_id?.table_name}
         </p>
         <p className="mb-2 text-gray-700">
           <span className="font-semibold">Sản phẩm:</span>

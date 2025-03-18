@@ -67,7 +67,7 @@ function App() {
             </CheckAuth>
           }
         >
-          <Route path="statistic" element={<Statistic />}></Route>
+          {/* <Route path="statistic" element={<Statistic />}></Route> */}
           <Route path="dashboard" element={<Dashboard />}></Route>
           <Route path="setting" element={<Settings />}></Route>
           <Route path="profits" element={<Profits />}></Route>

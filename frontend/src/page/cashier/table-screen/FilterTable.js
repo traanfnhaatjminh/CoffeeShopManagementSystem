@@ -24,14 +24,14 @@ const FilterTable = ({ searchText, setFilterStatus, setSearchText, setSelectedZo
           <Option value="available">Trống</Option>
           <Option value="occupied">Đang dùng</Option>
         </Select>
-        <Select defaultValue="all" style={{ width: 120 }} onChange={(value) => setSelectedZone(value)}>
+        {/* <Select defaultValue="all" style={{ width: 120 }} onChange={(value) => setSelectedZone(value)}>
           <Option value="all">Tất cả khu vực</Option>
           {zones.map((zone) => (
             <Option key={zone} value={zone}>
               {zone}
             </Option>
           ))}
-        </Select>
+        </Select> */}
         <Button onClick={() => setViewMode(viewMode === 'grid' ? 'map' : 'grid')}>
           {viewMode === 'grid' ? <AppstoreOutlined /> : <UnorderedListOutlined />}
         </Button>
