@@ -242,7 +242,8 @@ function WarehouseIngredient() {
                                     currentingredients.map((ingredient, index) => (
                                         <tr key={ingredient._id} className="border-b hover:bg-gray-100 transition-colors duration-300">
                                             <td className="px-6 py-4 text-lg font-medium text-gray-900"> {index + 1 + (currentPage - 1) * ingredientPerPage}</td>
-                                            <td className="px-6 py-4 text-md text-gray-700">{ingredient.name}
+                                            <td className="px-6 py-4 text-md text-gray-700 cursor-pointer hover:text-blue-500" onClick={() => handlePurchaseHistory(ingredient)}>
+                                                {ingredient.name}
                                             </td>
                                             <td className="px-6 py-4 text-md text-gray-700">{ingredient.unit}</td>
                                             <td className="px-6 py-4 text-md text-gray-700">
@@ -252,12 +253,12 @@ function WarehouseIngredient() {
                                                 {splitUnit(ingredient.capacity, ingredient.current_quantity, ingredient.unit).capacity}
                                             </td>
                                             <td className="px-6 py-4 text-md font-medium flex">
-                                                <button
+                                                {/* <button
                                                     className="bg-brown-500 text-white py-1 px-3 rounded-lg mr-2"
                                                     onClick={() => handlePurchaseHistory(ingredient)}
                                                 >
                                                     <FaEye className="inline-block" />
-                                                </button>
+                                                </button> */}
                                                 <button
                                                     className="bg-brown-500 text-white py-1 px-3 rounded-lg mr-2"
                                                     onClick={() => handleImport(ingredient)}

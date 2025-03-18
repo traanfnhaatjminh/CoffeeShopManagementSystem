@@ -215,7 +215,7 @@ function WarehouseProduct() {
                       >
                         <td className="px-6 py-4 text-lg font-medium text-gray-900">{productIndexMap[product._id]}</td>
 
-                        <td className="px-6 py-4 text-md text-gray-500" onClick={() => handleShowIngredientInProduct(product)}>
+                        <td className="px-6 py-4 text-md text-gray-500 cursor-pointer hover:text-blue-500" onClick={() => handleShowIngredientInProduct(product)}>
                           {product.pname}
 
                           {isInactive && !isInactiveCategory && (

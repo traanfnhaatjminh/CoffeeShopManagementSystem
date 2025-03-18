@@ -120,7 +120,6 @@ export default function AddProductModal({ closeModal, refreshProducts }) {
       .catch((error) => console.error('Error fetching categories:', error));
   }, []);
 
-
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {

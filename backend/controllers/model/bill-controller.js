@@ -463,6 +463,43 @@ const createNewBill = async (req, res, next) => {
   }
 };
 
+// const updateProductStatus = async () => {
+//   const products = await Product.find().populate("ingredients.ingredient_id");
+
+//   for (const product of products) {
+//     let outOfStock = false;
+
+//     for (const ingredient of product.ingredients) {
+//       const ingredientDoc = ingredient.ingredient_id; // Dữ liệu đã populate
+//       if (!ingredientDoc) continue;
+
+//       const { current_quantity, unit } = ingredientDoc;
+
+//       // Kiểm tra nếu đơn vị chứa "g", "ml", hoặc "kg"
+//       const unitLower = unit.toLowerCase();
+//       if (
+//         (unitLower.includes("g") && current_quantity < 100) ||
+//         (unitLower.includes("ml") && current_quantity < 500) ||
+//         (unitLower.includes("kg") && current_quantity < 1)
+//       ) {
+//         outOfStock = true;
+//         break;
+//       }
+//     }
+
+//     // Chỉ cập nhật trạng thái nếu thực sự cần
+//     if (outOfStock && product.status !== "out of stock") {
+//       product.status = "out of stock";
+//       await product.save();
+//     } else if (!outOfStock && product.status === "out of stock") {
+//       // Nếu nguyên liệu đủ nhưng product đang bị "out of stock" -> đổi lại trạng thái
+//       product.status = "active";
+//       await product.save();
+//     }
+//   }
+// };
+
+
 const deleteBill = async (req, res, next) => {
   try {
     const { id } = req.params;
