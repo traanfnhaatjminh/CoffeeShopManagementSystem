@@ -59,7 +59,6 @@ ingredientSchema.methods.toJSON = function () {
     return obj;
 };
 
-
 const Ingredient = mongoose.model('Ingredient', ingredientSchema);
 
 module.exports = Ingredient;

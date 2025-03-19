@@ -5,9 +5,10 @@ const moment = require('moment-timezone');
 
 const createNewIngredient = async (req, res, next) => {
     try {
-        const { name, cost_price, unit, quantity, capacity } = req.body;
+        const { name, cost_price, unit, quantity, capacity, supplier } = req.body;
         const Id = new mongoose.Types.ObjectId();
-        const current_quantity = quantity;
+        const remaining_quantity = Number(quantity) * Number(capacity);
+        const current_quantity = remaining_quantity;
         const newIngredient = new Ingredient({
             _id: Id,
             name,
@@ -16,7 +17,9 @@ const createNewIngredient = async (req, res, next) => {
             capacity,
             purchase_history: [{
                 quantity,
+                remaining_quantity,
                 cost_price,
+                supplier,
                 date: moment().tz('Asia/Ho_Chi_Minh').toDate()
             }]
         });
@@ -76,7 +79,7 @@ const importIngredient = async (req, res, next) => {
         console.log("Date (as JavaScript object):", date);
         console.log("Date (formatted with moment):", moment(date).format('YYYY-MM-DD HH:mm:ss'));
 
-        ingredient.purchase_history.push({ quantity, remaining_quantity, cost_price, supplier, date});
+        ingredient.purchase_history.push({ quantity, remaining_quantity, cost_price, supplier, date });
 
         await ingredient.save();
         res.json(ingredient);

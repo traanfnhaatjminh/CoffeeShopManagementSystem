@@ -6,14 +6,17 @@ const APISERVICECASHIER = {
             params: { search, page, limit, selectCategory }
         });
     },
+    
     ApiProductInWareHouse: async (search = '', page = 1, limit = 6, status = '') => {
         return axios.get(`/products/listall`, {
             params: { search, page, limit, status },
         });
     },
+
     updateProductStatus: async (productId, status) => {
         return axios.put(`/products/updateStatus/${productId}`, { status });
     },
+
     ApiCategoryList: async (search = "", page = 1, limit = 10, status = '') => {
         return axios.get(`/categories/list`, {
             params: { search, page, limit, status }
