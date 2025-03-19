@@ -4,8 +4,9 @@ import { toast } from 'react-toastify';
 
 const AddIngredientModal = ({ closeModal, refreshIngredients }) => {
     // Các state dùng cho tab Thông tin
-    const [productName, setProductName] = useState('');
+    const [ingredientName , setIngredientName ] = useState('');
     const [unit, setUnit] = useState('');
+    const [supplier, setSupplier] = useState('');
     const [quantity, setQuantity] = useState(0);
     const [costPrice, setCostPrice] = useState(0);
     const [capacity, setCapacity] = useState(0);
@@ -13,6 +14,8 @@ const AddIngredientModal = ({ closeModal, refreshIngredients }) => {
     const [quantityError, setQuantityError] = useState('');
     const [costPriceError, setCostPriceError] = useState('');
     const [capacityError, setCapacityError] = useState('');
+    const [ingredientNameError, setIngredientNameError] = useState('');
+    const [unitError, setUnitError] = useState('');
 
     // Các state cho tab Thành phần
     const [searchTerm, setSearchTerm] = useState('');
@@ -69,6 +72,15 @@ const AddIngredientModal = ({ closeModal, refreshIngredients }) => {
         setSelectedIngredients(selectedIngredients.filter((item) => item._id !== id));
     };
 
+    // Kiểm tra tên nguyên liệu không chứa ký tự đặc biệt
+    const isValidProductName = (name) => /^[a-zA-Z0-9\s]+$/.test(name);
+
+    // Kiểm tra xem đơn vị có đúng định dạng không (vd: "hộp/ml")
+    const isValidUnit = (unit) => /^[a-zA-ZÀ-Ỹà-ỹ]+\/[a-zA-ZÀ-Ỹà-ỹ]+$/.test(unit);
+
+    // Kiểm tra giá trị số không chứa dấu phẩy
+    const isValidNumber = (value) => /^\d+$/.test(value);
+
     // Submit form
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -79,16 +91,39 @@ const AddIngredientModal = ({ closeModal, refreshIngredients }) => {
 
         let hasError = false;
 
+        // Kiểm tra tên nguyên liệu
+        if (!isValidProductName(ingredientName)) {
+            setIngredientNameError('Tên nguyên liệu không được chứa ký tự đặc biệt!');
+            hasError = true;
+        }
+
+        // Kiểm tra đơn vị hợp lệ
+        if (!isValidUnit(unit)) {
+            setUnitError('Đơn vị không đúng định dạng, không chứa số hoặc ký tự đặc biệt!');
+            hasError = true;
+        }
+
         if (quantity <= 0) {
             setQuantityError('*Số lượng nhập phải lớn hơn 0!');
             hasError = true;
+        } else if (!isValidNumber(quantity)) {
+            setQuantityError('*Số lượng nhập không được chứa dấu phẩy');
+            hasError = true;
         }
+
         if (costPrice <= 0) {
             setCostPriceError('*Giá vốn phải lớn hơn 0!');
             hasError = true;
+        } else if (!isValidNumber(costPrice)) {
+            setCostPriceError('*Giá vốn không được chứa dấu phẩy');
+            hasError = true;
         }
+
         if (capacity <= 0) {
             setCapacityError('*Dung tích phải lớn hơn 0!');
+            hasError = true;
+        } else if (!isValidNumber(capacity)) {
+            setCapacityError('*Dung tích không được chứa dấu phẩy');
             hasError = true;
         }
 
@@ -96,11 +131,13 @@ const AddIngredientModal = ({ closeModal, refreshIngredients }) => {
 
         // Tạo formData để gửi lên server
         const formData = new FormData();
-        formData.append('name', productName);
+        formData.append('name', ingredientName );
         formData.append('quantity', quantity);
         formData.append('cost_price', costPrice);
         formData.append('unit', unit);
         formData.append('capacity', capacity);
+        formData.append('supplier', supplier);
+
 
         // Gửi danh sách ingredient đã chọn
         // formData.append('ingredients', JSON.stringify(selectedIngredients));
@@ -128,11 +165,12 @@ const AddIngredientModal = ({ closeModal, refreshIngredients }) => {
                             <input
                                 type="text"
                                 className="border rounded-md p-2 w-full"
-                                value={productName}
-                                onChange={(e) => setProductName(e.target.value)}
+                                value={ingredientName }
+                                onChange={(e) => setIngredientName (e.target.value)}
                                 placeholder="Nhập tên nguyên liệu"
                                 required
                             />
+                            {ingredientNameError && <p className="text-red-500">{ingredientNameError}</p>}
                         </div>
 
                         {/* Số lượng nhập */}
@@ -163,7 +201,10 @@ const AddIngredientModal = ({ closeModal, refreshIngredients }) => {
 
                         {/* Đơn vị tính */}
                         <div>
-                            <label className="block font-medium">Đơn vị tính</label>
+                            <label className="block font-medium">
+                                Đơn vị tính
+                                <span style={{marginLeft:'5px', fontWeight:'normal'}}>(Ví dụ: Hộp/ml)</span>
+                            </label>
                             <input
                                 type="text"
                                 className="border rounded-md p-2 w-full"
@@ -172,6 +213,7 @@ const AddIngredientModal = ({ closeModal, refreshIngredients }) => {
                                 placeholder="Nhập đơn vị tính"
                                 required
                             />
+                            {unitError && <p className="text-red-500">{unitError}</p>}
                         </div>
 
                         {/* Dung tích nguyên liệu */}
@@ -185,6 +227,18 @@ const AddIngredientModal = ({ closeModal, refreshIngredients }) => {
                                 required
                             />
                             {capacityError && <p className="text-red-500">{capacityError}</p>}
+                        </div>
+
+                        <div>
+                            <label className="block font-medium">Nhà cung cấp</label>
+                            <input
+                                type="text"
+                                className="border rounded-md p-2 w-full"
+                                value={supplier}
+                                onChange={(e) => setSupplier(e.target.value)}
+                                placeholder="Nhập tên nhà cung cấp"
+                                required
+                            />
                         </div>
                     </div>
                 );
