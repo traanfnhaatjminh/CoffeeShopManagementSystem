@@ -454,6 +454,8 @@ const createNewBill = async (req, res, next) => {
 
         await ingredientDoc.save(); // Lưu lại thay đổi vào database
       }
+      // Gọi hàm cập nhật cost_price của product
+      await updateProductCostPrice(product);
     }
 
     res.status(201).json(savedBill);
@@ -463,42 +465,31 @@ const createNewBill = async (req, res, next) => {
   }
 };
 
-// const updateProductStatus = async () => {
-//   const products = await Product.find().populate("ingredients.ingredient_id");
+const updateProductCostPrice = async (product) => {
+  let newCostPrice = 0;
 
-//   for (const product of products) {
-//     let outOfStock = false;
+  for (const ingredient of product.ingredients) {
+    const ingredientDoc = await Ingredient.findById(ingredient.ingredient_id);
+    if (!ingredientDoc) continue;
 
-//     for (const ingredient of product.ingredients) {
-//       const ingredientDoc = ingredient.ingredient_id; // Dữ liệu đã populate
-//       if (!ingredientDoc) continue;
+    // Tìm lần nhập hàng mới nhất có remaining_quantity > 0
+    const latestEntry = ingredientDoc.purchase_history.find(entry => entry.remaining_quantity > 0);
 
-//       const { current_quantity, unit } = ingredientDoc;
+    if (latestEntry) {
+      // Tính lại TotalPerIngredient theo công thức
+      ingredient.TotalPerIngredient = (ingredient.quantitative / ingredientDoc.capacity) * latestEntry.cost_price;
+    } else {
+      ingredient.TotalPerIngredient = 0; // Nếu hết nguyên liệu, đặt về 0
+    }
 
-//       // Kiểm tra nếu đơn vị chứa "g", "ml", hoặc "kg"
-//       const unitLower = unit.toLowerCase();
-//       if (
-//         (unitLower.includes("g") && current_quantity < 100) ||
-//         (unitLower.includes("ml") && current_quantity < 500) ||
-//         (unitLower.includes("kg") && current_quantity < 1)
-//       ) {
-//         outOfStock = true;
-//         break;
-//       }
-//     }
+    // Cộng dồn cost_price của sản phẩm
+    newCostPrice += ingredient.TotalPerIngredient;
+  }
 
-//     // Chỉ cập nhật trạng thái nếu thực sự cần
-//     if (outOfStock && product.status !== "out of stock") {
-//       product.status = "out of stock";
-//       await product.save();
-//     } else if (!outOfStock && product.status === "out of stock") {
-//       // Nếu nguyên liệu đủ nhưng product đang bị "out of stock" -> đổi lại trạng thái
-//       product.status = "active";
-//       await product.save();
-//     }
-//   }
-// };
-
+  // Cập nhật lại cost_price của Product
+  product.cost_price = newCostPrice;
+  await product.save();
+};
 
 const deleteBill = async (req, res, next) => {
   try {
