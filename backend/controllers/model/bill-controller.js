@@ -235,6 +235,8 @@ const addProductsToBill = async (req, res, next) => {
 
         await ingredientDoc.save(); // Lưu lại thay đổi vào database
       }
+      // Gọi hàm cập nhật cost_price của product
+      await updateProductCostPrice(product);
     }
 
     res
