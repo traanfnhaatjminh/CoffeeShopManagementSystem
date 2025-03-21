@@ -4,8 +4,9 @@ import { toast } from 'react-toastify';
 
 const AddIngredientModal = ({ closeModal, refreshIngredients }) => {
     // Các state dùng cho tab Thông tin
-    const [productName, setProductName] = useState('');
+    const [ingredientName , setIngredientName ] = useState('');
     const [unit, setUnit] = useState('');
+    const [supplier, setSupplier] = useState('');
     const [quantity, setQuantity] = useState(0);
     const [costPrice, setCostPrice] = useState(0);
     const [capacity, setCapacity] = useState(0);
@@ -13,6 +14,8 @@ const AddIngredientModal = ({ closeModal, refreshIngredients }) => {
     const [quantityError, setQuantityError] = useState('');
     const [costPriceError, setCostPriceError] = useState('');
     const [capacityError, setCapacityError] = useState('');
+    const [ingredientNameError, setIngredientNameError] = useState('');
+    const [unitError, setUnitError] = useState('');
 
     // Các state cho tab Thành phần
     const [searchTerm, setSearchTerm] = useState('');
@@ -69,6 +72,15 @@ const AddIngredientModal = ({ closeModal, refreshIngredients }) => {
         setSelectedIngredients(selectedIngredients.filter((item) => item._id !== id));
     };
 
+    // Kiểm tra tên nguyên liệu không chứa ký tự đặc biệt
+    const isValidProductName = (name) => /^[a-zA-Z0-9\s]+$/.test(name);
+
+    // Kiểm tra xem đơn vị có đúng định dạng không (vd: "hộp/ml")
+    const isValidUnit = (unit) => /^[a-zA-ZÀ-Ỹà-ỹ]+\/[a-zA-ZÀ-Ỹà-ỹ]+$/.test(unit);
+
+    // Kiểm tra giá trị số không chứa dấu phẩy
+    const isValidNumber = (value) => /^\d+$/.test(value);
+
     // Submit form
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -79,28 +91,53 @@ const AddIngredientModal = ({ closeModal, refreshIngredients }) => {
 
         let hasError = false;
 
+        // Kiểm tra tên nguyên liệu
+        if (!isValidProductName(ingredientName)) {
+            setIngredientNameError('Tên nguyên liệu không được chứa ký tự đặc biệt!');
+            hasError = true;
+        }
+
+        // Kiểm tra đơn vị hợp lệ
+        if (!isValidUnit(unit)) {
+            setUnitError('Đơn vị không đúng định dạng, không chứa số hoặc ký tự đặc biệt!');
+            hasError = true;
+        }
+
         if (quantity <= 0) {
             setQuantityError('*Số lượng nhập phải lớn hơn 0!');
             hasError = true;
+        } else if (!isValidNumber(quantity)) {
+            setQuantityError('*Số lượng nhập không được chứa dấu phẩy');
+            hasError = true;
         }
+
         if (costPrice <= 0) {
             setCostPriceError('*Giá vốn phải lớn hơn 0!');
             hasError = true;
+        } else if (!isValidNumber(costPrice)) {
+            setCostPriceError('*Giá vốn không được chứa dấu phẩy');
+            hasError = true;
         }
+
         if (capacity <= 0) {
             setCapacityError('*Dung tích phải lớn hơn 0!');
             hasError = true;
+        } else if (!isValidNumber(capacity)) {
+            setCapacityError('*Dung tích không được chứa dấu phẩy');
+            hasError = true;
         }
-        
+
         if (hasError) return; // Nếu có lỗi thì dừng lại
 
         // Tạo formData để gửi lên server
         const formData = new FormData();
-        formData.append('name', productName);
+        formData.append('name', ingredientName );
         formData.append('quantity', quantity);
         formData.append('cost_price', costPrice);
         formData.append('unit', unit);
         formData.append('capacity', capacity);
+        formData.append('supplier', supplier);
+
 
         // Gửi danh sách ingredient đã chọn
         // formData.append('ingredients', JSON.stringify(selectedIngredients));
@@ -121,20 +158,24 @@ const AddIngredientModal = ({ closeModal, refreshIngredients }) => {
         switch (activeTab) {
             case 'thongtin':
                 return (
-                    <div>
+                    <div className="grid grid-cols-2 gap-4">
+                        {/* Tên nguyên liệu */}
                         <div>
-                            <label>Tên nguyên liệu</label>
+                            <label className="block font-medium">Tên nguyên liệu</label>
                             <input
                                 type="text"
                                 className="border rounded-md p-2 w-full"
-                                value={productName}
-                                onChange={(e) => setProductName(e.target.value)}
-                                placeholder='Nhập tên nguyên liệu'
+                                value={ingredientName }
+                                onChange={(e) => setIngredientName (e.target.value)}
+                                placeholder="Nhập tên nguyên liệu"
                                 required
                             />
+                            {ingredientNameError && <p className="text-red-500">{ingredientNameError}</p>}
                         </div>
+
+                        {/* Số lượng nhập */}
                         <div>
-                            <label>Số lượng nhập</label>
+                            <label className="block font-medium">Số lượng nhập</label>
                             <input
                                 type="number"
                                 className="border rounded-md p-2 w-full"
@@ -144,8 +185,10 @@ const AddIngredientModal = ({ closeModal, refreshIngredients }) => {
                             />
                             {quantityError && <p className="text-red-500">{quantityError}</p>}
                         </div>
+
+                        {/* Giá vốn */}
                         <div>
-                            <label>Giá vốn</label>
+                            <label className="block font-medium">Giá vốn</label>
                             <input
                                 type="number"
                                 className="border rounded-md p-2 w-full"
@@ -155,19 +198,27 @@ const AddIngredientModal = ({ closeModal, refreshIngredients }) => {
                             />
                             {costPriceError && <p className="text-red-500">{costPriceError}</p>}
                         </div>
+
+                        {/* Đơn vị tính */}
                         <div>
-                            <label>Đơn vị tính</label>
+                            <label className="block font-medium">
+                                Đơn vị tính
+                                <span style={{marginLeft:'5px', fontWeight:'normal'}}>(Ví dụ: Hộp/ml)</span>
+                            </label>
                             <input
                                 type="text"
                                 className="border rounded-md p-2 w-full"
                                 value={unit}
                                 onChange={(e) => setUnit(e.target.value)}
-                                placeholder='Nhập đơn vị tính'
+                                placeholder="Nhập đơn vị tính"
                                 required
                             />
+                            {unitError && <p className="text-red-500">{unitError}</p>}
                         </div>
-                        <div>
-                            <label>Dung tích nguyên liệu</label>
+
+                        {/* Dung tích nguyên liệu */}
+                        <div className="">
+                            <label className="block font-medium">Dung tích nguyên liệu</label>
                             <input
                                 type="number"
                                 className="border rounded-md p-2 w-full"
@@ -177,21 +228,33 @@ const AddIngredientModal = ({ closeModal, refreshIngredients }) => {
                             />
                             {capacityError && <p className="text-red-500">{capacityError}</p>}
                         </div>
+
+                        <div>
+                            <label className="block font-medium">Nhà cung cấp</label>
+                            <input
+                                type="text"
+                                className="border rounded-md p-2 w-full"
+                                value={supplier}
+                                onChange={(e) => setSupplier(e.target.value)}
+                                placeholder="Nhập tên nhà cung cấp"
+                                required
+                            />
+                        </div>
                     </div>
                 );
+
             case 'thanhphan':
                 return (
                     <div>
-                        <label>Thành phần</label>
-                        <div className="relative w-96">
+                        <label className="block font-medium">Thành phần</label>
+                        <div className="relative w-full md:w-96">
                             <input
                                 type="text"
-                                className="border rounded-md p-2 w-96"
+                                className="border rounded-md p-2 w-full"
                                 placeholder="Tìm kiếm thành phần..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
-                            {/* Hiển thị danh sách gợi ý khi searchTerm có dữ liệu */}
                             {filteredIngredients.length > 0 && (
                                 <ul className="absolute left-0 right-0 bg-white border rounded-md shadow-md mt-1 z-10">
                                     {filteredIngredients.map((ingredient) => (
@@ -207,43 +270,44 @@ const AddIngredientModal = ({ closeModal, refreshIngredients }) => {
                             )}
                         </div>
 
-                        {/* Bảng hiển thị các ingredient đã chọn */}
                         {selectedIngredients.length > 0 && (
-                            <table className="w-full mt-4 border-collapse border border-gray-300">
-                                <thead>
-                                    <tr className="bg-gray-100">
-                                        <th className="border p-2">Tên thành phần</th>
-                                        <th className="border p-2">Số lượng</th>
-                                        <th className="border p-2">Giá vốn</th>
-                                        <th className="border p-2">Thành tiền</th>
-                                        <th className="border p-2">Hành động</th>
-
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {selectedIngredients.map((item) => (
-                                        <tr key={item._id}>
-                                            <td className="border p-2">{item.name}</td>
-                                            <td className="border p-2">
-                                                <input type='number' defaultValue={0} />
-                                            </td>
-                                            <td className="border p-2">{item.cost_costPrice}</td>
-                                            <td className="border p-2">VND</td>
-                                            <td className="border p-2">
-                                                <button
-                                                    onClick={() => handleRemoveIngredient(item._id)}
-                                                    className="bg-red-500 text-white px-2 py-1 rounded"
-                                                >
-                                                    Xóa
-                                                </button>
-                                            </td>
+                            <div className="overflow-auto mt-4">
+                                <table className="w-full border-collapse border border-gray-300">
+                                    <thead>
+                                        <tr className="bg-gray-100">
+                                            <th className="border p-2">Tên thành phần</th>
+                                            <th className="border p-2">Số lượng</th>
+                                            <th className="border p-2">Giá vốn</th>
+                                            <th className="border p-2">Thành tiền</th>
+                                            <th className="border p-2">Hành động</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        {selectedIngredients.map((item) => (
+                                            <tr key={item._id} className="text-center">
+                                                <td className="border p-2">{item.name}</td>
+                                                <td className="border p-2">
+                                                    <input type="number" defaultValue={0} className="w-20 text-center border rounded-md p-1" />
+                                                </td>
+                                                <td className="border p-2">{item.cost_costPrice}</td>
+                                                <td className="border p-2">VND</td>
+                                                <td className="border p-2">
+                                                    <button
+                                                        onClick={() => handleRemoveIngredient(item._id)}
+                                                        className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition"
+                                                    >
+                                                        Xóa
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
                         )}
                     </div>
                 );
+
             default:
                 return null;
         }
@@ -252,7 +316,7 @@ const AddIngredientModal = ({ closeModal, refreshIngredients }) => {
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center" >
             <div
-                className="bg-white p-4 rounded-lg h-auto"
+                className="bg-white p-4 rounded-lg h-auto w-full max-w-3xl shadow-lg"
                 style={{ maxHeight: '150vh', width: '70%' }}
             >
                 <h2 className="text-xl font-bold mb-2">Thêm nguyên liệu mới</h2>

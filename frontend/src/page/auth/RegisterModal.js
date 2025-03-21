@@ -10,7 +10,7 @@ const RegisterModal = ({ isOpen, onClose }) => {
   const [errors, setErrors] = useState({});
   const dispatch = useDispatch();
   const validationSchema = yup.object({
-    email: yup.string().required('Email is required.').email('Invalid email format.'),
+    email: yup.string().required('Email không được để trống.').email('Email không hợp lệ.'),
   });
 
   const handleRegister = async (event) => {

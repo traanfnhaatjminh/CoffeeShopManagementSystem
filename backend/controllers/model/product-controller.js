@@ -44,10 +44,39 @@ const createNewProduct = async (req, res, next) => {
 
 const getAllProductInWarehouse = async (req, res, next) => {
     try {
-        const products = await Product.find()
-            .populate('category_id')
-            .exec();
-        res.status(200).json(products);
+        const { search = "", page = "1", limit = "10", status = "" } = req.query;
+
+        const searchQuery = search.trim();
+        const pageNumber = Math.max(parseInt(page, 10) || 1, 1);
+        const limitNumber = Math.max(parseInt(limit, 10) || 10, 1);
+
+        let filter = {};
+
+        if (searchQuery) {
+            filter.pname = { $regex: searchQuery, $options: "i" };
+        }
+
+        if (status) {
+            const statusLower = status.trim().toLowerCase();
+            const validStatuses = ["active", "inactive", "discontinued", "out of stock"];
+            if (!validStatuses.includes(statusLower)) {
+                return res.status(400).json({ message: "Invalid status value" });
+            }
+            filter.status = statusLower;
+        }
+
+        const totalProducts = await Product.countDocuments(filter);
+        const products = await Product.find(filter)
+            .populate("category_id", "category_name status")
+            .skip((pageNumber - 1) * limitNumber)
+            .limit(limitNumber);
+
+        res.status(200).json({
+            products,
+            totalProducts,
+            currentPage: pageNumber,
+            totalPages: Math.ceil(totalProducts / limitNumber),
+        });
     } catch (error) {
         next(error);
     }
@@ -147,7 +176,7 @@ const getProductsByCategory = async (req, res, next) => {
 // };
 const updateProduct = async (req, res, next) => {
     const { productId } = req.params;
-    const { pname, price, category_id } = req.body;
+    const { pname, sale_price, category_id } = req.body;
 
     try {
         // Kiểm tra sản phẩm có tồn tại không
@@ -157,7 +186,7 @@ const updateProduct = async (req, res, next) => {
             return res.status(404).json({ message: "Product not found" });
         }
 
-        const updatedProduct = { pname, price, category_id };
+        const updatedProduct = { pname, sale_price, category_id };
 
         if (req.file) {
             if (existingProduct.cloudinary_id) {
@@ -218,5 +247,39 @@ const deleteProduct = async (req, res, next) => {
         next(error);
     }
 }
-module.exports = { createNewProduct, getAllProductInHome, getAllProductInWarehouse, getProductsByCategory, updateProduct, deleteProduct, updateProductStatus };
+
+const getProductIngredients = async (req, res) => {
+    try {
+        const { productId } = req.params;
+
+        // Tìm sản phẩm và populate ingredients
+        const product = await Product.findById(productId).populate({
+            path: "ingredients.ingredient_id",
+            select: "name"
+        });
+
+        // Kiểm tra nếu không tìm thấy sản phẩm
+        if (!product) {
+            return res.status(404).json({ message: "Product not found" });
+        }
+
+        // Lấy danh sách nguyên liệu từ sản phẩm
+        const ingredientList = product.ingredients.map((ingredient) => ({
+            name: ingredient.ingredient_id.name,
+            unit: ingredient.unit,
+            quantitative: ingredient.quantitative,
+            TotalPerIngredient: ingredient.TotalPerIngredient
+        }));
+
+        return res.status(200).json({
+            productName: product.pname,
+            ingredients: ingredientList
+        });
+    } catch (error) {
+        console.error("Error fetching product ingredients:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+module.exports = { createNewProduct, getAllProductInHome, getAllProductInWarehouse, getProductsByCategory, updateProduct, deleteProduct, updateProductStatus, getProductIngredients };
 

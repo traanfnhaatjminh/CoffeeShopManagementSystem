@@ -9,9 +9,9 @@ const BillActions = ({ bill, actions }) => {
       <button onClick={() => handleClickDetail(bill)} className="text-blue-600 hover:text-blue-800">
         <IoEyeSharp size={16} />
       </button>
-      <button onClick={() => handlePrint(bill)} className="text-gray-600 hover:text-gray-800">
+      {/* <button onClick={() => handlePrint(bill)} className="text-gray-600 hover:text-gray-800">
         <IoPrint size={16} />
-      </button>
+      </button> */}
       {/* <button onClick={() => handleSendEmail(bill)} className="text-green-600 hover:text-green-800">
         <IoMailOutline size={16} />
       </button> */}

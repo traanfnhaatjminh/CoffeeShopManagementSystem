@@ -8,7 +8,7 @@ const CheckAuth = ({ isAuthenticated, user, children }) => {
   }
   if (isAuthenticated && (location.pathname.includes('/login') || location.pathname.includes('/register'))) {
     if (user.role.role_name === 'admin') {
-      return <Navigate to="/admin/statistic"></Navigate>;
+      return <Navigate to="/admin/dashboard"></Navigate>;
     } else if (user.role.role_name === 'cashier') {
       return <Navigate to="/cashier/createbill"></Navigate>;
     } else if (user.role.role_name === 'warehouse manager') {

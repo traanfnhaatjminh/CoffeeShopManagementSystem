@@ -46,8 +46,13 @@ export default function CashierScreen() {
         setOrderLoading(true);
 
         // Fetch categories
-        const categoriesResponse = await axios.get('/categories/list');
-        setCategories(categoriesResponse.data);
+        fetch('/categories/list')
+          .then((res) => res.json())
+          .then((data) => {
+            console.log('Fetched Categories:', data); // In ra response để kiểm tra
+            setCategories(data.categories || []); // Đảm bảo nó là mảng
+          })
+          .catch((error) => console.error('Error fetching categories:', error));
 
         // Fetch products based on filters
         const productsResponse = await APISERVICECASHIER.ApiProductInHome(
@@ -145,9 +150,8 @@ export default function CashierScreen() {
       <main className="flex  md:flex-row flex-1 p-1 md:p-2 overflow-hidden">
         {/* Menu Section - Adaptive width based on screen size */}
         <section
-          className={`flex-1 transition-all duration-300 mb-4 md:mb-0 overflow-auto ${
-            isCartExpanded ? 'md:w-3/3 lg:w-3/4' : 'md:w-5/6'
-          }`}
+          className={`flex-1 transition-all duration-300 mb-4 md:mb-0 overflow-auto ${isCartExpanded ? 'md:w-3/3 lg:w-3/4' : 'md:w-5/6'
+            }`}
         >
           <MenuSection
             categories={categories}

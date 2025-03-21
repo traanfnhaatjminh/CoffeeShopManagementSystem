@@ -2,15 +2,20 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const UserSchema = new Schema(
     {
-        fullName: { type: String, require: true},
+        fullName: { type: String, require: true },
         email: { type: String, require: true, unique: true },
         password: { type: String, require: true },
         dob: { type: Date },
-        phone: { type: String, unique: true },
+        phone: { type: String },
         address: { type: String },
         avatar: { type: String },
         role: { type: Schema.Types.ObjectId, require: true, ref: "Role" },
-        status: { type: Boolean },
+        status: {
+            //Trang thái
+            type: String,
+            enum: ["active", "banned"],
+            default: "active",
+        },
     },
     { timestamps: true }
 );

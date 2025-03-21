@@ -17,8 +17,18 @@ const loginUser = async (req, res) => {
         if (!checkUser)
             return res.json({
                 success: false,
-                message: "Email doesn't exist! Please register first",
+                message:
+                    "Email chưa được tạo tồn tại , vui lòng đăng ký tài khoản",
             });
+
+        if (checkUser.status === "banned") {
+            return res.status(StatusCodes.FORBIDDEN).json({
+                success: false,
+                message: "Tài khoản đã bị khóa",
+                status: "Banned",
+            });
+        }
+
         const checkPasswordMatches = await bcrypt.compare(
             password,
             checkUser.password
@@ -26,7 +36,7 @@ const loginUser = async (req, res) => {
         if (!checkPasswordMatches)
             return res.json({
                 success: false,
-                message: "Incorrect password! Please try again",
+                message: "Mật khẩu không đúng! Vui lòng thử lại",
             });
         const token = jwt.sign(
             {
@@ -40,20 +50,21 @@ const loginUser = async (req, res) => {
         );
         res.cookie("token", token, { httpOnly: true, secure: false }).json({
             success: true,
-            message: "Logged in successfully",
+            message: "Đã đăng nhập thành công",
             user: {
                 email: checkUser.email,
                 role: checkUser.role,
                 id: checkUser._id,
                 userName: checkUser.fullName,
                 phone: checkUser.phone,
+                status: checkUser.status,
             },
         });
     } catch (err) {
         console.log(err);
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             success: false,
-            message: "Some error service false",
+            message: "Lỗi hệ thống",
         });
     }
 };
@@ -65,14 +76,14 @@ const updatePassword = async (req, res) => {
         if (!checkUser)
             return res.json({
                 success: false,
-                message: "User doesn't exits! Please register first",
+                message: "Người dùng không tồn tại! Vui lòng đăng ký trước",
             });
         const changeNewPassword = await bcrypt.hash(newPassword, 12);
         checkUser.password = changeNewPassword;
         await checkUser.save();
         res.status(StatusCodes.OK).json({
             success: true,
-            message: "Update success",
+            message: "Cập nhật thành công",
             data: {
                 email: checkUser.email,
                 role: checkUser.role,
@@ -84,7 +95,7 @@ const updatePassword = async (req, res) => {
         console.log(err);
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             success: false,
-            message: "Some error service false",
+            message: "Lỗi hệ thống",
         });
     }
 };
@@ -171,7 +182,7 @@ const updateInfoUser = async (req, res) => {
 const logoutUser = (req, res) => {
     res.clearCookie("token").json({
         success: true,
-        message: "Logged out successfully!",
+        message: "Đã đăng xuất thành công!",
     });
 };
 
@@ -179,7 +190,7 @@ const checkAuthor = (req, res, next) => {
     const { fullname, email, phone, role } = req.user;
     res.status(StatusCodes.OK).json({
         success: true,
-        message: "Authenticated user!",
+        message: "Người dùng đã xác thực!",
         user: {
             fullname,
             email,
@@ -191,17 +202,15 @@ const checkAuthor = (req, res, next) => {
 
 const register = async (req, res, next) => {
     try {
-        const {
-            fullName,
-            email,
-            password,
-            dob,
-            phone,
-            address,
-            avatar,
-            role,
-            status,
-        } = req.body;
+        const { fullName, email, password, dob, phone, address, avatar, role } =
+            req.body;
+        const checkUser = await User.find({ email });
+        if (checkUser.length) {
+            return res.status(StatusCodes.CONFLICT).json({
+                success: false,
+                message: "Email đã tồn tại . Vui lòng nhập email khác!",
+            });
+        }
         const role_id = await Role.findOne({ role_name: role });
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -215,19 +224,11 @@ const register = async (req, res, next) => {
             address,
             avatar: avatar || "",
             role: role_id._id,
-            status: status === "1" ? true : false,
         });
-
         await newUser.save().then((newDoc) => {
             res.status(StatusCodes.CREATED).json({
                 success: true,
-                message: "Insert a new user successfully.",
-                data: {
-                    email: newUser.email,
-                    role: newUser.role,
-                    id: newUser._id,
-                    userName: newUser.fullName,
-                },
+                message: "Thêm người dùng mới thành công.",
             });
         });
     } catch (error) {
@@ -256,7 +257,7 @@ const forgotPassword = async (req, res, next) => {
         if (!user) {
             return res.json({
                 success: false,
-                message: "User not found",
+                message: "Người dùng không tồn tại!",
             });
         }
 
@@ -272,15 +273,15 @@ const forgotPassword = async (req, res, next) => {
         await transporter.sendMail({
             from: process.env.EMAIL_USER,
             to: user.email,
-            subject: "OTP for Password Reset",
-            text: `Your OTP for password reset is ${otp}. It is valid for 5 minutes.`,
+            subject: "Mã OTP để đặt lại mật khẩu",
+            text: `Mã OTP của bạn là ${otp}. Mã này có hiệu lực trong 5 phút.`,
         });
         res.cookie("resetpassword", token, {
             httpOnly: true,
             secure: false,
         }).json({
             success: true,
-            message: "OTP send email",
+            message: "Mã OTP đã được gửi qua email!",
             token,
         });
     } catch (error) {
@@ -288,7 +289,7 @@ const forgotPassword = async (req, res, next) => {
         next(error);
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             success: false,
-            message: "Server Error!",
+            message: "Lỗi hệ thống, vui lòng thử lại sau.",
         });
     }
 };
@@ -301,22 +302,22 @@ const resetPassword = (req, res, next) => {
             process.env.JWT_ACCESS_TOKEN_SECRET,
             async (err, decoded) => {
                 if (err)
-                    return res
-                        .status(StatusCodes.BAD_REQUEST)
-                        .json({ message: "Invalid or expired token" });
+                    return res.status(StatusCodes.BAD_REQUEST).json({
+                        message: "Mã OTP không hợp lệ hoặc đã hết hạn!",
+                    });
                 const { otp, email } = decoded;
                 const user = await db.User.findOne({ email });
                 if (!user) {
                     res.status(StatusCodes.NOT_FOUND).json({
                         success: false,
-                        message: "User not found",
+                        message: "Người dùng không tồn tại!",
                     });
                 }
                 user.password = await bcrypt.hash(newPassword, 10);
                 await user.save().then((user) => {
                     res.status(StatusCodes.OK).json({
                         success: true,
-                        message: "Password reset successful.",
+                        message: "Đặt lại mật khẩu thành công!",
                         data: {
                             email: user.email,
                             role: user.role,
@@ -330,7 +331,7 @@ const resetPassword = (req, res, next) => {
     } catch (error) {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             success: false,
-            message: "Server Error!",
+            message: "Lỗi hệ thống, vui lòng thử lại sau.",
         });
     }
 };
@@ -341,14 +342,14 @@ const verifyOTP = async (req, res, next) => {
     if (!token) {
         return res.status(StatusCodes.UNAUTHORIZED).json({
             message:
-                "OTP does not exist or has expired. Please request OTP again.",
+                "Mã OTP không tồn tại hoặc đã hết hạn. Vui lòng yêu cầu lại.",
             success: false,
         });
     }
     jwt.verify(token, process.env.JWT_ACCESS_TOKEN_SECRET, (err, decode) => {
         if (err) {
             return res.status(StatusCodes.UNAUTHORIZED).json({
-                message: "OTP does not exist or has expired",
+                message: "Mã OTP không hợp lệ hoặc đã hết hạn!",
                 success: false,
             });
         }
@@ -356,14 +357,13 @@ const verifyOTP = async (req, res, next) => {
         if (code === otp) {
             return res.status(StatusCodes.OK).json({
                 success: true,
-                message:
-                    "OTP is valid. You can proceed to change your password.",
+                message: "Mã OTP hợp lệ. Bạn có thể đặt lại mật khẩu.",
                 email,
             });
         } else {
             return res.json({
                 success: false,
-                message: "OTP is incorrect. Please try again.",
+                message: "Mã OTP không chính xác! Vui lòng thử lại.",
             });
         }
     });

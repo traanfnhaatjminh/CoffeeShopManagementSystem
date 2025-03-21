@@ -2,6 +2,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const Bill = require("../../models/Bill");
 const Table = require("../../models/TableList");
+const Product = require("../../models/Product");
+const Ingredient = require("../../models/Ingredient");
 
 const getStatistics = async (req, res) => {
   try {
@@ -153,6 +155,7 @@ const getBillFromTable = async (req, res, next) => {
     next(error);
   }
 };
+
 const addProductsToBill = async (req, res, next) => {
   try {
     const { products } = req.body; // Nhận danh sách sản phẩm từ request body
@@ -194,6 +197,53 @@ const addProductsToBill = async (req, res, next) => {
 
     // Lưu lại hóa đơn sau khi cập nhật
     await bill.save();
+
+    // Duyệt từng sản phẩm trong đơn để trừ nguyên liệu
+    for (const item of products) {
+      const product = await Product.findById(item.productId).populate(
+        "ingredients.ingredient_id"
+      );
+
+      if (!product) continue; // Nếu sản phẩm không tồn tại, bỏ qua
+
+      for (const ingredient of product.ingredients) {
+        const ingredientDoc = await Ingredient.findById(
+          ingredient.ingredient_id
+        );
+        if (!ingredientDoc) continue;
+
+        let remainingToSubtract = ingredient.quantitative * item.quantityP; // Tổng lượng cần trừ
+
+        // Sắp xếp lịch sử nhập hàng theo thứ tự cũ -> mới
+        ingredientDoc.purchase_history.sort(
+          (a, b) => new Date(a.date) - new Date(b.date)
+        );
+
+        for (const historyEntry of ingredientDoc.purchase_history) {
+          if (remainingToSubtract <= 0) break; // Nếu đã trừ hết thì thoát vòng lặp
+
+          const availableQuantity = historyEntry.remaining_quantity;
+
+          if (availableQuantity >= remainingToSubtract) {
+            historyEntry.remaining_quantity -= remainingToSubtract;
+            remainingToSubtract = 0;
+          } else {
+            remainingToSubtract -= availableQuantity;
+            historyEntry.remaining_quantity = 0;
+          }
+        }
+
+        // Cập nhật lại tổng lượng nguyên liệu hiện có
+        ingredientDoc.current_quantity = ingredientDoc.purchase_history.reduce(
+          (sum, entry) => sum + entry.remaining_quantity,
+          0
+        );
+
+        await ingredientDoc.save(); // Lưu lại thay đổi vào database
+      }
+      // Gọi hàm cập nhật cost_price của product
+      await updateProductCostPrice(product);
+    }
 
     res
       .status(200)
@@ -252,7 +302,6 @@ const postBillUpdate = async (req, res, next) => {
 const getAllBill = async (req, res) => {
   try {
     const billlist = await Bill.find().populate("table_id", "table_name");
-
     res.status(200).json(billlist);
   } catch (error) {
     next(error);
@@ -357,27 +406,73 @@ const getBillFilter = async (req, res) => {
     res.status(500).json({ message: "Lỗi lấy danh sách hóa đơn", error });
   }
 };
-////
+
 const createNewBill = async (req, res, next) => {
   try {
     const { total_cost, table_id, product_list, payment, status, hidden } =
       req.body;
 
-    // Create a new bill document
+    // Tạo đơn mới
     const newBill = new Bill({
-      _id: new mongoose.Types.ObjectId(), // Automatically generate ObjectId
-      total_cost: total_cost,
-      table_id: table_id,
-      payment: payment,
-      status: status,
-      hidden: hidden,
-      product_list: product_list,
+      _id: new mongoose.Types.ObjectId(),
+      total_cost,
+      table_id,
+      payment,
+      status,
+      hidden,
+      product_list,
     });
 
-    // Save the new bill to the database
+    // Lưu hóa đơn vào database
     const savedBill = await newBill.save();
 
-    // Return success response
+    // Duyệt từng sản phẩm trong đơn để trừ nguyên liệu
+    for (const item of product_list) {
+      const product = await Product.findById(item.productId).populate(
+        "ingredients.ingredient_id"
+      );
+
+      if (!product) continue; // Nếu sản phẩm không tồn tại, bỏ qua
+
+      for (const ingredient of product.ingredients) {
+        const ingredientDoc = await Ingredient.findById(
+          ingredient.ingredient_id
+        );
+        if (!ingredientDoc) continue;
+
+        let remainingToSubtract = ingredient.quantitative * item.quantityP; // Tổng lượng cần trừ
+
+        // Sắp xếp lịch sử nhập hàng theo thứ tự cũ -> mới
+        ingredientDoc.purchase_history.sort(
+          (a, b) => new Date(a.date) - new Date(b.date)
+        );
+
+        for (const historyEntry of ingredientDoc.purchase_history) {
+          if (remainingToSubtract <= 0) break; // Nếu đã trừ hết thì thoát vòng lặp
+
+          const availableQuantity = historyEntry.remaining_quantity;
+
+          if (availableQuantity >= remainingToSubtract) {
+            historyEntry.remaining_quantity -= remainingToSubtract;
+            remainingToSubtract = 0;
+          } else {
+            remainingToSubtract -= availableQuantity;
+            historyEntry.remaining_quantity = 0;
+          }
+        }
+
+        // Cập nhật lại tổng lượng nguyên liệu hiện có
+        ingredientDoc.current_quantity = ingredientDoc.purchase_history.reduce(
+          (sum, entry) => sum + entry.remaining_quantity,
+          0
+        );
+
+        await ingredientDoc.save(); // Lưu lại thay đổi vào database
+      }
+      // Gọi hàm cập nhật cost_price của product
+      await updateProductCostPrice(product);
+    }
+
     res.status(201).json(savedBill);
   } catch (error) {
     console.error("Error creating bill:", error);
@@ -386,6 +481,37 @@ const createNewBill = async (req, res, next) => {
       .json({ message: "Failed to create bill", error: error.message });
   }
 };
+
+const updateProductCostPrice = async (product) => {
+  let newCostPrice = 0;
+
+  for (const ingredient of product.ingredients) {
+    const ingredientDoc = await Ingredient.findById(ingredient.ingredient_id);
+    if (!ingredientDoc) continue;
+
+    // Tìm lần nhập hàng mới nhất có remaining_quantity > 0
+    const latestEntry = ingredientDoc.purchase_history.find(
+      (entry) => entry.remaining_quantity > 0
+    );
+
+    if (latestEntry) {
+      // Tính lại TotalPerIngredient theo công thức
+      ingredient.TotalPerIngredient =
+        (ingredient.quantitative / ingredientDoc.capacity) *
+        latestEntry.cost_price;
+    } else {
+      ingredient.TotalPerIngredient = 0; // Nếu hết nguyên liệu, đặt về 0
+    }
+
+    // Cộng dồn cost_price của sản phẩm
+    newCostPrice += ingredient.TotalPerIngredient;
+  }
+
+  // Cập nhật lại cost_price của Product
+  product.cost_price = newCostPrice;
+  await product.save();
+};
+
 const deleteBill = async (req, res, next) => {
   try {
     const { id } = req.params;

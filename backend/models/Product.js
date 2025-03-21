@@ -39,6 +39,10 @@ const productSchema = new Schema(
                     type: Schema.Types.ObjectId,
                     ref: "Ingredient",
                 },
+                unit: {
+                    type: String,
+                    trim: true
+                },
                 quantitative: {
                     type: Number,
                 },

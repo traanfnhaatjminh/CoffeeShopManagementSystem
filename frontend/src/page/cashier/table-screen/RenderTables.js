@@ -26,9 +26,9 @@ const RenderTables = ({
               <p className={`text-xs font-semibold ${table.status === true ? 'text-green-500' : 'text-red-500'}`}>
                 {table.status === true ? 'Đang trống' : 'Đang có khách'}
               </p>
-              {!table.status && (
+              {/* {!table.status && (
                 <p className="text-xs text-gray-500">Thời gian vào: {new Date(table.startTime).toLocaleTimeString()}</p>
-              )}
+              )} */}
             </div>
 
             {!table.status && (

@@ -33,7 +33,7 @@ const CartOrder = ({
                   <th className="border-b py-2">Hình ảnh</th>
                   <th className="border-b py-2">Giá</th>
                   <th className="border-b py-2">Số lượng</th>
-                  <th className="border-b py-2">Ghi chú</th>
+                  {/* <th className="border-b py-2">Ghi chú</th> */}
                 </tr>
               </thead>
               <tbody>
@@ -45,13 +45,13 @@ const CartOrder = ({
                     </td>
                     <td className="py-2">{item.priceP ? item.priceP.toLocaleString() : '0'} VND</td>
                     <td className="py-2">{item.quantityP}</td>
-                    <td className="py-2">
+                    {/* <td className="py-2">
                       <Input
                         value={notes[item._id] || ''}
                         onChange={(e) => handleNoteChange(item._id, e.target.value)}
                         placeholder="Ghi chú"
                       />
-                    </td>
+                    </td> */}
                   </tr>
                 ))}
               </tbody>
