@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addToCart, updateQuantity, removeFromCart } from '../../../store/cart-slice/cartSlice';
 import { setSelectedTable } from '../../../store/table-slice/tableSlice';
 import APISERVICECASHIER from '../../../services/api-cashier';
-import { generatePDF } from './printBill';
+import { generateOrderPDF } from './printBill';
 import { createBill } from '../../../store/bill-slice/billSlice';
 import { fetchTables } from '../../../store/table-slice/tableSlice';
 import MenuSection from './MenuSection';
@@ -112,10 +112,11 @@ export default function CashierScreen() {
         setOrderLoading(false);
         return;
       }
-
+      const tableInfo = tableList.find((table) => table._id === selectedTable);
+      const tableName = tableInfo ? tableInfo.table_name : 'Không xác định';
       await dispatch(createBill({ cart, selectedTable, tableList, calculateTotalPrice })).unwrap();
 
-      generatePDF(cart, selectedTable, note);
+      generateOrderPDF(cart, tableName, note);
 
       // Clear cart after successful order
 

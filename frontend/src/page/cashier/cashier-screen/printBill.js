@@ -3,7 +3,7 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import '../../../fonts/Roboto-Regular-normal';
 
-export const generatePDF = (cart, selectedTable, note) => {
+export const generateOrderPDF = (cart, selectedTable, note) => {
   // Create PDF document
   const doc = new jsPDF({
     format: 'a7',
@@ -22,7 +22,7 @@ export const generatePDF = (cart, selectedTable, note) => {
   // Header hóa đơn
   doc.setFontSize(12);
   doc.setFont(FONT_REGULAR);
-  doc.text(`B.${selectedTable + 1} [A]`, 10, 10);
+  doc.text(`${selectedTable}`, 10, 10);
   doc.setFont(FONT_REGULAR);
   doc.text(`Ngày: ${formattedDate}`, 10, 15);
   doc.text(`Nhân viên: Staff`, 10, 20);
@@ -61,7 +61,7 @@ export const generatePDF = (cart, selectedTable, note) => {
   doc.text('... [2] ...', 25, yPosition + 5);
 
   // Lưu file PDF
-  doc.save(`hoadon${selectedTable}.pdf`);
+  doc.save(`Hóa Đơn ${selectedTable}`);
 
   // Trả về đối tượng PDF (nếu cần)
   return doc;

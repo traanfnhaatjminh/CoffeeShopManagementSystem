@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import { generatePDF } from './PayBills';
+import { generateOrderPDF } from '../cashier-screen/printBill';
 import { fetchTables, updateTablePosition } from '../../../store/table-slice/tableSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import AddProductModal from '../table-screen/AddProductModal';
@@ -21,7 +22,7 @@ export default function TableList() {
   const [discount, setDiscount] = useState(0);
   const [totalCost, setTotalCost] = useState(0);
   const [cashReal, setCashReal] = useState('');
-  const [notes, setNotes] = useState({});
+  const [notes, setNotes] = useState('');
   const [splitBill, setSplitBill] = useState(false);
   const [filterStatus, setFilterStatus] = useState('all');
   const [searchText, setSearchText] = useState('');
@@ -162,6 +163,13 @@ export default function TableList() {
             bill: response.data.product_list || [],
           });
         }
+        const formattedProducts = products.map((p) => ({
+          pname: p.nameP,
+          price: p.priceP,
+          quantity: p.quantityP,
+        }));
+
+        generateOrderPDF(formattedProducts, selectedTable.table_name, notes);
       } else {
         toast.error('Không thể thêm sản phẩm! Vui lòng chọn bàn trước.');
       }
