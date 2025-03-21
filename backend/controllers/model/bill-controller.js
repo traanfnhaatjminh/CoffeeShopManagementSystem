@@ -200,18 +200,24 @@ const addProductsToBill = async (req, res, next) => {
 
     // Duyệt từng sản phẩm trong đơn để trừ nguyên liệu
     for (const item of products) {
-      const product = await Product.findById(item.productId).populate("ingredients.ingredient_id");
+      const product = await Product.findById(item.productId).populate(
+        "ingredients.ingredient_id"
+      );
 
       if (!product) continue; // Nếu sản phẩm không tồn tại, bỏ qua
 
       for (const ingredient of product.ingredients) {
-        const ingredientDoc = await Ingredient.findById(ingredient.ingredient_id);
+        const ingredientDoc = await Ingredient.findById(
+          ingredient.ingredient_id
+        );
         if (!ingredientDoc) continue;
 
         let remainingToSubtract = ingredient.quantitative * item.quantityP; // Tổng lượng cần trừ
 
         // Sắp xếp lịch sử nhập hàng theo thứ tự cũ -> mới
-        ingredientDoc.purchase_history.sort((a, b) => new Date(a.date) - new Date(b.date));
+        ingredientDoc.purchase_history.sort(
+          (a, b) => new Date(a.date) - new Date(b.date)
+        );
 
         for (const historyEntry of ingredientDoc.purchase_history) {
           if (remainingToSubtract <= 0) break; // Nếu đã trừ hết thì thoát vòng lặp
@@ -266,7 +272,7 @@ const postBillUpdate = async (req, res, next) => {
         (total, item) => total + item.priceP * item.quantityP,
         0
       ) *
-      ((100 - discount) / 100);
+        ((100 - discount) / 100);
 
     const updatedBill = {
       status: 1, // Đánh dấu hóa đơn đã thanh toán
@@ -403,7 +409,8 @@ const getBillFilter = async (req, res) => {
 
 const createNewBill = async (req, res, next) => {
   try {
-    const { total_cost, table_id, product_list, payment, status, hidden } = req.body;
+    const { total_cost, table_id, product_list, payment, status, hidden } =
+      req.body;
 
     // Tạo đơn mới
     const newBill = new Bill({
@@ -421,18 +428,24 @@ const createNewBill = async (req, res, next) => {
 
     // Duyệt từng sản phẩm trong đơn để trừ nguyên liệu
     for (const item of product_list) {
-      const product = await Product.findById(item.productId).populate("ingredients.ingredient_id");
+      const product = await Product.findById(item.productId).populate(
+        "ingredients.ingredient_id"
+      );
 
       if (!product) continue; // Nếu sản phẩm không tồn tại, bỏ qua
 
       for (const ingredient of product.ingredients) {
-        const ingredientDoc = await Ingredient.findById(ingredient.ingredient_id);
+        const ingredientDoc = await Ingredient.findById(
+          ingredient.ingredient_id
+        );
         if (!ingredientDoc) continue;
 
         let remainingToSubtract = ingredient.quantitative * item.quantityP; // Tổng lượng cần trừ
 
         // Sắp xếp lịch sử nhập hàng theo thứ tự cũ -> mới
-        ingredientDoc.purchase_history.sort((a, b) => new Date(a.date) - new Date(b.date));
+        ingredientDoc.purchase_history.sort(
+          (a, b) => new Date(a.date) - new Date(b.date)
+        );
 
         for (const historyEntry of ingredientDoc.purchase_history) {
           if (remainingToSubtract <= 0) break; // Nếu đã trừ hết thì thoát vòng lặp
@@ -463,7 +476,9 @@ const createNewBill = async (req, res, next) => {
     res.status(201).json(savedBill);
   } catch (error) {
     console.error("Error creating bill:", error);
-    res.status(500).json({ message: "Failed to create bill", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Failed to create bill", error: error.message });
   }
 };
 
@@ -475,11 +490,15 @@ const updateProductCostPrice = async (product) => {
     if (!ingredientDoc) continue;
 
     // Tìm lần nhập hàng mới nhất có remaining_quantity > 0
-    const latestEntry = ingredientDoc.purchase_history.find(entry => entry.remaining_quantity > 0);
+    const latestEntry = ingredientDoc.purchase_history.find(
+      (entry) => entry.remaining_quantity > 0
+    );
 
     if (latestEntry) {
       // Tính lại TotalPerIngredient theo công thức
-      ingredient.TotalPerIngredient = (ingredient.quantitative / ingredientDoc.capacity) * latestEntry.cost_price;
+      ingredient.TotalPerIngredient =
+        (ingredient.quantitative / ingredientDoc.capacity) *
+        latestEntry.cost_price;
     } else {
       ingredient.TotalPerIngredient = 0; // Nếu hết nguyên liệu, đặt về 0
     }
