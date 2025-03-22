@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { CSVLink } from 'react-csv';
+import { getPaymentMethod, formatDiscount } from './billUtils';
 
 export default function ExportBillModal({ show, onClose, data, tableInfo }) {
   // tableInfo là danh sách thông tin bàn
@@ -45,19 +46,15 @@ export default function ExportBillModal({ show, onClose, data, tableInfo }) {
 
     const processed = filteredData.map((bill, index) => {
       // Tìm số bàn từ thông tin bàn
-      const getTableNumber = (tableId) => {
-        const tableIndex = tableInfo.findIndex((table) => table._id.toString() === tableId.toString());
-        return tableIndex !== -1 ? tableIndex + 1 : 'Not found';
-      };
 
       return {
         index: index + 1,
         created_time: new Date(bill.created_time).toLocaleString(),
         updated_time: new Date(bill.updated_time).toLocaleString(),
-        table_id: getTableNumber(bill.table_id), // Số bàn được thay thế
+        table_id: bill.table_id?.table_name, // Số bàn được thay thế
         product_list: bill.product_list.map((product) => product.nameP).join(', '),
-        discount: `${bill.discount}%`,
-        payment: bill.payment === 'cash' ? 'Tiền mặt' : 'Chuyển khoản',
+        discount: `${bill.discount || 0}%`,
+        payment: getPaymentMethod(bill.payment),
         total_cost: `${bill.total_cost.toLocaleString('vi-VN')} VND`,
       };
     });
