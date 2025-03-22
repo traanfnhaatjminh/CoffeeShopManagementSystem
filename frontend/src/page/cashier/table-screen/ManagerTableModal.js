@@ -4,6 +4,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { FaTable, FaPencilAlt, FaPlus, FaSearch, FaFilter } from 'react-icons/fa';
 import { MdDeleteForever, MdGridView, MdViewList } from 'react-icons/md';
+import { useNavigate } from 'react-router-dom';
 
 const EnhancedTableManager = () => {
   const [tableList, setTableList] = useState([]);
@@ -18,6 +19,21 @@ const EnhancedTableManager = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all'); // 'all', 'available', 'occupied'
   const [selectedFloor, setSelectedFloor] = useState('all');
+  const navigate = useNavigate();
+
+  // Define location options
+  const locationOptions = ['indoor', 'outdoor', 'takeaway', ...Array.from({ length: 10 }, (_, i) => `floor_${i + 1}`)];
+
+  // Helper function to display friendly location name
+  const getLocationDisplayName = (locationValue) => {
+    if (locationValue === 'indoor') return 'Trong nhà';
+    if (locationValue === 'outdoor') return 'Ngoài trời';
+    if (locationValue === 'takeaway') return 'Mang đi';
+    if (locationValue.startsWith('floor_')) {
+      return `Tầng ${locationValue.split('_')[1]}`;
+    }
+    return locationValue;
+  };
 
   // Load table data
   const loadData = async () => {
@@ -27,8 +43,8 @@ const EnhancedTableManager = () => {
       console.log('Tables loaded:', response.data);
 
       // Get unique floors for filter
-      const floors = [...new Set(response.data.map((table) => table.location_table))].sort((a, b) => a - b);
-      console.log('Available floors:', floors);
+      const floors = [...new Set(response.data.map((table) => table.location_table))].sort();
+      console.log('Available locations:', floors);
     } catch (error) {
       console.error('Error loading tables:', error);
       toast.error('Không thể tải danh sách bàn');
@@ -38,6 +54,7 @@ const EnhancedTableManager = () => {
   useEffect(() => {
     loadData();
   }, []);
+  console.log(tableList, 'table');
 
   // Modal handlers
   const handleAddTable = () => {
@@ -146,10 +163,11 @@ const EnhancedTableManager = () => {
   };
 
   // Get unique floors from table list
-  const floors = [...new Set(tableList.map((table) => table.location_table))].sort((a, b) => a - b);
 
   // Filter tables based on search, status, and floor
   const filteredTables = tableList.filter((table) => {
+    if (!table) return false; // Bỏ qua nếu table là undefined hoặc null
+
     const matchesSearch = table.table_name && table.table_name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus =
       filterStatus === 'all' ? true : filterStatus === 'available' ? table.status === true : table.status === false;
@@ -157,8 +175,7 @@ const EnhancedTableManager = () => {
 
     return matchesSearch && matchesStatus && matchesFloor;
   });
-
-  // Group tables by floor
+  // Group tables by location
   const groupedTables = filteredTables.reduce((acc, table) => {
     if (table && table.location_table) {
       const location = table.location_table;
@@ -175,6 +192,13 @@ const EnhancedTableManager = () => {
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} closeOnClick pauseOnHover />
 
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+        <button
+          onClick={() => navigate('/cashier/tablelist')}
+          className="px-4 py-2 bg-amber-500 text-white font-semibold rounded-lg shadow-md hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-opacity-75 transition duration-300"
+        >
+          Trở về
+        </button>
+
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-semibold">Quản lý bàn</h2>
           <div className="flex items-center space-x-4">
@@ -229,12 +253,12 @@ const EnhancedTableManager = () => {
             <select
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5"
               value={selectedFloor}
-              onChange={(e) => setSelectedFloor(e.target.value === 'all' ? 'all' : e.target.value)}
+              onChange={(e) => setSelectedFloor(e.target.value)}
             >
-              <option value="all">Tất cả các tầng</option>
-              {floors.map((floor) => (
-                <option key={floor} value={floor}>
-                  Tầng {floor}
+              <option value="all">Tất cả các vị trí</option>
+              {locationOptions.map((location) => (
+                <option key={location} value={location}>
+                  {getLocationDisplayName(location)}
                 </option>
               ))}
             </select>
@@ -256,7 +280,7 @@ const EnhancedTableManager = () => {
                         <div className="flex items-center gap-4">
                           <FaTable className="w-8 h-8 text-gray-500" />
                           <div>
-                            <p className="font-medium">Tầng {location}</p>
+                            <p className="font-medium">{getLocationDisplayName(location)}</p>
                             <p className="text-sm text-gray-500">Tổng số bàn: {tables.length}</p>
                           </div>
                         </div>
@@ -312,7 +336,7 @@ const EnhancedTableManager = () => {
                     Số ghế
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Tầng
+                    Vị trí
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Trạng thái
@@ -331,7 +355,9 @@ const EnhancedTableManager = () => {
                       >
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">{table.table_name}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm">{table.number_of_chair}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm">Tầng {table.location_table}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                          {getLocationDisplayName(table.location_table)}
+                        </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span
                             className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${table.status ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}
@@ -413,16 +439,22 @@ const EnhancedTableManager = () => {
                 />
               </div>
               <div>
-                <label className="block mb-1 text-sm font-medium">Vị trí (Tầng):</label>
-                <input
-                  type="number"
+                <label className="block mb-1 text-sm font-medium">Vị trí:</label>
+                <select
                   value={newTable.location_table}
                   onChange={(e) => setNewTable({ ...newTable, location_table: e.target.value })}
                   className="border border-gray-300 rounded-md p-2 w-full"
-                  placeholder="Nhập số tầng"
-                  min="1"
-                />
+                >
+                  <option value="">Chọn vị trí</option>
+                  <option value="indoor">Trong nhà</option>
+                  <option value="outdoor">Ngoài trời</option>
+                  <option value="takeaway">Mang đi</option>
+                  {Array.from({ length: 10 }, (_, i) => (
+                    <option key={i} value={`floor_${i + 1}`}>{`Tầng ${i + 1}`}</option>
+                  ))}
+                </select>
               </div>
+
               <div className="flex items-center">
                 <label className="flex items-center cursor-pointer">
                   <input
@@ -478,15 +510,20 @@ const EnhancedTableManager = () => {
                 />
               </div>
               <div>
-                <label className="block mb-1 text-sm font-medium">Vị trí (Tầng):</label>
-                <input
-                  type="number"
+                <label className="block mb-1 text-sm font-medium">Vị trí:</label>
+                <select
                   value={tableToEdit.location_table || ''}
                   onChange={(e) => setTableToEdit({ ...tableToEdit, location_table: e.target.value })}
                   className="border border-gray-300 rounded-md p-2 w-full"
-                  placeholder="Nhập số tầng"
-                  min="1"
-                />
+                >
+                  <option value="">Chọn vị trí</option>
+                  <option value="indoor">Trong nhà</option>
+                  <option value="outdoor">Ngoài trời</option>
+                  <option value="takeaway">Mang đi</option>
+                  {Array.from({ length: 10 }, (_, i) => (
+                    <option key={i} value={`floor_${i + 1}`}>{`Tầng ${i + 1}`}</option>
+                  ))}
+                </select>
               </div>
               <div className="flex items-center">
                 <label className="flex items-center cursor-pointer">

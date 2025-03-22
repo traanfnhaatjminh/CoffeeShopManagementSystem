@@ -3,25 +3,39 @@ const mongoose = require("mongoose"); // To create an ObjectId
 
 const createNewTable = async (req, res) => {
   try {
-    const { number_of_chair, status, location_table } = req.body;
-    const tId = new mongoose.Types.ObjectId();
+    const { table_name, number_of_chair, status, location_table } = req.body;
+
+    // Kiểm tra nếu thiếu tên bàn
+    if (!table_name) {
+      return res.status(400).json({ message: "Tên bàn là bắt buộc!" });
+    }
+
+    // Kiểm tra xem tên bàn đã tồn tại chưa
+    const existingTable = await TableList.findOne({ table_name });
+    if (existingTable) {
+      return res
+        .status(400)
+        .json({ message: "Tên bàn đã tồn tại! Hãy chọn tên khác." });
+    }
+
+    // Tạo bàn mới nếu không bị trùng tên
     const newTable = new TableList({
-      _id: tId,
+      _id: new mongoose.Types.ObjectId(),
+      table_name, // 🔥 Đã thêm vào đây
       number_of_chair,
       status,
       location_table,
     });
 
-    await newTable.save().then((newDoc) => {
-      res.status(201).json({
-        message: "Insert successfully.",
-        result: newDoc,
-      });
+    const savedTable = await newTable.save();
+    res.status(201).json({
+      message: "Thêm bàn thành công!",
+      result: savedTable,
     });
   } catch (error) {
     console.error(error);
     res.status(400).json({
-      message: "Error creating product.",
+      message: "Lỗi khi tạo bàn.",
       error: error.message,
     });
   }
@@ -103,8 +117,8 @@ const updateStatus = async (req, res, next) => {
 const updateTable = async (req, res, next) => {
   try {
     const { idTables } = req.params;
-    const { number_of_chair, status, location_table } = req.body;
-    const updatedT = { number_of_chair, status, location_table };
+    const { table_name, number_of_chair, status, location_table } = req.body;
+    const updatedT = { table_name, number_of_chair, status, location_table };
 
     const updatedTable = await TableList.findByIdAndUpdate(idTables, updatedT, {
       new: true,
