@@ -107,7 +107,7 @@ const AddIngredientModal = ({ closeModal, refreshIngredients }) => {
             setQuantityError('*Số lượng nhập phải lớn hơn 0!');
             hasError = true;
         } else if (!isValidNumber(quantity)) {
-            setQuantityError('*Số lượng nhập không được chứa dấu phẩy');
+            setQuantityError('*Số lượng nhập không được chứa dấu phẩy!');
             hasError = true;
         }
 
@@ -151,7 +151,6 @@ const AddIngredientModal = ({ closeModal, refreshIngredients }) => {
             toast.error('Thêm nguyên liệu thất bại!');
         }
     };
-
 
     // Render nội dung của từng tab
     const renderTabContent = () => {
