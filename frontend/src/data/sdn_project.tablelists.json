@@ -1,0 +1,109 @@
+[{
+  "_id": {
+    "$oid": "67bc684c450ca6776ba225b8"
+  },
+  "number_of_chair": 4,
+  "status": true,
+  "location_table": "floor_1",
+  "isTakeaway": false,
+  "table_name": "Bàn 01",
+  "x": 323,
+  "y": 27
+},
+{
+  "_id": {
+    "$oid": "67bc684c450ca6776ba225b9"
+  },
+  "number_of_chair": 6,
+  "status": true,
+  "location_table": "floor_1",
+  "isTakeaway": false,
+  "table_name": "Bàn 02",
+  "x": 535,
+  "y": 109
+},
+{
+  "_id": {
+    "$oid": "67bc684c450ca6776ba225ba"
+  },
+  "number_of_chair": 4,
+  "status": true,
+  "location_table": "floor_1",
+  "isTakeaway": false,
+  "table_name": "Bàn 03",
+  "x": 667,
+  "y": 132
+},
+{
+  "_id": {
+    "$oid": "67bc684c450ca6776ba225bb"
+  },
+  "number_of_chair": 6,
+  "status": true,
+  "location_table": "floor_1",
+  "isTakeaway": false,
+  "table_name": "Bàn 04",
+  "x": 245,
+  "y": 177
+},
+{
+  "_id": {
+    "$oid": "67bc684c450ca6776ba225bc"
+  },
+  "number_of_chair": 4,
+  "status": true,
+  "location_table": "floor_1",
+  "isTakeaway": false,
+  "table_name": "Bàn 05",
+  "x": 493,
+  "y": 455
+},
+{
+  "_id": {
+    "$oid": "67bc684c450ca6776ba225bd"
+  },
+  "number_of_chair": 6,
+  "status": true,
+  "location_table": "floor_1",
+  "isTakeaway": false,
+  "table_name": "Bàn 06",
+  "x": 634,
+  "y": 293
+},
+{
+  "_id": {
+    "$oid": "67bc684c450ca6776ba225be"
+  },
+  "number_of_chair": 4,
+  "status": true,
+  "location_table": "floor_1",
+  "isTakeaway": false,
+  "table_name": "Bàn 07",
+  "x": 643,
+  "y": 200
+},
+{
+  "_id": {
+    "$oid": "67bc684c450ca6776ba225bf"
+  },
+  "number_of_chair": 6,
+  "status": true,
+  "location_table": "floor_1",
+  "isTakeaway": true,
+  "table_name": "Bán mang về",
+  "x": 358,
+  "y": 289
+},
+{
+  "_id": {
+    "$oid": "67defe77bda3f77560addb23"
+  },
+  "number_of_chair": 5,
+  "status": true,
+  "location_table": "floor_1",
+  "isTakeaway": false,
+  "table_name": "Bàn 7 ",
+  "x": 0,
+  "y": 0,
+  "__v": 0
+}]

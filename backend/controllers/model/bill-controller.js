@@ -161,6 +161,26 @@ const addProductsToBill = async (req, res, next) => {
     const { products } = req.body; // Nhận danh sách sản phẩm từ request body
     const { id } = req.params; // Lấy billId từ URL params
 
+    for (const item of products) {
+      const product = await Product.findById(item.productId).populate("ingredients.ingredient_id");
+
+      if (!product) continue;
+
+      for (const ingredient of product.ingredients) {
+        const ingredientDoc = await Ingredient.findById(ingredient.ingredient_id);
+        if (!ingredientDoc) continue;
+
+        let totalRequired = ingredient.quantitative * item.quantityP; // Lượng cần dùng
+
+        if (totalRequired > ingredientDoc.current_quantity) {
+          return res.status(400).json({
+            success: false,
+            message: `${product.pname} không đủ nguyên liệu để pha chế!`
+          });
+        }
+      }
+    }
+
     // Tìm bill theo ID
     const bill = await Bill.findById(id);
     if (!bill) {
@@ -247,7 +267,7 @@ const addProductsToBill = async (req, res, next) => {
 
     res
       .status(200)
-      .json({ message: "Thêm sản phẩm vào hóa đơn thành công", bill });
+      .json({ success: true, message: "Thêm sản phẩm vào hóa đơn thành công", bill });
   } catch (error) {
     console.error(error); // Thêm log chi tiết lỗi
     next(error);
@@ -411,6 +431,26 @@ const createNewBill = async (req, res, next) => {
   try {
     const { total_cost, table_id, product_list, payment, status, hidden } =
       req.body;
+    
+    for (const item of product_list) {
+      const product = await Product.findById(item.productId).populate("ingredients.ingredient_id");
+
+      if (!product) continue;
+
+      for (const ingredient of product.ingredients) {
+        const ingredientDoc = await Ingredient.findById(ingredient.ingredient_id);
+        if (!ingredientDoc) continue;
+
+        let totalRequired = ingredient.quantitative * item.quantityP; // Lượng cần dùng
+
+        if (totalRequired > ingredientDoc.current_quantity) {
+          return res.status(400).json({
+            success: false,
+            message: `${product.pname} không đủ nguyên liệu để pha chế!`
+          });
+        }
+      }
+    }
 
     // Tạo đơn mới
     const newBill = new Bill({
@@ -473,7 +513,10 @@ const createNewBill = async (req, res, next) => {
       await updateProductCostPrice(product);
     }
 
-    res.status(201).json(savedBill);
+    res.status(201).json({
+      success: true,
+      message: savedBill
+    });
   } catch (error) {
     console.error("Error creating bill:", error);
     res

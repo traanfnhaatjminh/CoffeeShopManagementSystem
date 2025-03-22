@@ -242,71 +242,6 @@ const AddIngredientModal = ({ closeModal, refreshIngredients }) => {
                     </div>
                 );
 
-            case 'thanhphan':
-                return (
-                    <div>
-                        <label className="block font-medium">Thành phần</label>
-                        <div className="relative w-full md:w-96">
-                            <input
-                                type="text"
-                                className="border rounded-md p-2 w-full"
-                                placeholder="Tìm kiếm thành phần..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
-                            {filteredIngredients.length > 0 && (
-                                <ul className="absolute left-0 right-0 bg-white border rounded-md shadow-md mt-1 z-10">
-                                    {filteredIngredients.map((ingredient) => (
-                                        <li
-                                            key={ingredient._id}
-                                            className="p-2 hover:bg-gray-200 cursor-pointer"
-                                            onClick={() => handleSelectIngredient(ingredient)}
-                                        >
-                                            {ingredient.name}
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
-                        </div>
-
-                        {selectedIngredients.length > 0 && (
-                            <div className="overflow-auto mt-4">
-                                <table className="w-full border-collapse border border-gray-300">
-                                    <thead>
-                                        <tr className="bg-gray-100">
-                                            <th className="border p-2">Tên thành phần</th>
-                                            <th className="border p-2">Số lượng</th>
-                                            <th className="border p-2">Giá vốn</th>
-                                            <th className="border p-2">Thành tiền</th>
-                                            <th className="border p-2">Hành động</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {selectedIngredients.map((item) => (
-                                            <tr key={item._id} className="text-center">
-                                                <td className="border p-2">{item.name}</td>
-                                                <td className="border p-2">
-                                                    <input type="number" defaultValue={0} className="w-20 text-center border rounded-md p-1" />
-                                                </td>
-                                                <td className="border p-2">{item.cost_costPrice}</td>
-                                                <td className="border p-2">VND</td>
-                                                <td className="border p-2">
-                                                    <button
-                                                        onClick={() => handleRemoveIngredient(item._id)}
-                                                        className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition"
-                                                    >
-                                                        Xóa
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        )}
-                    </div>
-                );
-
             default:
                 return null;
         }
@@ -328,13 +263,6 @@ const AddIngredientModal = ({ closeModal, refreshIngredients }) => {
                         onClick={() => setActiveTab('thongtin')}
                     >
                         Thông tin
-                    </button>
-                    <button
-                        className={`mr-2 px-3 py-1 rounded ${activeTab === 'thanhphan' ? 'bg-green-500 text-white' : 'bg-gray-300'
-                            }`}
-                        onClick={() => setActiveTab('thanhphan')}
-                    >
-                        Thành phần
                     </button>
                 </div>
 

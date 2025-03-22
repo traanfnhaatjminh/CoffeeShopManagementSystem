@@ -32,19 +32,26 @@ export const createBill = createAsyncThunk(
       };
 
       const response = await APISERVICEBILL.ApiCreateNewBill(billData);
+      console.log('Response từ API:', response.data);
 
-      // Cập nhật trạng thái bàn (Bàn bận: false)
-      await dispatch(updateTableStatus({ tableId: selectedTable, status: false }));
+      if (response.data.success) {
+        // Cập nhật trạng thái bàn (Bàn bận: false)
+        await dispatch(updateTableStatus({ tableId: selectedTable, status: false }));
+        toast.success('Tạo hóa đơn thành công.');
+        dispatch(clearCart());
+        dispatch(clearSelectedTable());
+        return response.data;
+      } else {
+        // Thông báo lỗi nếu không đủ nguyên liệu
+        toast.error(response.data.message || 'Không đủ nguyên liệu để tạo hóa đơn!');
+        return rejectWithValue(response.data.message || 'Lỗi từ API');
+      }
 
-      toast.success('Tạo hóa đơn thành công.');
-      dispatch(clearCart()); // Xóa giỏ hàng sau khi tạo bill
-      dispatch(clearSelectedTable()); // Xóa bàn đã chọn
-
-      return response.data;
     } catch (error) {
       console.error('Error creating bill:', error);
-      toast.error('Lỗi tạo hóa đơn!');
-      return rejectWithValue(error.response?.data || error.message);
+      const errorMessage = error.response?.data?.message || 'Lỗi tạo hóa đơn!';
+      toast.error(errorMessage);
+      return rejectWithValue(errorMessage);
     }
   }
 );

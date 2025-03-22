@@ -14,7 +14,6 @@ db.User = User;
 db.Role = Role;
 db.Ingredient = Ingredient;
 db.WarehouseCard = WarehouseCard;
-
 db.TableList = TableList;
 db.Product = Product;
 

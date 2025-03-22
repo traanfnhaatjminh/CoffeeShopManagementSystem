@@ -1,0 +1,288 @@
+[{
+  "_id": {
+    "$oid": "67c8243c847a6b04ed98462a"
+  },
+  "name": "sữa đặc",
+  "current_quantity": 10,
+  "unit": "hộp/ml",
+  "capacity": 380,
+  "purchase_history": [
+    {
+      "quantity": 12,
+      "remaining_quantity": 12,
+      "cost_price": 73000,
+      "supplier": "D.O.N Coffee",
+      "date": {
+        "$date": "2025-03-05T10:15:24.583Z"
+      }
+    }
+  ],
+  "createdAt": {
+    "$date": "2025-03-05T10:15:24.597Z"
+  },
+  "updatedAt": {
+    "$date": "2025-03-07T17:12:38.515Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67c82480847a6b04ed98462d"
+  },
+  "name": "sữa tươi thanh trùng không đường",
+  "current_quantity": 10,
+  "unit": "hộp/ml",
+  "capacity": 950,
+  "purchase_history": [
+    {
+      "quantity": 10,
+      "remaining_quantity": 10,
+      "cost_price": 40000,
+      "supplier": "D.O.N Coffee",
+      "date": {
+        "$date": "2025-03-05T10:16:32.262Z"
+      }
+    }
+  ],
+  "createdAt": {
+    "$date": "2025-03-05T10:16:32.263Z"
+  },
+  "updatedAt": {
+    "$date": "2025-03-05T10:16:32.263Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67c824a1847a6b04ed984630"
+  },
+  "name": "bột matcha",
+  "current_quantity": 8,
+  "unit": "túi/g",
+  "capacity": 50,
+  "purchase_history": [
+    {
+      "quantity": 5,
+      "remaining_quantity": 5,
+      "cost_price": 99000,
+      "supplier": "D.O.N Coffee",
+      "date": {
+        "$date": "2025-03-05T10:17:05.509Z"
+      }
+    },
+    {
+      "quantity": 3,
+      "remaining_quantity": 3,
+      "cost_price": 99000,
+      "supplier": "D.O.N coffee",
+      "date": {
+        "$date": "2025-03-09T15:00:48.270Z"
+      }
+    }
+  ],
+  "createdAt": {
+    "$date": "2025-03-05T10:17:05.511Z"
+  },
+  "updatedAt": {
+    "$date": "2025-03-09T15:00:48.285Z"
+  },
+  "__v": 1
+},
+{
+  "_id": {
+    "$oid": "67c824d1847a6b04ed984633"
+  },
+  "name": "sữa tươi",
+  "current_quantity": 12,
+  "unit": "hộp/ml",
+  "capacity": 950,
+  "purchase_history": [
+    {
+      "quantity": 12,
+      "remaining_quantity": 12,
+      "cost_price": 62000,
+      "supplier": "D.O.N Coffee",
+      "date": {
+        "$date": "2025-03-05T10:17:53.656Z"
+      }
+    }
+  ],
+  "createdAt": {
+    "$date": "2025-03-05T10:17:53.657Z"
+  },
+  "updatedAt": {
+    "$date": "2025-03-05T10:17:53.657Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67c824fd847a6b04ed984636"
+  },
+  "name": "trân châu đường đen",
+  "current_quantity": 5,
+  "unit": "túi/kg",
+  "capacity": 3,
+  "purchase_history": [
+    {
+      "quantity": 5,
+      "remaining_quantity": 5,
+      "cost_price": 110000,
+      "supplier": "D.O.N Coffee",
+      "date": {
+        "$date": "2025-03-05T10:18:37.519Z"
+      }
+    }
+  ],
+  "createdAt": {
+    "$date": "2025-03-05T10:18:37.521Z"
+  },
+  "updatedAt": {
+    "$date": "2025-03-05T10:18:37.521Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67c82526847a6b04ed984639"
+  },
+  "name": "cà phê bột",
+  "current_quantity": 5,
+  "unit": "túi/g",
+  "capacity": 500,
+  "purchase_history": [
+    {
+      "quantity": 5,
+      "remaining_quantity": 5,
+      "cost_price": 82000,
+      "supplier": "D.O.N Coffee",
+      "date": {
+        "$date": "2025-03-05T10:19:18.846Z"
+      }
+    }
+  ],
+  "createdAt": {
+    "$date": "2025-03-05T10:19:18.847Z"
+  },
+  "updatedAt": {
+    "$date": "2025-03-05T10:19:18.847Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67c82544847a6b04ed98463c"
+  },
+  "name": "cà phê bột espresso",
+  "current_quantity": 8,
+  "unit": "túi/g",
+  "capacity": 500,
+  "purchase_history": [
+    {
+      "quantity": 5,
+      "remaining_quantity": 5,
+      "cost_price": 160000,
+      "supplier": "D.O.N Coffee",
+      "date": {
+        "$date": "2025-03-05T10:19:48.811Z"
+      }
+    },
+    {
+      "quantity": 3,
+      "remaining_quantity": 3,
+      "cost_price": 158000,
+      "supplier": "hiup coffee",
+      "date": {
+        "$date": "2025-03-07T18:28:43.825Z"
+      }
+    }
+  ],
+  "createdAt": {
+    "$date": "2025-03-05T10:19:48.812Z"
+  },
+  "updatedAt": {
+    "$date": "2025-03-07T18:28:43.853Z"
+  },
+  "__v": 2
+},
+{
+  "_id": {
+    "$oid": "67c8255b847a6b04ed98463f"
+  },
+  "name": "cà phê bột arabica",
+  "current_quantity": 5,
+  "unit": "túi/g",
+  "capacity": 500,
+  "purchase_history": [
+    {
+      "quantity": 5,
+      "remaining_quantity": 5,
+      "cost_price": 106000,
+      "supplier": "D.O.N Coffee",
+      "date": {
+        "$date": "2025-03-05T10:20:11.823Z"
+      }
+    }
+  ],
+  "createdAt": {
+    "$date": "2025-03-05T10:20:11.823Z"
+  },
+  "updatedAt": {
+    "$date": "2025-03-05T10:20:11.823Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67c82585847a6b04ed984642"
+  },
+  "name": "hạt sen",
+  "current_quantity": 5,
+  "unit": "Hộp/g",
+  "capacity": 560,
+  "purchase_history": [
+    {
+      "quantity": 5,
+      "remaining_quantity": 5,
+      "cost_price": 65000,
+      "supplier": "D.O.N Coffee",
+      "date": {
+        "$date": "2025-03-05T10:20:53.912Z"
+      }
+    }
+  ],
+  "createdAt": {
+    "$date": "2025-03-05T10:20:53.913Z"
+  },
+  "updatedAt": {
+    "$date": "2025-03-05T10:20:53.913Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "67c825ad847a6b04ed984645"
+  },
+  "name": "trà ô long",
+  "current_quantity": 10,
+  "unit": "túi/g",
+  "capacity": 15,
+  "purchase_history": [
+    {
+      "quantity": 10,
+      "remaining_quantity": 10,
+      "cost_price": 10000,
+      "supplier": "D.O.N Coffee",
+      "date": {
+        "$date": "2025-03-05T10:21:33.737Z"
+      }
+    }
+  ],
+  "createdAt": {
+    "$date": "2025-03-05T10:21:33.738Z"
+  },
+  "updatedAt": {
+    "$date": "2025-03-05T10:21:33.738Z"
+  },
+  "__v": 0
+}]
