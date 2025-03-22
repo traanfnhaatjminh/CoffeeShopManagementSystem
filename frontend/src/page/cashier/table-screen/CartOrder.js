@@ -125,55 +125,59 @@ const CartOrder = ({
 
           {/* Giao diện phương thức thanh toán */}
           <div className="mt-4">
+            {/* Thanh toán bằng tiền mặt */}
             {paymentMethod === 'cash' && (
-              <div className="p-4 bg-gray-100 rounded-md shadow-md ">
+              <div className="p-4 bg-gray-100 rounded-md shadow-md">
                 <input
                   type="number"
                   value={cashReal}
                   id="cashreal"
                   onChange={(e) => setCashReal(e.target.value)}
-                  className="w-full mt-2 py-2 px-3 border border-gray-300 rounded"
-                  placeholder="Tiền mặt khách đưa"
+                  className="w-full mt-2 py-2 px-3 border border-gray-300 rounded focus:ring-2 focus:ring-yellow-400 outline-none"
+                  placeholder="Nhập số tiền khách đưa"
+                  min="0"
                 />
-                <h5 className="text-lg font-bold">
+                <h5 className="text-lg font-bold mt-2">
                   Số tiền trả lại:{' '}
-                  {isNaN(parseFloat(cashReal) - totalCost) ? '0' : (parseFloat(cashReal) - totalCost).toLocaleString()}{' '}
+                  {isNaN(parseFloat(cashReal) - totalCost) || parseFloat(cashReal) < totalCost
+                    ? '0'
+                    : (parseFloat(cashReal) - totalCost).toLocaleString()}{' '}
                   VND
                 </h5>
 
-                <h4 className="text-lg font-bold text-center">Thanh toán bằng tiền mặt</h4>
-                <p className="text-center">Vui lòng thanh toán trực tiếp khi nhận hàng.</p>
+                <h4 className="text-lg font-bold text-center mt-2">Thanh toán bằng tiền mặt</h4>
+                <p className="text-center text-sm text-gray-600">Vui lòng thu tiền trực tiếp từ khách hàng.</p>
               </div>
             )}
 
+            {/* Thanh toán bằng chuyển khoản */}
             {paymentMethod === 'transfer' && (
               <div className="p-4 bg-gray-100 rounded-md shadow-md text-center">
                 <h4 className="text-lg font-bold">Quét mã QR để thanh toán</h4>
-                <img
-                  src={require('../../../assets/images/maqr.jpg')}
-                  alt="QR Code"
-                  className="mx-auto mt-2 w-40 h-100"
-                />
+                <div className="flex justify-center">
+                  <img
+                    src={require('../../../assets/images/maqr.jpg')}
+                    alt="QR Code"
+                    className="mt-2 w-48 h-auto rounded-md shadow"
+                  />
+                </div>
                 <p className="mt-2 text-sm text-gray-600">Sử dụng ứng dụng ngân hàng để quét mã.</p>
               </div>
             )}
+
+            {/* Nút Xác nhận thanh toán */}
+            <button
+              onClick={handleUpdateBill}
+              disabled={!paymentMethod || (paymentMethod === 'cash' && (!cashReal || parseFloat(cashReal) < totalCost))}
+              className={`w-full py-2 px-4 rounded-md font-bold mt-4 transition duration-300 ${
+                !paymentMethod || (paymentMethod === 'cash' && (!cashReal || parseFloat(cashReal) < totalCost))
+                  ? 'bg-gray-400 text-gray-700 cursor-not-allowed'
+                  : 'bg-yellow-500 hover:bg-orange-400 text-black'
+              }`}
+            >
+              Xác nhận thanh toán & Xuất hóa đơn
+            </button>
           </div>
-
-          <button
-            onClick={handleUpdateBill}
-            className="w-full bg-yellow-500 text-black py-2 px-4 rounded hover:bg-orange-400 font-bold mt-4"
-            disabled={!paymentMethod}
-          >
-            Xác nhận thanh toán & Xuất hóa đơn
-          </button>
-
-          {/* Tách hóa đơn */}
-          <button
-            onClick={handleSplitBill}
-            className="w-full bg-purple-500 text-white py-2 px-4 rounded hover:bg-purple-600 font-bold mt-4"
-          >
-            {splitBill ? 'Hủy tách hóa đơn' : 'Tách hóa đơn'}
-          </button>
         </div>
       ) : (
         <p className="text-center text-gray-500">Vui lòng chọn bàn để xem hóa đơn</p>
