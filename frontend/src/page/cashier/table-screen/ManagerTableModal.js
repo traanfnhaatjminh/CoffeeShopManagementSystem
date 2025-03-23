@@ -145,6 +145,13 @@ const EnhancedTableManager = () => {
   const handleConfirmDelete = async () => {
     if (!tableToDelete) return;
 
+    // Kiểm tra trạng thái của bàn
+    if (!tableToDelete.status) {
+      toast.warning('Không thể xóa bàn đang có khách');
+      closeDeleteModal();
+      return;
+    }
+
     try {
       await axios.delete(`/tables/deleteTable/${tableToDelete._id}`);
       setTableList((prev) => prev.filter((table) => table._id !== tableToDelete._id));
@@ -398,12 +405,12 @@ const EnhancedTableManager = () => {
           <button
             onClick={handleDeleteTable}
             className={`flex items-center gap-2 px-4 py-2 rounded-md
-              ${
-                selectedTable
-                  ? 'bg-red-500 text-white hover:bg-red-600'
-                  : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-              }`}
-            disabled={!selectedTable}
+    ${
+      selectedTable && selectedTable.status
+        ? 'bg-red-500 text-white hover:bg-red-600'
+        : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+    }`}
+            disabled={!selectedTable || !selectedTable.status}
           >
             <MdDeleteForever className="w-4 h-4" />
             Xóa
