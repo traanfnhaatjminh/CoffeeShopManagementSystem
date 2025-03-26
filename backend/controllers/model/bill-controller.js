@@ -166,6 +166,8 @@ const addProductsToBill = async (req, res, next) => {
 
       if (!product) continue;
 
+      let isOutOfStock = false; // Cờ đánh dấu sản phẩm có thiếu nguyên liệu không
+
       for (const ingredient of product.ingredients) {
         const ingredientDoc = await Ingredient.findById(ingredient.ingredient_id);
         if (!ingredientDoc) continue;
@@ -178,6 +180,22 @@ const addProductsToBill = async (req, res, next) => {
             message: `${product.pname} không đủ nguyên liệu để pha chế!`
           });
         }
+
+        const unitParts = ingredientDoc.unit.split("/"); // Tách đơn vị thành mảng
+        const baseUnit = unitParts[1]?.toLowerCase(); // Lấy phần đơn vị phía sau dấu "/"
+
+        if (
+          (baseUnit === "g" && ingredientDoc.current_quantity < 50) ||
+          (baseUnit === "ml" && ingredientDoc.current_quantity < 500) ||
+          (baseUnit === "kg" && ingredientDoc.current_quantity < 0.3)
+        ) {
+          isOutOfStock = true;
+        }
+      }
+      // Nếu thiếu nguyên liệu, cập nhật trạng thái của sản phẩm
+      if (isOutOfStock) {
+        product.status = "out of stock";
+        await product.save();
       }
     }
 
@@ -432,10 +450,13 @@ const createNewBill = async (req, res, next) => {
     const { total_cost, table_id, product_list, payment, status, hidden } =
       req.body;
     
+    //Kiểm tra xem có đủ ingredients để pha chế hay không 
     for (const item of product_list) {
       const product = await Product.findById(item.productId).populate("ingredients.ingredient_id");
 
       if (!product) continue;
+
+      let isOutOfStock = false; // Cờ đánh dấu sản phẩm có thiếu nguyên liệu không
 
       for (const ingredient of product.ingredients) {
         const ingredientDoc = await Ingredient.findById(ingredient.ingredient_id);
@@ -449,6 +470,22 @@ const createNewBill = async (req, res, next) => {
             message: `${product.pname} không đủ nguyên liệu để pha chế!`
           });
         }
+
+        const unitParts = ingredientDoc.unit.split("/"); // Tách đơn vị thành mảng
+        const baseUnit = unitParts[1]?.toLowerCase(); // Lấy phần đơn vị phía sau dấu "/"
+
+        if (
+          (baseUnit === "g" && ingredientDoc.current_quantity < 50) ||
+          (baseUnit === "ml" && ingredientDoc.current_quantity < 500) ||
+          (baseUnit === "kg" && ingredientDoc.current_quantity < 0.3)
+        ) {
+          isOutOfStock = true;
+        }
+      }
+      // Nếu thiếu nguyên liệu, cập nhật trạng thái của sản phẩm
+      if (isOutOfStock) {
+        product.status = "out of stock";
+        await product.save();
       }
     }
 

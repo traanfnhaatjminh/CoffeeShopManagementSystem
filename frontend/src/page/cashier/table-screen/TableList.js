@@ -153,29 +153,39 @@ export default function TableList() {
   const handleAddProducts = async (products) => {
     try {
       if (selectBill && products.length > 0) {
-        await axios.put(`/bills/add-products/${selectBill._id}`, { products });
-        toast.success('Đã thêm sản phẩm vào hóa đơn!');
-        const response = await axios.get(`/bills/table/${selectedTable._id}`);
-        if (response.data) {
-          setSelectBill(response.data);
-          setSelectedTable({
-            ...selectedTable,
-            bill: response.data.product_list || [],
-          });
-        }
-        const formattedProducts = products.map((p) => ({
-          pname: p.nameP,
-          price: p.priceP,
-          quantity: p.quantityP,
-        }));
+        const responseAdd = await axios.put(`/bills/add-products/${selectBill._id}`, { products });
 
-        generateOrderPDF(formattedProducts, selectedTable.table_name, notes);
+        if (responseAdd.data.success) {
+          const response = await axios.get(`/bills/table/${selectedTable._id}`);
+          if (response.data) {
+            setSelectBill(response.data);
+            setSelectedTable({
+              ...selectedTable,
+              bill: response.data.product_list || [],
+            });
+          }
+          const formattedProducts = products.map((p) => ({
+            pname: p.nameP,
+            price: p.priceP,
+            quantity: p.quantityP,
+          }));
+
+          generateOrderPDF(formattedProducts, selectedTable.table_name, notes);
+          toast.success('Đã thêm sản phẩm vào hóa đơn!');
+
+          return responseAdd.data;
+        } else {
+          // Thông báo lỗi nếu không đủ nguyên liệu
+          toast.error(responseAdd.data.message || 'Không đủ nguyên liệu để tạo hóa đơn!');
+        }
+
       } else {
         toast.error('Không thể thêm sản phẩm! Vui lòng chọn bàn trước.');
       }
     } catch (error) {
       console.error('Error adding products:', error);
-      toast.error('Có lỗi xảy ra khi thêm sản phẩm!');
+      const errorMessage = error.response?.data?.message || 'Có lỗi xảy ra khi thêm sản phẩm!';
+      toast.error(errorMessage);
     }
   };
 

@@ -2,6 +2,7 @@ const { WarehouseCard } = require("../../models");
 const Ingredient = require("../../models/Ingredient");
 const mongoose = require('mongoose');  // To create an ObjectId
 const moment = require('moment-timezone');
+const Product = require("../../models/Product");
 
 const createNewIngredient = async (req, res, next) => {
     try {
@@ -82,6 +83,37 @@ const importIngredient = async (req, res, next) => {
         ingredient.purchase_history.push({ quantity, remaining_quantity, cost_price, supplier, date });
 
         await ingredient.save();
+
+        const products = await Product.find({ "ingredients.ingredient_id": ingredientId }).populate("ingredients.ingredient_id");
+
+        for (const product of products) {
+            let canBeActive = true; // Cờ kiểm tra xem product có thể active hay không
+
+            for (const ing of product.ingredients) {
+                // Bỏ qua nguyên liệu vừa nhập
+                if (ing.ingredient_id._id.toString() === ingredientId) continue;
+
+                let unitParts = ing.ingredient_id.unit.split("/");
+                let baseUnit = unitParts[1]?.toLowerCase(); // Lấy đơn vị gốc (g, ml, kg)
+
+                let minRequired = 0;
+                if (baseUnit === "g") minRequired = 50;
+                if (baseUnit === "ml") minRequired = 500;
+                if (baseUnit === "kg") minRequired = 0.3;
+
+                if (ing.ingredient_id.current_quantity <= minRequired) {
+                    canBeActive = false; // Nếu có ít nhất một nguyên liệu không đủ, không thể active
+                    break;
+                }
+            }
+
+            // Nếu tất cả nguyên liệu đủ, cập nhật trạng thái về "active"
+            if (canBeActive && product.status === "out of stock") {
+                product.status = "active";
+                await product.save();
+            }
+        }
+
         res.json(ingredient);
     } catch (err) {
         res.status(500).json({ error: "Lỗi server" });

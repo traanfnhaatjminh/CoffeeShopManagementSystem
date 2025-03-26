@@ -159,7 +159,7 @@ const ProductList = ({ selectedView, products, handleAddToCart, noResultsMessage
                   <div className="h-24 md:h-32 overflow-hidden relative">
                     <img src={product.image} alt={product.pname} className="w-full h-full object-cover opacity-70" />
                     <div className="absolute top-0 left-0 bg-yellow-500 text-white text-xs px-2 py-1 rounded-br-md">
-                      Hết hàng
+                      Hết nguyên liệu
                     </div>
                   </div>
                   <div className="p-2 md:p-3">
@@ -247,7 +247,7 @@ const ProductList = ({ selectedView, products, handleAddToCart, noResultsMessage
                         )}
                         {product.status === 'out of stock' && (
                           <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                            Hết hàng
+                            Hết nguyên liệu
                           </span>
                         )}
                         {product.status === 'active' && (

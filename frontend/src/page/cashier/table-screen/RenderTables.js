@@ -22,7 +22,6 @@ const RenderTables = ({
           >
             <div className="text-center w-full">
               <h3 className="font-bold text-xl">{table.table_name}</h3>
-              <p className="text-sm">Số ghế: {table.number_of_chair}</p>
               <p className={`text-xs font-semibold ${table.status === true ? 'text-green-500' : 'text-red-500'}`}>
                 {table.status === true ? 'Đang trống' : 'Đang có khách'}
               </p>

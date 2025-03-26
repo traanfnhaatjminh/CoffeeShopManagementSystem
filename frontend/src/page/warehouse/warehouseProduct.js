@@ -84,7 +84,7 @@ function WarehouseProduct() {
       toast.error("Sản phẩm đã ngừng bán hẳn, không thể thay đổi!");
       return;
     } else if (currentStatus === "out of stock") {
-      toast.error("Sản phẩm đã hết hàng, cần nhập thêm để kích hoạt lại!");
+      toast.error("Sản phẩm sắp hết nguyên liệu pha chế, cần nhập thêm để kích hoạt lại!");
       return;
     }
 
@@ -154,7 +154,7 @@ function WarehouseProduct() {
                 { value: "active", label: "Đang bán" },
                 { value: "inactive", label: "Tạm ngừng bán" },
                 { value: "discontinued", label: "Nghỉ bán" },
-                { value: "out of stock", label: "Tạm hết hàng" }
+                { value: "out of stock", label: "Tạm hết nguyên liệu"}
               ].map((status) => (
                 <label key={status.value} className="flex items-center space-x-1 cursor-pointer">
                   <input
@@ -225,12 +225,12 @@ function WarehouseProduct() {
                           )}
                           {isOutOfStock && (
                             <p className="text-blue-500 text-sm mt-1 italic">
-                              Sản phẩm này đã hết hàng.
+                              Sản phẩm này sắp hết nguyên liệu.
                             </p>
                           )}
                           {isDiscontinued && (
                             <p className="text-red-600 text-sm mt-1 italic">
-                              Sản phẩm này đã ngừng bán do danh mục đã ngừng cung cấp.
+                              Sản phẩm này đã ngừng bán do danh mục đã ngừng hoạt động.
                             </p>
                           )}
                         </td>
@@ -275,7 +275,7 @@ function WarehouseProduct() {
                             {isInactiveCategory || isDiscontinued
                               ? "Ngừng bán"
                               : isOutOfStock
-                                ? "Hết hàng"
+                                ? "Hết nguyên liệu"
                                 : isInactive
                                   ? "Bán lại"
                                   : "Đang bán"}
