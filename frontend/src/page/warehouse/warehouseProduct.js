@@ -255,7 +255,7 @@ function WarehouseProduct() {
                           <button
                             className="bg-brown-500 text-white py-1 px-3 rounded-lg mr-2 disabled:opacity-50 disabled:cursor-not-allowed"
                             onClick={() => handleEditProduct(product)}
-                            disabled={isInactiveCategory || isDiscontinued}
+                            disabled={isInactive || isDiscontinued}
                           >
                             <FaPen className="inline-block" />
                           </button>

@@ -12,10 +12,9 @@ export default function AddProductModal({ closeModal, refreshProducts }) {
   const [categories, setCategories] = useState([]);
   const [quantities, setQuantities] = useState({});
   const [costPrice, setCostPrice] = useState(0);
-
   const [salePriceError, setSalePriceError] = useState('');
   const [imageError, setImageError] = useState('');
-  const [quantityError, setQuantityError] = useState('');
+  const [categoryError, setCategoryError] = useState('');
 
   // Các state cho tab Thành phần
   const [searchTerm, setSearchTerm] = useState('');
@@ -139,6 +138,8 @@ export default function AddProductModal({ closeModal, refreshProducts }) {
     e.preventDefault();
     setSalePriceError('');
     setImageError('');
+    setCategoryError('');  
+
 
     if (salePrice <= 0) {
       setSalePriceError('*Giá phải lớn hơn 0');
@@ -147,6 +148,11 @@ export default function AddProductModal({ closeModal, refreshProducts }) {
 
     if (!selectedFile || !selectedFile.type.startsWith('image/')) {
       setImageError('*Vui lòng chọn tệp hình ảnh');
+      return;
+    }
+
+    if (!category) {
+      setCategoryError('*Vui lòng chọn 1 danh mục');
       return;
     }
 
@@ -177,7 +183,11 @@ export default function AddProductModal({ closeModal, refreshProducts }) {
       refreshProducts();
       closeModal();
     } catch (error) {
-      toast.error('Thêm sản phẩm thất bại!');
+      if (error.response && error.response.status === 400) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error('Thêm sản phẩm thất bại!');
+      }
     }
   };
 
@@ -230,6 +240,7 @@ export default function AddProductModal({ closeModal, refreshProducts }) {
                   </option>
                 ))}
               </select>
+              {categoryError && <p className="text-red-500">{categoryError}</p>} 
             </div>
           </div>
         );
