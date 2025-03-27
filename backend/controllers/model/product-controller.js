@@ -6,6 +6,14 @@ const { uploadToCloudinary } = require("../../utils/uploadService");
 const createNewProduct = async (req, res, next) => {
     try {
         const { pname, sale_price, cost_price, category_id, ingredients } = req.body;
+        // Kiểm tra bị trùng sản phẩmphẩm
+        const existingProduct = await Product.findOne({ pname });
+        if (existingProduct) {
+            return res.status(400).json({
+                message: "Sản phẩm đã tồn tại. Thêm sản phẩm thất bại."
+            });
+        }
+
         const pId = new mongoose.Types.ObjectId();
         const discount = 0;
         const status = "active";
