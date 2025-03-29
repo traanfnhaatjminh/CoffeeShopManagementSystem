@@ -9,7 +9,8 @@ export default function EditProductModal({ product, closeModal, refreshProducts 
     const [imagePreview, setImagePreview] = useState('');
     const [category, setCategory] = useState('');
     const [categories, setCategories] = useState([]);
-    const [priceError, setPriceError] = useState('');
+    const [productNameError, setProductNameError] = useState('');
+    const [salePriceError, setSalePriceError] = useState('');
     const [imageError, setImageError] = useState('');
 
     //list categories
@@ -48,16 +49,26 @@ export default function EditProductModal({ product, closeModal, refreshProducts 
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setPriceError('');
+        setSalePriceError('');
         setImageError('');
-        if (price <= 0) {
-            setPriceError('*Giá phải lớn hơn 0');
+
+        // Kiểm tra tên sản phẩm (chỉ cho phép chữ và khoảng trắng)
+        if (!/^[A-Za-zÀ-Ỹà-ỹ\s]+$/.test(productName)) {
+            setProductNameError('*Tên sản phẩm không hợp lệ. Không được chứa số hoặc ký tự đặc biệt!');
             return;
         }
+
+        // Kiểm tra giá bán (chỉ cho phép số dương)
+        if (isNaN(price) || price <= 0) {
+            setSalePriceError('*Giá bán phải là số và lớn hơn 0!');
+            return;
+        }
+
         if (imageError) {
             setImageError('*Vui lòng chọn tệp hình ảnh');
             return;
         }
+
         const formData = new FormData();
         formData.append('pname', productName);
         formData.append('sale_price', price);
@@ -77,7 +88,11 @@ export default function EditProductModal({ product, closeModal, refreshProducts 
             refreshProducts();
             closeModal();
         } catch (error) {
-            toast.error('Cập nhật sản phẩm thất bại!');
+            if (error.response && error.response.status === 400) {
+                setProductNameError(error.response.data.message);
+            } else {
+                toast.error('Cập nhật sản phẩm thất bại!');
+            }
         }
     };
 
@@ -98,6 +113,8 @@ export default function EditProductModal({ product, closeModal, refreshProducts 
                                 onChange={(e) => setProductName(e.target.value)}
                                 required
                             />
+                            {productNameError && <p className="text-red-500 text-sm mt-1">{productNameError}</p>}
+
                         </div>
                         <div>
                             <label>Giá bán</label>
@@ -109,8 +126,9 @@ export default function EditProductModal({ product, closeModal, refreshProducts 
                                 className="border rounded-md p-2 w-full"
                                 min="0"
                             />
-                            {priceError && <p className="text-red-500">{priceError}</p>}
+                            {salePriceError && <p className="text-red-500">{salePriceError}</p>}
                         </div>
+
                         <div>
                             <label>Hình ảnh</label>
                             <input

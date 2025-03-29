@@ -6,6 +6,15 @@ const { uploadToCloudinary } = require("../../utils/uploadService");
 const createNewProduct = async (req, res, next) => {
     try {
         const { pname, sale_price, cost_price, category_id, ingredients } = req.body;
+        // Kiểm tra nếu tên sản phẩm chứa số hoặc ký tự đặc biệt
+        if (!/^[A-Za-zÀ-Ỹà-ỹ\s]+$/.test(pname)) {
+            return res.status(400).json({ message: "Tên sản phẩm không được chứa số hoặc ký tự đặc biệt!" });
+        }
+
+        // Kiểm tra giá bán chỉ được nhập số dương
+        if (isNaN(sale_price) || sale_price <= 0) {
+            return res.status(400).json({ message: "Giá bán phải là số và lớn hơn 0!" });
+        }
         // Kiểm tra bị trùng sản phẩmphẩm
         const existingProduct = await Product.findOne({ pname });
         if (existingProduct) {
@@ -187,13 +196,24 @@ const updateProduct = async (req, res, next) => {
     const { pname, sale_price, category_id } = req.body;
 
     try {
+        // Kiểm tra nếu tên sản phẩm chứa số hoặc ký tự đặc biệt
+        if (!/^[A-Za-zÀ-Ỹà-ỹ\s]+$/.test(pname)) {
+            return res.status(400).json({ message: "Tên sản phẩm không được chứa số hoặc ký tự đặc biệt!" });
+        }
+
+        // Kiểm tra giá bán chỉ được nhập số dương
+        if (isNaN(sale_price) || sale_price <= 0) {
+            return res.status(400).json({ message: "Giá bán phải là số và lớn hơn 0!" });
+        }
         // Kiểm tra sản phẩm có tồn tại không
         const existingProduct = await Product.findById(productId);
-
         if (!existingProduct) {
             return res.status(404).json({ message: "Product not found" });
         }
-
+        const duplicateProduct = await Product.findOne({ pname, _id: { $ne: productId } });
+        if (duplicateProduct) {
+            return res.status(400).json({ message: "Tên sản phẩm đã tồn tại" });
+        }
         const updatedProduct = { pname, sale_price, category_id };
 
         if (req.file) {

@@ -12,6 +12,7 @@ export default function AddProductModal({ closeModal, refreshProducts }) {
   const [categories, setCategories] = useState([]);
   const [quantities, setQuantities] = useState({});
   const [costPrice, setCostPrice] = useState(0);
+  const [productNameError, setProductNameError] = useState('');
   const [salePriceError, setSalePriceError] = useState('');
   const [imageError, setImageError] = useState('');
   const [categoryError, setCategoryError] = useState('');
@@ -141,10 +142,18 @@ export default function AddProductModal({ closeModal, refreshProducts }) {
     setCategoryError('');  
 
 
-    if (salePrice <= 0) {
-      setSalePriceError('*Giá phải lớn hơn 0');
+    // Kiểm tra tên sản phẩm (chỉ cho phép chữ và khoảng trắng)
+    if (!/^[A-Za-zÀ-Ỹà-ỹ\s]+$/.test(productName)) {
+      setProductNameError('*Tên sản phẩm không hợp lệ. Không được chứa số hoặc ký tự đặc biệt!');
       return;
     }
+
+    // Kiểm tra giá bán (chỉ cho phép số dương)
+    if (isNaN(salePrice) || salePrice <= 0) {
+      setSalePriceError('*Giá bán phải là số và lớn hơn 0!');
+      return;
+    }
+
 
     if (!selectedFile || !selectedFile.type.startsWith('image/')) {
       setImageError('*Vui lòng chọn tệp hình ảnh');
@@ -184,7 +193,7 @@ export default function AddProductModal({ closeModal, refreshProducts }) {
       closeModal();
     } catch (error) {
       if (error.response && error.response.status === 400) {
-        toast.error(error.response.data.message);
+        setProductNameError(error.response.data.message);
       } else {
         toast.error('Thêm sản phẩm thất bại!');
       }
@@ -207,6 +216,8 @@ export default function AddProductModal({ closeModal, refreshProducts }) {
                 placeholder='Nhập tên hàng hóa'
                 required
               />
+              {productNameError && <p className="text-red-500 text-sm mt-1">{productNameError}</p>}
+
             </div>
             <div>
               <label className="block font-medium">Giá bán</label>
